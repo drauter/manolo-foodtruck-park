@@ -3,7 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useOrder } from '../context/OrderContext';
 import { 
   Clock, CheckCircle2, Package, ChevronLeft, Coffee, Utensils, 
-  IceCream, Wallet, Loader2, Sparkles, CreditCard, Receipt 
+  IceCream, Wallet, Loader2, Sparkles, CreditCard, Receipt, XCircle, PackageCheck
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -28,28 +28,43 @@ const OrderTracking = () => {
   }
 
   const stationIcons = {
-    'Bar': Coffee,
-    'Comida Rápida': Utensils,
-    'Dulces / Postres': IceCream
+    'BAR': Coffee,
+    'COMIDA RÁPIDA': Utensils,
+    'DULCES/POSTRES': IceCream
   };
 
-  const isReadyGlobal = order.status === 'ready';
-  const isPaid = order.isPaid;
+  const isReadyGlobal = order.status === 'ready' || order.status === 'delivered';
+  const is_paid = order.is_paid;
 
-  const getStatusMessage = () => {
-    if (order.status === 'delivered') return '¡Pedido Entregado!';
-    if (isReadyGlobal) return isPaid ? '¡Todo Listo!' : '¡Pedido Listo!';
-    return isPaid ? 'Preparando Pago' : 'En Producción';
+  const getStatusText = () => {
+    if (order.status === 'cancelled') return 'Pedido Anulado';
+    if (order.status === 'delivered') return '¡Entregado!';
+    if (isReadyGlobal) return is_paid ? '¡Todo Listo!' : '¡Pedido Listo!';
+    return is_paid ? 'Preparando Pago' : 'En Producción';
+  };
+
+  const getStatusIcon = () => {
+    if (order.status === 'cancelled') return <XCircle className="text-red-500" size={48} />;
+    if (order.status === 'delivered') return <PackageCheck className="text-emerald-500" size={48} />;
+    if (isReadyGlobal) {
+      return is_paid 
+        ? <CheckCircle2 className="text-emerald-500 shadow-emerald-500/50 shadow-lg" size={48} /> 
+        : <Clock className="text-orange-500 animate-pulse" size={48} />;
+    }
+    return is_paid 
+      ? <CreditCard className="text-blue-500 animate-bounce" size={48} /> 
+      : <Utensils className="text-emerald-500 animate-spin-slow" size={48} />;
   };
 
   const getInstructions = () => {
+    if (order.status === 'cancelled') return 'Este pedido ha sido anulado por la administración.';
     if (order.status === 'delivered') return '¡Gracias por tu compra! Esperamos verte pronto.';
     if (isReadyGlobal) {
-      return isPaid 
+      return is_paid 
         ? 'Tu pedido te espera en la ventana de entrega.' 
         : 'Pasa por caja para realizar el pago y retirar tu pedido.';
     }
-    return isPaid 
+    return is_paid 
       ? 'Tu pago fue confirmado. Estamos terminando tu pedido.' 
       : 'Puedes ir adelantando el pago en caja si lo deseas.';
   };
@@ -62,7 +77,7 @@ const OrderTracking = () => {
          <button onClick={() => navigate('/menu')} className="p-4 bg-slate-900/50 backdrop-blur-xl border border-white/5 rounded-2xl text-slate-400 hover:text-white transition-all shadow-lg active:scale-95"><ChevronLeft size={24} /></button>
          <div className="text-right">
             <div className="text-[10px] font-black uppercase text-emerald-500 tracking-[0.4em] mb-1">MANOLO FOODTRUCK PARK • LIVE TRACKING</div>
-            <div className="text-4xl font-black italic text-white tracking-tighter leading-none">#{order.ticketNumber}</div>
+            <div className="text-4xl font-black italic text-white tracking-tighter leading-none">#{order.ticket_number}</div>
          </div>
       </header>
 
@@ -76,10 +91,10 @@ const OrderTracking = () => {
             <div className="absolute -top-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-3xl animate-pulse" />
             <div className="relative z-10 flex flex-col items-center">
                <div className="w-24 h-24 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center mb-6 border border-white/20 shadow-inner">
-                  {order.status === 'ready' ? <Sparkles size={48} className="text-white animate-bounce" /> : (order.status === 'delivered' ? <CheckCircle2 size={48} className="text-white" /> : <Loader2 size={48} className="text-emerald-500 animate-spin" />)}
+                  {getStatusIcon()}
                </div>
-               <h2 className="text-5xl font-black uppercase italic tracking-tighter mb-3 leading-none text-white">
-                  {getStatusMessage()}
+               <h2 className="text-5xl font-black uppercase italic tracking-tighter mb-3 leading-none text-white whitespace-pre-wrap">
+                  {getStatusText()}
                </h2>
                <p className="text-[11px] font-black uppercase tracking-widest text-white/80 max-w-[200px] leading-relaxed">
                   {getInstructions()}
@@ -92,24 +107,24 @@ const OrderTracking = () => {
             initial={{ scale: 0.95, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ delay: 0.2 }}
-            className={`flex items-center justify-between p-6 rounded-[2rem] border-2 transition-all ${isPaid ? 'bg-blue-500/10 border-blue-500/30 text-blue-400' : 'bg-amber-500/10 border-amber-500/30 text-amber-500'}`}
+            className={`flex items-center justify-between p-6 rounded-[2rem] border-2 transition-all ${is_paid ? 'bg-blue-500/10 border-blue-500/30 text-blue-400' : 'bg-amber-500/10 border-amber-500/30 text-amber-500'}`}
          >
             <div className="flex items-center gap-4">
-               <div className={`p-3 rounded-xl ${isPaid ? 'bg-blue-500 text-white' : 'bg-amber-500 text-white'} shadow-lg`}>
-                  {isPaid ? <CreditCard size={20} /> : <Wallet size={20} />}
+               <div className={`p-3 rounded-xl ${is_paid ? 'bg-blue-500 text-white' : 'bg-amber-500 text-white'} shadow-lg`}>
+                  {is_paid ? <CreditCard size={20} /> : <Wallet size={20} />}
                </div>
                <div>
-                  <div className="text-[10px] font-black uppercase tracking-widest opacity-60">Pago</div>
-                  <div className="text-lg font-black italic tracking-tight uppercase">{isPaid ? 'Confirmado' : 'Pendiente'}</div>
+                  <div className="text-[10px] font-black uppercase tracking-widest opacity-60 leading-none mb-1">Estado de Pago</div>
+                  <div className="text-lg font-black italic tracking-tight uppercase">{is_paid ? 'Confirmado' : 'Pendiente'}</div>
                </div>
             </div>
-            {isPaid ? <CheckCircle2 className="text-blue-400 shadow-blue-500/50 shadow-lg" /> : <div className="w-2 h-2 bg-amber-500 rounded-full animate-ping" />}
+            {is_paid ? <CheckCircle2 className="text-blue-400 shadow-blue-500/50 shadow-lg" /> : <div className="w-2 h-2 bg-amber-500 rounded-full animate-ping" />}
          </motion.div>
 
          {/* Station Progress */}
          <div className="space-y-4">
-            <h3 className="text-[10px] font-black uppercase tracking-[0.5em] text-slate-600 ml-4 mb-2">Estaciones de Trabajo</h3>
-            {Object.entries(order.stationStatuses).map(([station, status], idx) => {
+            <h3 className="text-[10px] font-black uppercase tracking-[0.5em] text-slate-500 ml-4 mb-2">Detalle por Estación</h3>
+            {Object.entries(order.station_statuses || {}).map(([station, status], idx) => {
                const Icon = stationIcons[station] || Package;
                const isDone = status === 'ready' || status === 'delivered';
                
@@ -128,7 +143,7 @@ const OrderTracking = () => {
                         <div>
                            <div className={`text-lg font-black italic tracking-tight ${isDone ? 'text-white' : 'text-slate-400'}`}>{station}</div>
                            <div className={`text-[9px] font-black uppercase tracking-[0.2em] ${isDone ? 'text-emerald-500' : 'text-slate-600'}`}>
-                              {status === 'delivered' ? 'PAGADO & ENTREGADO' : (status === 'ready' ? 'LISTO EN VENTANA' : 'EN PRODUCCIÓN...')}
+                              {status === 'delivered' ? 'ENTREGADO' : (status === 'ready' ? 'LISTO EN VENTANA' : 'EN PRODUCCIÓN...')}
                            </div>
                         </div>
                      </div>
@@ -150,17 +165,17 @@ const OrderTracking = () => {
                 <div className="text-center mb-8 border-b-2 border-slate-100 border-dashed pb-8">
                     <Receipt size={32} className="mx-auto mb-4 text-slate-300" />
                     <h4 className="text-[10px] font-black uppercase tracking-[1em] text-slate-400 mb-2">Resumen</h4>
-                    <p className="text-2xl font-black italic uppercase tracking-tighter text-slate-950">{order.customerName}</p>
+                    <p className="text-2xl font-black italic uppercase tracking-tighter text-slate-950">{order.customer_name}</p>
                 </div>
 
                 <div className="space-y-4 mb-10">
-                    {order.items.map((item, i) => (
+                    {order.items?.map((item, i) => (
                       <div key={i} className="flex justify-between items-center text-xs font-black uppercase tracking-tight">
                           <div className="flex items-center gap-3 basis-2/3">
                               <span className="text-slate-400 font-mono italic">x{item.quantity}</span>
                               <span className="truncate">{item.name}</span>
                           </div>
-                          <span className="font-mono text-slate-950">${item.price * item.quantity}</span>
+                          <span className="font-mono text-slate-950">${item.price_at_time * item.quantity}</span>
                       </div>
                     ))}
                 </div>
@@ -168,11 +183,11 @@ const OrderTracking = () => {
                 <div className="flex justify-between items-end border-t-4 border-slate-950 pt-8 mt-auto">
                     <div>
                         <div className="text-[9px] font-black uppercase tracking-[0.3em] text-slate-400">Total</div>
-                        <div className="text-4xl font-black font-mono italic tracking-tighter leading-none text-slate-900">${order.total}</div>
+                        <div className="text-4xl font-black font-mono italic tracking-tighter leading-none text-slate-900">${order.total_price}</div>
                     </div>
                     <div className="text-right">
                         <div className="text-[8px] font-black uppercase tracking-tight text-slate-400">{new Date(order.timestamp).toLocaleDateString()}</div>
-                        <div className="text-[10px] font-black font-mono text-slate-300 mt-1">S82-921-X</div>
+                        <div className="text-[10px] font-black font-mono text-slate-200 mt-1">S82-921-X</div>
                     </div>
                 </div>
             </div>

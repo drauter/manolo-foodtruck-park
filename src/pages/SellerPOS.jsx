@@ -91,7 +91,7 @@ const SellerPOS = () => {
     if (order) {
       if (directPayment) {
         setPaymentOrder(order);
-        setPaymentStation(isCajeroGeneral ? Object.keys(order.stationStatuses)[0] : currentUser.station);
+        setPaymentStation(isCajeroGeneral ? Object.keys(order.station_statuses)[0] : currentUser.station);
       } else {
         setSelectedInvoice(order);
       }
@@ -139,15 +139,14 @@ const SellerPOS = () => {
   const handleCloseShift = (e) => {
     e.preventDefault();
     closeShift(currentUser.station, actualCash);
-    setIsClosingShift(false);
     logout();
     navigate('/');
   };
 
   const Receipt = ({ order }) => {
-    const isPaid = order.isPaid;
-    const totalPaid = order.isPaid ? order.total : 0;
-    const pending = order.isPaid ? 0 : order.total;
+    const is_paid = order.is_paid;
+    const totalPaid = order.is_paid ? order.total_price: 0;
+    const pending = order.is_paid ? 0 : order.total_price;
 
     return (
       <div className="bg-white p-10 max-w-[440px] mx-auto rounded-[3.5rem] shadow-xl font-sans text-slate-600 relative overflow-hidden ring-1 ring-slate-100" id="printable-invoice">
@@ -161,20 +160,21 @@ const SellerPOS = () => {
 
          <div className="space-y-4 mb-8">
             <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest">
-               <span className="text-slate-400">ESTADO:</span>
-               <span className={`font-black tracking-tighter italic ${isPaid ? "text-emerald-500" : "text-orange-500"}`}>{isPaid ? 'PAGADO' : 'PENDIENTE'}</span>
+               <span className="text-slate-400">ESTADO:</span>               <span className={`font-black tracking-tighter italic ${is_paid ? "text-emerald-500" : "text-orange-500"}`}>{is_paid ? 'PAGADO' : 'PENDIENTE'}</span>
             </div>
             <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-slate-400">
-               <span>NO. FACTURA:</span>
-               <span className="text-slate-900 font-mono">#FAC-{order.ticketNumber}-{order.id.toString().slice(-3)}</span>
+               <div className="flex flex-col items-end">
+                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Factura de Venta</span>
+                  <span className="text-slate-900 font-mono">#FAC-{order.ticket_number}-{order.id.toString().slice(-3)}</span>
+               </div>
             </div>
             <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-slate-400">
                <span>FECHA:</span>
                <span className="text-slate-900">{new Date(order.timestamp).toLocaleString()}</span>
             </div>
-            <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-slate-400">
-               <span>CLIENTE:</span>
-               <span className="text-slate-900 font-black italic">{order.customerName.toUpperCase()}</span>
+            <div className="flex flex-col gap-1">
+               <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">Cliente</span>
+               <span className="text-slate-900 font-black italic">{order.customer_name.toUpperCase()}</span>
             </div>
          </div>
 
@@ -202,7 +202,7 @@ const SellerPOS = () => {
 
          <div className="bg-slate-50/80 p-8 rounded-[2.5rem] flex flex-col items-center justify-center gap-2 mb-10 border border-slate-100 shadow-inner">
             <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">TOTAL VENTA</span>
-            <span className="text-4xl font-black italic tracking-tighter text-slate-900 font-mono">RD$ {order.total}.00</span>
+            <span className="text-4xl font-black italic tracking-tighter text-slate-900 font-mono">RD$ {order.total_price}.00</span>
          </div>
 
          <div className="space-y-5 mb-12">
@@ -308,20 +308,20 @@ const SellerPOS = () => {
                  </div>
 
                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {orders.filter(o => o.originStation === currentUser.station || (isCajeroGeneral && o.items?.some(i => i.station === 'CAJA'))).length === 0 ? (
+                    {orders.filter(o => o.origin_station === currentUser.station || (isCajeroGeneral && o.items?.some(i => i.station === 'CAJA'))).length === 0 ? (
                       <div className="col-span-full py-40 text-center opacity-20 flex flex-col items-center border border-dashed border-white/10 rounded-[4rem]">
                          <FileText size={64} className="mb-4 text-slate-400" />
                          <p className="font-black uppercase tracking-widest text-sm">No has realizado ventas aún</p>
                       </div>
                     ) : (
-                      orders.filter(o => o.originStation === currentUser.station || (isCajeroGeneral && o.items?.some(i => i.station === 'CAJA'))).map(order => (
+                      orders.filter(o => o.origin_station === currentUser.station || (isCajeroGeneral && o.items?.some(i => i.station === 'CAJA'))).map(order => (
                         <div key={order.id} className="bg-slate-900/50 p-8 rounded-[3rem] border border-white/5 hover:border-emerald-500/30 transition-all group relative shadow-2xl overflow-hidden">
                            <div className="absolute top-0 right-0 w-20 h-20 bg-white/5 rounded-bl-[3rem]" />
                            <div className="flex justify-between items-start mb-2 leading-none">
-                              <div className="text-[10px] font-black text-emerald-500 uppercase tracking-[0.3em]">#{order.ticketNumber}</div>
-                              {order.isPaid && <span className="text-[8px] font-black bg-emerald-500 text-white px-2 py-0.5 rounded-full uppercase">PAGADO</span>}
+                              <div className="text-[10px] font-black text-emerald-500 uppercase tracking-[0.3em]">#{order.ticket_number}</div>
+                              {order.is_paid && <span className="text-[8px] font-black bg-emerald-500 text-white px-2 py-0.5 rounded-full uppercase">PAGADO</span>}
                            </div>
-                           <h3 className="text-3xl font-black italic tracking-tighter uppercase mb-6 leading-none truncate">{order.customerName}</h3>
+                           <h3 className="text-3xl font-black italic tracking-tighter uppercase mb-6 leading-none truncate">{order.customer_name}</h3>
                            
                            <div className="flex items-center gap-2 mb-8">
                               <Clock size={12} className="text-slate-500" />
@@ -352,24 +352,24 @@ const SellerPOS = () => {
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                     {orders.filter(o => o.paymentDetails && currentUser?.station && o.paymentDetails[currentUser.station]).length === 0 ? (
+                     {orders.filter(o => o.payment_details && currentUser?.station && o.payment_details[currentUser.station]).length === 0 ? (
                        <div className="col-span-full py-40 text-center opacity-20 flex flex-col items-center border border-dashed border-white/10 rounded-[4rem]">
                           <Banknote size={64} className="mb-4 text-slate-400" />
                            <p className="font-black uppercase tracking-widest text-sm">No has realizado cobros aún</p>
                        </div>
                      ) : (
-                       orders.filter(o => o.paymentDetails && currentUser.station && o.paymentDetails[currentUser.station]).map((order, idx) => {
-                         const tx = order.paymentDetails[currentUser.station];
+                       orders.filter(o => o.payment_details && currentUser.station && o.payment_details[currentUser.station]).map((order, idx) => {
+                         const tx = order.payment_details[currentUser.station];
                          if (!tx) return null;
-                         const stationAmt = order.items?.filter(i => i.station === currentUser.station).reduce((s, i) => s + (i.price * i.quantity), 0) || 0;
+                         const stationAmt = order.items?.filter(i => i.station === currentUser.station).reduce((s, i) => s + (i.price_at_time * i.quantity), 0) || 0;
                          return (
                            <div key={`${order.id}-${idx}`} className="bg-slate-900/50 p-8 rounded-[3rem] border border-white/5 hover:border-emerald-500/30 transition-all group relative shadow-2xl overflow-hidden">
                               <div className="absolute top-0 right-0 w-20 h-20 bg-emerald-500/10 rounded-bl-[3rem]" />
                               <div className="flex justify-between items-start mb-2 leading-none">
-                                 <div className="text-[10px] font-black text-emerald-500 uppercase tracking-[0.3em]">#{order.ticketNumber}</div>
+                                 <div className="text-[10px] font-black text-emerald-500 uppercase tracking-[0.3em]">#{order.ticket_number}</div>
                                  <div className="text-[8px] font-black bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full uppercase">{tx.method}</div>
                               </div>
-                              <h3 className="text-3xl font-black italic tracking-tighter uppercase mb-2 leading-none truncate">{order.customerName}</h3>
+                              <h3 className="text-3xl font-black italic tracking-tighter uppercase mb-2 leading-none truncate">{order.customer_name}</h3>
                               <div className="text-4xl font-black font-mono text-white tracking-tighter mb-6">${stationAmt}</div>
                               
                               <div className="flex gap-2 pt-6 border-t border-white/5">
@@ -396,24 +396,24 @@ const SellerPOS = () => {
 
                  <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
                     {orders.filter(o => o.status !== 'cancelled').reverse().map(order => (
-                      <div key={order.id} className={`bg-white p-8 rounded-[3.5rem] border ${order.isPaid ? 'border-emerald-500/20 bg-emerald-50/10' : 'border-slate-100'} shadow-lg flex flex-col gap-6 group hover:border-emerald-500 transition-all relative overflow-hidden`}>
-                         {order.isPaid && (
+                      <div key={order.id} className={`bg-white p-8 rounded-[3.5rem] border ${order.is_paid ? 'border-emerald-500/20 bg-emerald-50/10' : 'border-slate-100'} shadow-lg flex flex-col gap-6 group hover:border-emerald-500 transition-all relative overflow-hidden`}>
+                         {order.is_paid && (
                            <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/10 rounded-bl-full flex items-center justify-center pointer-events-none">
                               <CheckCircle className="text-emerald-500 mt-2 ml-2" size={32} />
                            </div>
                          )}
                          <div className="flex justify-between items-start">
                             <div className="flex items-center gap-4">
-                               <div className={`w-16 h-16 ${order.isPaid ? 'bg-emerald-600' : 'bg-slate-950'} text-white rounded-3xl flex items-center justify-center text-xl font-black shadow-xl`}>#{order.ticketNumber}</div>
+                               <div className={`w-16 h-16 ${order.is_paid ? 'bg-emerald-600' : 'bg-slate-950'} text-white rounded-3xl flex items-center justify-center text-xl font-black shadow-xl`}>#{order.ticket_number}</div>
                                <div>
-                                  <h3 className="font-black text-2xl uppercase italic tracking-tighter text-slate-900 leading-tight">{order.customerName}</h3>
+                                  <h3 className="font-black text-2xl uppercase italic tracking-tighter text-slate-900 leading-tight">{order.customer_name}</h3>
                                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mt-1">{new Date(order.timestamp).toLocaleTimeString()}</p>
                                </div>
                             </div>
-                            <div className={`text-3xl font-black font-mono tracking-tighter decoration-emerald-500 underline decoration-4 ${order.isPaid ? 'text-emerald-600' : 'text-slate-900'}`}>${order.total}</div>
+                            <div className={`text-3xl font-black font-mono tracking-tighter decoration-emerald-500 underline decoration-4 ${order.is_paid ? 'text-emerald-600' : 'text-slate-900'}`}>${order.total_price}</div>
                          </div>
                          <div className="flex gap-3 mt-2">
-                            {order.isPaid ? (
+                            {order.is_paid ? (
                               <div className="flex-grow py-5 bg-emerald-50 text-emerald-600 border border-emerald-100 rounded-[2rem] font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-3">
                                  <CheckCircle size={18} /> PAGO COMPLETADO
                               </div>

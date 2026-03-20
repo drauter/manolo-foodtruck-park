@@ -158,7 +158,7 @@ const ClientMenu = () => {
               <div className="p-2 bg-white/20 rounded-xl"><Clock size={16} /></div>
               <div className="text-left">
                  <div className="text-[8px] font-black uppercase opacity-60">Seguir Pedido</div>
-                 <div className="text-xs font-black italic">#{activeOrder.ticketNumber}</div>
+                 <div className="text-xs font-black italic">#{activeOrder.ticket_number}</div>
               </div>
            </button>
         </motion.div>
@@ -231,10 +231,10 @@ const ClientMenu = () => {
                 <div className="bg-emerald-600 p-12 text-center text-white relative">
                    <div className="w-24 h-24 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-6 border border-white/30"><CheckCircle size={48} /></div>
                    <p className="text-[10px] font-black uppercase tracking-[0.5em] opacity-80 mb-2">Orden Enviada</p>
-                   <h2 className="text-7xl font-black italic tracking-tighter leading-none">#{orderConfirmed.ticketNumber}</h2>
+                   <h2 className="text-7xl font-black italic tracking-tighter leading-none">#{orderConfirmed.ticket_number}</h2>
                 </div>
                 <div className="p-10 text-center space-y-6">
-                   <h3 className="text-2xl font-black uppercase italic tracking-tighter">{orderConfirmed.customerName}</h3>
+                   <h3 className="text-2xl font-black uppercase italic tracking-tighter">{orderConfirmed.customer_name}</h3>
                    <div className="bg-slate-50 p-6 rounded-[2rem] border border-slate-100 flex flex-col items-center gap-4">
                       <Clock className="text-emerald-600" />
                       <p className="text-[10px] font-black uppercase tracking-widest leading-relaxed">Redirigiendo al RASTREADOR en vivo...</p>

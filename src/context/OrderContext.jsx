@@ -1,65 +1,20 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { supabase } from '../lib/supabase';
 
 const OrderContext = createContext();
 
 export const useOrder = () => useContext(OrderContext);
 
 export const OrderProvider = ({ children }) => {
-  const [products, setProducts] = useState(() => {
-    try {
-      const saved = typeof window !== 'undefined' ? localStorage.getItem('foodtruck_products') : null;
-      return saved ? JSON.parse(saved) : [
-        { id: 1, name: 'Burger Clásica', description: 'Carne, queso, lechuga y tomate.', price: 1200, cost: 450, stock: 50, category: 'Burgers', station: 'COMIDA RÁPIDA', image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?q=80&w=300&h=200&auto=format&fit=crop' },
-        { id: 2, name: 'Burger Doble Queso', description: 'Doble carne, doble cheddar.', price: 1500, cost: 600, stock: 30, category: 'Burgers', station: 'COMIDA RÁPIDA', image: 'https://images.unsplash.com/photo-1594212699903-ec8a3eca50f5?q=80&w=300&h=200&auto=format&fit=crop' },
-        { id: 3, name: 'Papas Fritas', description: 'Porción grande crujiente.', price: 600, cost: 150, stock: 100, category: 'Complementos', station: 'COMIDA RÁPIDA', image: 'https://images.unsplash.com/photo-1630384066252-42a11f893f3c?q=80&w=300&h=200&auto=format&fit=crop' },
-        { id: 4, name: 'Coca Cola 500ml', description: 'Bebida gaseosa.', price: 400, cost: 200, stock: 48, category: 'Bebidas', station: 'BAR', image: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?q=80&w=300&h=200&auto=format&fit=crop' },
-        { id: 5, name: 'Mini Donas (6 uds)', description: 'Glaseadas y con chispas.', price: 800, cost: 250, stock: 20, category: 'Postres', station: 'DULCES/POSTRES', image: 'https://images.unsplash.com/photo-1551024601-bec78acc704b?q=80&w=300&h=200&auto=format&fit=crop' },
-      ];
-    } catch (e) {
-      console.error("Error loading products", e);
-      return [];
-    }
-  });
-
+  const [products, setProducts] = useState([]);
   const [cart, setCart] = useState([]);
-  const [orders, setOrders] = useState(() => {
-    try {
-      const saved = typeof window !== 'undefined' ? localStorage.getItem('foodtruck_orders') : null;
-      return saved ? JSON.parse(saved) : [];
-    } catch (e) {
-      console.error("Error loading orders", e);
-      return [];
-    }
-  });
+  const [orders, setOrders] = useState([]);
+  const [users, setUsers] = useState([]);
   const [currentUser, setCurrentUser] = useState(() => {
     const savedUser = typeof window !== 'undefined' ? localStorage.getItem('foodtruck_user') : null;
-    if (savedUser && savedUser !== 'null') {
-      try {
-        const user = JSON.parse(savedUser);
-        if (user) {
-          // Normalize station for consistency
-          if (user.station === 'Comida Rápida') user.station = 'COMIDA RÁPIDA';
-          else if (user.station === 'Bar') user.station = 'BAR';
-          else if (user.station === 'Dulces / Postres' || user.station === 'Dulces/Postres') user.station = 'DULCES/POSTRES';
-          else if (user.station === 'Caja') user.station = 'CAJA';
-          return user;
-        }
-      } catch (e) {
-        return null;
-      }
-    }
-    return null;
+    return savedUser ? JSON.parse(savedUser) : null;
   });
-  const [shifts, setShifts] = useState(() => {
-    try {
-      const saved = localStorage.getItem('foodtruck_shifts');
-      return saved ? JSON.parse(saved) : [];
-    } catch (e) {
-      console.error("Error loading shifts from local storage", e);
-      return [];
-    }
-  });
-
+  const [shifts, setShifts] = useState([]);
   const [printerConfig, setPrinterConfig] = useState(() => {
     try {
       const saved = localStorage.getItem('foodtruck_printer_config');
@@ -69,77 +24,81 @@ export const OrderProvider = ({ children }) => {
         'DULCES/POSTRES': { name: 'Páramo Postres', autoPrint: true },
         'CAJA': { name: 'Páramo Caja', autoPrint: true },
       };
-    } catch (e) {
-      return {};
-    }
+    } catch (e) { return {}; }
   });
-  const [users, setUsers] = useState([
-    { id: '1', name: 'Manolo Admin', role: 'admin', pin: '1234' },
-    { id: 'cat1', name: 'Gestor Catálogo', role: 'catalogo', pin: '5555' },
-    { id: 'v1', name: 'Vendedor 1', role: 'vendedor', station: 'COMIDA RÁPIDA', pin: '0000' },
-    { id: '4', name: 'Vendedor Sweet', role: 'vendedor', station: 'DULCES/POSTRES', pin: '3333' },
-    { id: '5', name: 'Cajero Central', role: 'vendedor', station: 'CAJA', pin: '0000' },
-  ]);
 
-  // Load and Sync from local storage
+  // 1. Initial Data Fetching from Supabase
   useEffect(() => {
-    const savedOrders = localStorage.getItem('foodtruck_orders');
-    const savedProducts = localStorage.getItem('foodtruck_products');
-    const savedShifts = localStorage.getItem('foodtruck_shifts');
-    const savedUser = localStorage.getItem('foodtruck_user');
-    const savedUsers = localStorage.getItem('foodtruck_system_users');
-    
-    try {
-      if (savedOrders) setOrders(JSON.parse(savedOrders));
-      if (savedProducts) {
-        const parsed = JSON.parse(savedProducts);
-        if (Array.isArray(parsed)) {
-          const normalized = parsed.map(p => {
-            if (p.station === 'Comida Rápida') return { ...p, station: 'COMIDA RÁPIDA' };
-            if (p.station === 'Bar') return { ...p, station: 'BAR' };
-            if (p.station === 'Dulces / Postres' || p.station === 'Dulces/Postres') return { ...p, station: 'DULCES/POSTRES' };
-            if (p.station === 'Caja') return { ...p, station: 'CAJA' };
-            return p;
-          });
-          setProducts(normalized);
-        }
+    const fetchData = async () => {
+      // Fetch Products
+      const { data: productsData } = await supabase.from('products').select('*');
+      if (productsData && productsData.length > 0) {
+        setProducts(productsData);
+      } else {
+        // Seed if empty
+        const initialProducts = [
+          { name: 'Burger Clásica', description: 'Carne, queso, lechuga y tomate.', price: 1200, category: 'Burgers', station: 'COMIDA RÁPIDA' },
+          { name: 'Coca Cola 500ml', description: 'Bebida gaseosa.', price: 400, category: 'Bebidas', station: 'BAR' },
+          { name: 'Mini Donas (6 uds)', description: 'Glaseadas y con chispas.', price: 800, category: 'Postres', station: 'DULCES/POSTRES' },
+        ];
+        const { data: seeded } = await supabase.from('products').insert(initialProducts).select();
+        if (seeded) setProducts(seeded);
       }
-      if (savedShifts) setShifts(JSON.parse(savedShifts));
-      if (savedUsers) {
-        const parsed = JSON.parse(savedUsers);
-        if (Array.isArray(parsed)) {
-          const normalized = parsed.map(u => {
-            if (u.station === 'Comida Rápida') return { ...u, station: 'COMIDA RÁPIDA' };
-            if (u.station === 'Bar') return { ...u, station: 'BAR' };
-            if (u.station === 'Dulces / Postres') return { ...u, station: 'DULCES/POSTRES' };
-            if (u.station === 'Caja') return { ...u, station: 'CAJA' };
-            return u;
-          });
-          setUsers(normalized);
-        }
-      }
-    } catch (e) {
-      console.error("Migration error:", e);
-    }
 
-    const handleStorageChange = (e) => {
-      if (e.key === 'foodtruck_orders' && e.newValue) setOrders(JSON.parse(e.newValue));
-      if (e.key === 'foodtruck_products' && e.newValue) setProducts(JSON.parse(e.newValue));
-      if (e.key === 'foodtruck_system_users' && e.newValue) setUsers(JSON.parse(e.newValue));
+      // Fetch Users
+      const { data: usersData } = await supabase.from('users').select('*');
+      if (usersData && usersData.length > 0) {
+        setUsers(usersData);
+      } else {
+        const initialUsers = [
+          { name: 'Manolo Admin', role: 'admin', pin: '1234' },
+          { name: 'Vendedor 1', role: 'vendedor', station: 'COMIDA RÁPIDA', pin: '0000' }
+        ];
+        const { data: seededUsers } = await supabase.from('users').insert(initialUsers).select();
+        if (seededUsers) setUsers(seededUsers);
+      }
+
+      // Fetch Orders
+      const { data: ordersData } = await supabase.from('orders').select('*, order_items(*)').order('timestamp', { ascending: false });
+      if (ordersData) {
+        setOrders(ordersData.map(o => ({ ...o, items: o.order_items })));
+      }
     };
 
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
+    fetchData();
+
+    // 2. Real-time Subscription for Orders
+    const ordersSubscription = supabase
+      .channel('public:orders')
+      .on('postgres_changes', { event: '*', table: 'orders' }, async () => {
+        const { data } = await supabase.from('orders').select('*, order_items(*)').order('timestamp', { ascending: false });
+        if (data) setOrders(data.map(o => ({ ...o, items: o.order_items })));
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(ordersSubscription);
+    };
   }, []);
 
+  // Save Config and User locally
   useEffect(() => {
-    localStorage.setItem('foodtruck_orders', JSON.stringify(orders));
-    localStorage.setItem('foodtruck_products', JSON.stringify(products));
-    localStorage.setItem('foodtruck_shifts', JSON.stringify(shifts));
     localStorage.setItem('foodtruck_printer_config', JSON.stringify(printerConfig));
-  }, [orders, products, shifts, users, printerConfig]);
-  useEffect(() => localStorage.setItem('foodtruck_user', JSON.stringify(currentUser)), [currentUser]);
-  useEffect(() => localStorage.setItem('foodtruck_system_users', JSON.stringify(users)), [users]);
+  }, [printerConfig]);
+
+  useEffect(() => {
+    localStorage.setItem('foodtruck_user', JSON.stringify(currentUser));
+  }, [currentUser]);
+
+  // Old local storage effects removed as data is now from Supabase
+  // useEffect(() => {
+  //   localStorage.setItem('foodtruck_orders', JSON.stringify(orders));
+  //   localStorage.setItem('foodtruck_products', JSON.stringify(products));
+  //   localStorage.setItem('foodtruck_shifts', JSON.stringify(shifts));
+  //   localStorage.setItem('foodtruck_printer_config', JSON.stringify(printerConfig));
+  // }, [orders, products, shifts, users, printerConfig]);
+  // useEffect(() => localStorage.setItem('foodtruck_user', JSON.stringify(currentUser)), [currentUser]);
+  // useEffect(() => localStorage.setItem('foodtruck_system_users', JSON.stringify(users)), [users]);
 
   const addToCart = (product, quantity = 1) => {
     setCart(prev => {
@@ -157,56 +116,37 @@ export const OrderProvider = ({ children }) => {
 
   const clearCart = () => setCart([]);
 
-  const placeOrder = (customerName = 'Visitante') => {
+  const placeOrder = async (customerName, source = 'client') => {
     if (cart.length === 0) return;
-    
-    // Check stock before placing
-    const hasEnoughStock = cart.every(item => {
-      const product = products.find(p => p.id === item.id);
-      return product && product.stock >= item.quantity;
-    });
 
-    if (!hasEnoughStock) {
-      alert("Lo sentimos, algunos productos no tienen suficiente stock.");
-      return;
-    }
-
-    const stationsNeeded = [...new Set(cart.map(item => {
-      const p = products.find(prod => prod.id === item.id);
-      return p ? p.station : 'Comida Rápida';
-    }))];
+    const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    const stationStatuses = {};
+    const stations = [...new Set(cart.map(item => item.station))];
+    stations.forEach(s => stationStatuses[s] = 'received');
 
     const newOrder = {
-      id: Date.now().toString(),
-      ticketNumber: orders.length + 1,
-      customerName,
-      source: currentUser ? 'seller' : 'client',
-      originStation: currentUser ? currentUser.station : null,
-      items: cart.map(item => ({
-        ...item,
-        costAtTime: products.find(p => p.id === item.id)?.cost || 0,
-        station: products.find(p => p.id === item.id)?.station || 'Comida Rápida'
-      })),
-      total: cart.reduce((acc, item) => acc + (item.price * item.quantity), 0),
-      totalCost: cart.reduce((acc, item) => acc + ((products.find(p => p.id === item.id)?.cost || 0) * item.quantity), 0),
+      customer_name: customerName,
+      source,
+      total_price: totalPrice,
       status: 'received',
-      isPaid: false, // Global payment status
-      stationStatuses: stationsNeeded.reduce((acc, s) => ({ ...acc, [s]: 'received' }), {}),
-      timestamp: new Date().toISOString(),
+      station_statuses: stationStatuses,
+      is_paid: false,
+      timestamp: new Date().toISOString()
     };
 
-    // Deduct stock
-    setProducts(prev => prev.map(p => {
-      const cartItem = cart.find(item => item.id === p.id);
-      if (cartItem) {
-        return { ...p, stock: p.stock - cartItem.quantity };
-      }
-      return p;
+    const { data: order, error } = await supabase.from('orders').insert(newOrder).select().single();
+    if (error) return console.error(error);
+
+    const itemsToInsert = cart.map(item => ({
+      order_id: order.id,
+      product_id: item.id,
+      quantity: item.quantity,
+      price_at_time: item.price,
+      station: item.station
     }));
 
-    setOrders(prev => [newOrder, ...prev]);
-    setCart([]);
-    return newOrder;
+    await supabase.from('order_items').insert(itemsToInsert);
+    clearCart();
   };
 
   const updateOrderStatus = (orderId, newStatus) => {
@@ -215,47 +155,33 @@ export const OrderProvider = ({ children }) => {
     ));
   };
 
-  const updateStationStatus = (orderId, station, newStatus, paymentData = null) => {
-    setOrders(prev => prev.map(order => {
-      if (order.id !== orderId) return order;
-      
-      let newStat = newStatus;
-      // If paying/registering an order that isn't ready yet, ensure it stays in production/preparing
-      if (paymentData) {
-        const currentStat = order.stationStatuses[station];
-        if (currentStat === 'received' || currentStat === 'preparing') {
-          newStat = 'preparing';
-        } else if (currentStat === 'ready') {
-          newStat = 'delivered';
-        }
-      }
+  const updateStationStatus = async (orderId, station, newStatus, paymentData = null) => {
+    const order = orders.find(o => o.id === orderId);
+    if (!order) return;
 
-      const newStationStatuses = { ...order.stationStatuses, [station]: newStat };
-      const newPaymentDetails = paymentData 
-        ? { ...(order.paymentDetails || {}), [station]: paymentData }
-        : (order.paymentDetails || {});
-      
-      const statuses = Object.values(newStationStatuses);
-      const allDelivered = statuses.every(s => s === 'delivered');
-      const allReadyOrDone = statuses.every(s => s === 'ready' || s === 'delivered');
-      
-      let overallStatus = order.status;
-      if (allDelivered) overallStatus = 'delivered';
-      else if (allReadyOrDone) overallStatus = 'ready';
-      else overallStatus = 'preparing';
+    const newStationStatuses = { ...order.station_statuses, [station]: newStatus };
+    const newPaymentDetails = paymentData 
+      ? { ...order.payment_details, [station]: paymentData }
+      : order.payment_details;
 
-      // An order is considered paid only if all station items are paid
-      const allStationsPaid = Object.keys(newStationStatuses).every(st => newPaymentDetails[st]);
-      const isPaid = allStationsPaid;
+    // Determine overall status
+    const statuses = Object.values(newStationStatuses);
+    let overallStatus = 'received';
+    const allReadyOrDone = statuses.every(s => s === 'ready' || s === 'delivered');
+    const allDelivered = statuses.every(s => s === 'delivered');
+    
+    if (allDelivered) overallStatus = 'delivered';
+    else if (allReadyOrDone) overallStatus = 'ready';
+    else if (statuses.some(s => s === 'preparing' || s === 'ready' || s === 'delivered')) overallStatus = 'preparing';
 
-      return { 
-        ...order, 
-        stationStatuses: newStationStatuses,
-        paymentDetails: newPaymentDetails,
-        status: overallStatus,
-        isPaid: isPaid
-      };
-    }));
+    const allStationsPaid = Object.keys(newStationStatuses).every(st => newPaymentDetails[st]);
+
+    await supabase.from('orders').update({
+      station_statuses: newStationStatuses,
+      payment_details: newPaymentDetails,
+      status: overallStatus,
+      is_paid: allStationsPaid
+    }).eq('id', orderId);
   };
 
   const updateOrder = (orderId, updatedOrder) => {
@@ -268,35 +194,43 @@ export const OrderProvider = ({ children }) => {
     }));
   };
 
-  const cancelOrder = (orderId) => {
-    setOrders(prev => prev.map(order => {
-      if (order.id === orderId) {
-        // Return items to stock
-        setProducts(prodPrev => prodPrev.map(p => {
-          const item = order.items.find(i => i.id === p.id);
-          if (item) return { ...p, stock: p.stock + item.quantity };
-          return p;
-        }));
-        return { ...order, status: 'cancelled', stationStatuses: Object.keys(order.stationStatuses).reduce((acc, k) => ({ ...acc, [k]: 'cancelled' }), {}) };
+  const cancelOrder = async (orderId) => {
+    const order = orders.find(o => o.id === orderId);
+    if (!order) return;
+    
+    // Return items to stock logic
+    for (const item of order.items || []) {
+      const product = products.find(p => p.id === item.product_id);
+      if (product) {
+        await supabase.from('products').update({ stock: (product.stock || 0) + item.quantity }).eq('id', product.id);
       }
-      return order;
-    }));
+    }
+
+    const newStationStatuses = {};
+    Object.keys(order.station_statuses || {}).forEach(k => newStationStatuses[k] = 'cancelled');
+
+    await supabase.from('orders').update({ 
+      status: 'cancelled', 
+      station_statuses: newStationStatuses 
+    }).eq('id', orderId);
   };
 
   const markStationReady = (orderId, station) => {
     updateStationStatus(orderId, station, 'ready');
   };
 
-  const deleteOrder = (orderId) => {
-    setOrders(prev => prev.filter(o => o.id !== orderId));
+  const deleteOrder = async (orderId) => {
+    await supabase.from('orders').delete().eq('id', orderId);
   };
 
-  const updateProduct = (productId, updatedData) => {
-    setProducts(prev => prev.map(p => p.id === productId ? { ...p, ...updatedData } : p));
+  const updateProduct = async (productId, updatedData) => {
+    await supabase.from('products').update(updatedData).eq('id', productId);
   };
 
-  const addStock = (productId, quantity) => {
-    setProducts(prev => prev.map(p => p.id === productId ? { ...p, stock: (Number(p.stock) || 0) + Number(quantity) } : p));
+  const addStock = async (productId, quantity) => {
+    const product = products.find(p => p.id === productId);
+    if (!product) return;
+    await supabase.from('products').update({ stock: (Number(product.stock) || 0) + Number(quantity) }).eq('id', productId);
   };
 
   const deleteShift = (shiftId) => {
@@ -307,10 +241,10 @@ export const OrderProvider = ({ children }) => {
     setOrders(prev => prev.map(order => {
       if (order.id !== orderId) return order;
       
-      const newPaymentDetails = { ...(order.paymentDetails || {}) };
+      const newPaymentDetails = { ...(order.payment_details || {}) };
       delete newPaymentDetails[station];
       
-      const newStationStatuses = { ...order.stationStatuses };
+      const newStationStatuses = { ...order.station_statuses };
       if (newStationStatuses[station] === 'delivered') {
         newStationStatuses[station] = 'ready'; // Revert to ready if payment is deleted
       }
@@ -321,16 +255,16 @@ export const OrderProvider = ({ children }) => {
       
       return {
         ...order,
-        paymentDetails: newPaymentDetails,
-        stationStatuses: newStationStatuses,
-        isPaid: anyPaid,
+        payment_details: newPaymentDetails,
+        station_statuses: newStationStatuses,
+        is_paid: anyPaid,
         status: statuses.every(s => s === 'delivered') ? 'delivered' : (statuses.every(s => s === 'ready' || s === 'delivered') ? 'ready' : 'preparing')
       };
     }));
   };
 
-  const addProduct = (newProduct) => {
-    setProducts(prev => [...prev, { ...newProduct, id: Date.now() }]);
+  const addProduct = async (newProduct) => {
+    await supabase.from('products').insert(newProduct);
   };
 
   const login = (role, station = null) => {
@@ -349,15 +283,15 @@ export const OrderProvider = ({ children }) => {
 
   const closeShift = (stationName, actualCash) => {
     const stationOrders = orders.filter(o => 
-      o.stationStatuses && o.stationStatuses[stationName] === 'delivered'
+      o.station_statuses && o.station_statuses[stationName] === 'delivered'
     );
     
     const paymentMethods = stationOrders.reduce((acc, o) => {
-      const detail = o.paymentDetails ? o.paymentDetails[stationName] : null;
+      const detail = o.payment_details ? o.payment_details[stationName] : null;
       const method = detail ? detail.method : 'desconocido';
       const itemsTotal = o.items
         .filter(i => i.station === stationName)
-        .reduce((sum, i) => sum + (i.price * i.quantity), 0);
+        .reduce((sum, i) => sum + (i.price_at_time * i.quantity), 0);
       
       acc[method] = (acc[method] || 0) + itemsTotal;
       return acc;
@@ -379,12 +313,12 @@ export const OrderProvider = ({ children }) => {
     return newShift;
   };
 
-  const addUser = (userData) => {
-    setUsers(prev => [...prev, { ...userData, id: Date.now().toString() }]);
+  const addUser = async (userData) => {
+    await supabase.from('users').insert(userData);
   };
 
-  const deleteUser = (userId) => {
-    setUsers(users.filter(u => u.id !== userId));
+  const deleteUser = async (userId) => {
+    await supabase.from('users').delete().eq('id', userId);
   };
 
   const updatePrinterConfig = (station, config) => {

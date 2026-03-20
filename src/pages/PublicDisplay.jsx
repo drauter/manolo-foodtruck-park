@@ -9,11 +9,11 @@ const StationColumn = ({ label, icon: Icon, color, orders, stationKey }) => {
   
   // An order is "Ready" at this station if its status for this station is 'ready' or 'delivered'
   const isReadyAtStation = (order) => {
-    return order.stationStatuses && (order.stationStatuses[stationKey] === 'ready' || order.stationStatuses[stationKey] === 'delivered');
+    return order.station_statuses && (order.station_statuses[stationKey] === 'ready' || order.station_statuses[stationKey] === 'delivered');
   };
 
-  const preparing = stationOrders.filter(o => o.stationStatuses && (o.stationStatuses[stationKey] === 'preparing' || o.stationStatuses[stationKey] === 'received'));
-  const ready = stationOrders.filter(o => o.stationStatuses && o.stationStatuses[stationKey] === 'ready');
+  const preparing = stationOrders.filter(o => o.station_statuses && (o.station_statuses[stationKey] === 'preparing' || o.station_statuses[stationKey] === 'received'));
+  const ready = stationOrders.filter(o => o.station_statuses && o.station_statuses[stationKey] === 'ready');
 
   return (
     <div className="flex-1 flex flex-col gap-3 h-full min-w-0">
@@ -46,10 +46,10 @@ const StationColumn = ({ label, icon: Icon, color, orders, stationKey }) => {
                   className={`bg-${color}-500 p-3 rounded-2xl shadow-lg flex flex-col gap-0.5 ring-2 ring-white/10 relative overflow-hidden`}
                 >
                   <div className="flex justify-between items-start">
-                     <span className="text-2xl font-black text-white italic leading-none">#{order.ticketNumber}</span>
+                     <span className="text-2xl font-black text-white italic leading-none">#{order.ticket_number}</span>
                      <CheckCircle size={14} className="text-white/40" />
                   </div>
-                  <span className="text-sm font-black uppercase text-white truncate w-full">{order.customerName}</span>
+                  <span className="text-sm font-black uppercase text-white truncate w-full">{order.customer_name}</span>
                 </motion.div>
               ))}
             </AnimatePresence>
@@ -78,7 +78,7 @@ const StationColumn = ({ label, icon: Icon, color, orders, stationKey }) => {
                   animate={{ opacity: 1 }}
                   className="bg-slate-800/50 px-3 py-1.5 rounded-xl border border-slate-700/50 flex items-center gap-1.5"
                 >
-                  <span className="text-[11px] font-black text-slate-400">#{order.ticketNumber}</span>
+                  <span className="text-[11px] font-black text-slate-400">#{order.ticket_number}</span>
                 </motion.div>
               ))}
             </AnimatePresence>

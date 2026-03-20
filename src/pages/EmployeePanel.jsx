@@ -10,19 +10,22 @@ const EmployeePanel = () => {
 
   // Map URL parameter to display name and icon
   const stationConfig = {
-    bar: { label: 'BAR', icon: Coffee, color: 'text-blue-500', bg: 'bg-blue-500/10' },
-    food: { label: 'COMIDA RÁPIDA', icon: Utensils, color: 'text-amber-500', bg: 'bg-amber-500/10' },
-    sweets: { label: 'DULCES/POSTRES', icon: IceCream, color: 'text-pink-500', bg: 'bg-pink-500/10' },
+    'bar': { label: 'BAR', icon: Coffee, color: 'text-blue-500', bg: 'bg-blue-500/10' },
+    'comida-rapida': { label: 'COMIDA RÁPIDA', icon: Utensils, color: 'text-amber-500', bg: 'bg-amber-500/10' },
+    'dulces-postres': { label: 'DULCES/POSTRES', icon: IceCream, color: 'text-pink-500', bg: 'bg-pink-500/10' },
+    // Legacy support for simple keys
+    'food': { label: 'COMIDA RÁPIDA', icon: Utensils, color: 'text-amber-500', bg: 'bg-amber-500/10' },
+    'sweets': { label: 'DULCES/POSTRES', icon: IceCream, color: 'text-pink-500', bg: 'bg-pink-500/10' },
   };
 
-  const currentStation = stationConfig[station] || stationConfig.food;
+  const currentStation = stationConfig[station.toLowerCase()] || stationConfig['comida-rapida'];
   const stationKey = currentStation.label;
 
   // Filter orders that HAVE items for this station AND are not yet ready for this station
   const stationOrders = orders.filter(order => 
-    order.items.some(item => item.station === stationKey) && 
-    order.stationStatuses && order.stationStatuses[stationKey] !== 'delivered' &&
-    order.stationStatuses[stationKey] !== 'ready'
+    order.items?.some(item => item.station === stationKey) && 
+    order.station_statuses && order.station_statuses[stationKey] !== 'delivered' &&
+    order.station_statuses[stationKey] !== 'ready'
   );
 
   return (
@@ -67,20 +70,18 @@ const EmployeePanel = () => {
                  <div className="flex flex-col">
                     <div className="flex justify-between items-center mb-6">
                       <div className="flex items-center gap-3">
-                        <div className="text-[10px] font-black text-emerald-500 uppercase tracking-widest bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20">#{order.ticketNumber}</div>
-                        {order.isPaid && (
-                          <div className="text-[10px] font-black text-blue-400 uppercase tracking-widest bg-blue-500/10 px-3 py-1 rounded-full border border-blue-500/20 flex items-center gap-1">
-                            <CheckCircle size={10} /> PAGADO
-                          </div>
+                        <div className="text-[10px] font-black text-emerald-500 uppercase tracking-widest bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20">#{order.ticket_number}</div>
+                        {order.is_paid && (
+                           <span className="bg-emerald-500 text-white text-[8px] px-2 py-0.5 rounded-full font-black flex items-center gap-1 uppercase">PAGADO</span>
                         )}
                       </div>
                       <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-2">
                         <Clock size={12} /> {new Date(order.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                       </div>
                     </div>
-                    <div className="text-3xl font-black italic text-white leading-none mt-1 truncate max-w-[150px] uppercase tracking-tighter">{order.customerName}</div>
+                    <div className="text-3xl font-black italic text-white leading-none mt-1 truncate max-w-[150px] uppercase tracking-tighter">{order.customer_name}</div>
                     <div className="text-[8px] font-black uppercase text-emerald-500 tracking-widest mt-1 opacity-70">
-                       {order.source === 'seller' ? `Venta Directa: ${order.originStation}` : 'Pedido QR Cliente'}
+                       {order.source === 'seller' ? `Venta Directa: ${order.origin_station}` : 'Pedido QR Cliente'}
                     </div>
                  </div>
                  <div className="text-right">
