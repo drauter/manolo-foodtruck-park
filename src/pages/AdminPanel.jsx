@@ -29,6 +29,7 @@ const AdminPanel = () => {
 
   // Invoice/Receipt States
   const [selectedInvoice, setSelectedInvoice] = useState(null);
+  const [selectedStation, setSelectedStation] = useState('CAJA');
   const [isEditingOrder, setIsEditingOrder] = useState(null);
 
   const navigate = useNavigate();
@@ -180,6 +181,7 @@ const AdminPanel = () => {
     
     // Auto-show invoice after payment
     const updatedOrder = { ...paymentOrder, is_paid: true }; // Simplified for the preview
+    setSelectedStation(paymentStation);
     setSelectedInvoice(updatedOrder);
     
     setPaymentOrder(null);
@@ -202,107 +204,7 @@ const AdminPanel = () => {
     { id: 'users', label: 'Usuarios', icon: Users, roles: ['admin'] },
     { id: 'settings', label: 'Configuración', icon: Settings, roles: ['admin'] },
   ].filter(item => !item.roles || item.roles.includes(currentUser?.role));
-  const Receipt = ({ order }) => {
-    if (!order) return null;
-    const is_paid = order.is_paid;
-    const totalPaid = order.is_paid ? order.total_price : 0;
-    const pending = order.is_paid ? 0 : order.total_price;
-
-    return (
-      <div className="bg-white p-10 max-w-[440px] mx-auto rounded-[3.5rem] shadow-xl font-sans text-slate-600 relative overflow-hidden ring-1 ring-slate-100" id="printable-invoice">
-         <style>{`
-            @media print {
-              body * { visibility: hidden; }
-              #printable-invoice, #printable-invoice * { visibility: visible; }
-              #printable-invoice { 
-                position: absolute; 
-                left: 0; 
-                top: 0; 
-                width: 100%; 
-                margin: 0;
-                padding: 40px; 
-                box-shadow: none !important;
-              }
-            }
-         `}</style>
-         
-          {/* Branded Header */}
-          <div className="flex flex-col items-center mb-10 pb-10 border-b-2 border-slate-900 border-double">
-             <div className="w-20 h-20 bg-slate-900 rounded-[2rem] flex items-center justify-center mb-4 shadow-xl rotate-3">
-                <ShoppingCart className="text-white" size={40} />
-             </div>
-             <h1 className="text-3xl font-black italic tracking-tighter text-slate-900 leading-none">MANOLO</h1>
-             <h2 className="text-xl font-black uppercase tracking-[0.2em] text-slate-400 mt-1">FOODTRUCK PARK</h2>
-          </div>
-
-          {/* Metadata Header */}
-         <div className="space-y-4 mb-8">
-            <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest">
-               <span className="text-slate-400">ESTADO:</span>
-               <span className={`font-black tracking-tighter italic ${is_paid ? "text-emerald-500" : "text-orange-500"}`}>{order.status === 'cancelled' ? 'ANULADO' : (is_paid ? 'PAGADO' : 'PENDIENTE')}</span>
-            </div>
-            <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-slate-400">
-               <span>NO. FACTURA:</span>
-               <span className="text-slate-900 font-mono">#FAC-{order.ticket_number}-{order.id?.toString().slice(-3) || '000'}</span>
-            </div>
-            <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-slate-400">
-               <span>FECHA:</span>
-               <span className="text-slate-900">{new Date(order.timestamp).toLocaleString()}</span>
-            </div>
-            <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-slate-400">
-               <span>CLIENTE:</span>
-               <span className="text-slate-900 font-black italic">{order.customer_name?.toUpperCase()}</span>
-            </div>
-         </div>
-
-         <div className="border-t border-dashed border-slate-200 my-8" />
-
-         {/* Items Table */}
-         <div className="space-y-6 mb-10">
-            <div className="grid grid-cols-6 text-[9px] font-black uppercase tracking-widest text-slate-300">
-               <div className="col-span-1">CANT</div>
-               <div className="col-span-3">DESCRIPCIÓN</div>
-               <div className="col-span-2 text-right">TOTAL</div>
-            </div>
-            {order.items?.map((item, i) => (
-               <div key={i} className="grid grid-cols-6 items-center">
-                  <div className="col-span-1 font-black text-slate-900">{item.quantity}</div>
-                  <div className="col-span-3">
-                     <p className="font-black text-[12px] text-slate-900 uppercase italic tracking-tighter leading-none">{item.name}</p>
-                     <p className="text-[8px] font-bold text-slate-400 mt-1 uppercase tracking-widest">{item.station}</p>
-                  </div>
-                  <div className="col-span-2 text-right font-black text-slate-900 font-mono italic">RD$ {item.price_at_time * item.quantity}</div>
-               </div>
-            ))}
-         </div>
-
-         <div className="border-t border-dashed border-slate-200 my-8" />
-
-         {/* Total Banner */}
-         <div className="bg-slate-50/80 p-8 rounded-[2.5rem] flex flex-col items-center justify-center gap-2 mb-10 border border-slate-100 shadow-inner">
-            <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">TOTAL VENTA</span>
-            <span className="text-4xl font-black italic tracking-tighter text-slate-900 font-mono">RD$ {order.total_price}.00</span>
-         </div>
-
-         {/* Payment Summary */}
-         <div className="space-y-5 mb-12">
-            <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest">
-               <span className="text-slate-400">ABONADO / PAGADO</span>
-               <span className="text-emerald-500">RD$ {totalPaid}.00</span>
-            </div>
-            <div className="flex justify-between items-center text-[11px] font-black uppercase tracking-widest">
-               <span className="text-red-500 underline decoration-2 underline-offset-8 italic">RESTA / PENDIENTE</span>
-               <span className="text-red-500 font-mono text-lg tracking-tighter">RD$ {pending}.00</span>
-            </div>
-         </div>
-
-         <div className="text-center pt-10 border-t border-slate-100">
-            <p className="text-[11px] font-black text-slate-300 uppercase tracking-[0.4em] italic leading-none">¡GRACIAS POR PREFERIRNOS!</p>
-            <p className="text-[8px] font-black text-slate-200 mt-4 uppercase tracking-[0.6em]">MANOLO FOODTRUCK PARK</p>
-         </div>
-      </div>
-    );
-  };
+   // Local Receipt component removed - using shared one from components/Receipt
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col lg:flex-row font-sans overflow-x-hidden">
@@ -864,51 +766,74 @@ const AdminPanel = () => {
           {activeTab === 'settings' && (
             <motion.div key="settings" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-8">
                <div className="bg-white p-12 rounded-[4rem] border border-slate-100 shadow-sm">
-                  <div className="flex items-center gap-4 mb-10">
-                     <div className="w-3 h-12 bg-emerald-500 rounded-full" />
+                  <div className="flex flex-col md:flex-row items-center justify-between gap-8 mb-12">
                      <div>
                         <h2 className="text-3xl font-black uppercase italic tracking-tighter">Configuración de Impresoras</h2>
                         <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Vínculo independiente para estaciones de trabajo</p>
                      </div>
+                     <div className="flex gap-4">
+                        <button className="flex items-center gap-3 px-8 py-5 bg-[#C29F5C] text-white rounded-[2rem] font-black uppercase text-[10px] shadow-lg hover:opacity-90 transition-all tracking-widest">
+                           <Printer size={20} />
+                           <span>VER IMPRESORAS</span>
+                        </button>
+                        <button onClick={() => window.print()} className="flex items-center gap-3 px-8 py-5 bg-[#007BFF] text-white rounded-[2rem] font-black uppercase text-[10px] shadow-lg hover:opacity-90 transition-all tracking-widest">
+                           <FileText size={20} />
+                           <span>IMPRIMIR</span>
+                        </button>
+                        <button className="flex items-center gap-3 px-8 py-5 bg-[#6C757D] text-white rounded-[2rem] font-black uppercase text-[10px] shadow-lg hover:opacity-90 transition-all tracking-widest">
+                           <Settings size={20} />
+                           <span>LOGO</span>
+                        </button>
+                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                     {Object.entries(printerConfig).map(([station, config]) => (
-                        <div key={station} className="bg-slate-50 p-8 rounded-[3rem] border border-slate-100 group hover:border-emerald-500/30 transition-all">
-                           <div className="flex justify-between items-start mb-6">
-                              <div>
-                                 <h4 className="font-black text-xl italic uppercase tracking-tighter text-slate-900">{station}</h4>
-                                 <div className="flex items-center gap-2 mt-1">
-                                    <div className="w-2 h-2 rounded-full bg-emerald-500" />
-                                    <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Estado: Activo</span>
-                                 </div>
-                              </div>
-                              <Printer className="text-slate-200 group-hover:text-emerald-500 transition-colors" size={32} />
+                  <div className="bg-slate-50 p-12 rounded-[4rem] mb-12 border border-slate-100 flex flex-col items-center">
+                     <div className="max-w-md w-full space-y-5 text-center sm:text-left">
+                        {[
+                           { paso: 1, text: "Conecte su impresora vía bluetooth" },
+                           { paso: 2, text: "Dele a ver impresoras" },
+                           { paso: 3, text: "Busque el nombre de su impresora" },
+                           { paso: 4, text: "Toque nombre de su impresora" },
+                           { paso: 5, text: "Imprima un recibo de prueba en el botón azul" }
+                        ].map(step => (
+                           <div key={step.paso} className="flex items-center gap-6 group">
+                              <span className="text-[#C29F5C] font-black uppercase text-[11px] w-20 text-right whitespace-nowrap">Paso {step.paso} -</span>
+                              <span className="text-slate-900 font-bold text-[13px] tracking-tight">{step.text}</span>
                            </div>
+                        ))}
+                     </div>
+                  </div>
 
-                           <div className="space-y-6">
-                              <div className="space-y-2">
-                                 <label className="text-[10px] font-black text-slate-400 ml-4 uppercase">Nombre / Alias de Impresora</label>
-                                 <input 
-                                    type="text" 
-                                    value={config.name} 
-                                    onChange={e => updatePrinterConfig(station, { name: e.target.value })}
-                                    placeholder="Ej: Epson TM-T20II..."
-                                    className="w-full bg-white p-5 rounded-2xl font-bold border border-slate-100 focus:ring-2 focus:ring-emerald-500 outline-none" 
-                                 />
+                  <div className="border-t border-dashed border-slate-200 my-12" />
+
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                     {Object.entries(printerConfig).map(([station, config]) => (
+                        <div key={station} className="space-y-8">
+                           <h4 className="font-black text-[10px] uppercase tracking-[0.2em] text-slate-400 ml-6">{station}</h4>
+                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+                              <div className="space-y-4">
+                                 <label className="text-[10px] font-black text-slate-400 uppercase ml-6">ANCHO DE PAPEL</label>
+                                 <div className="flex gap-4">
+                                    {['80mm', '58mm'].map(w => (
+                                       <button 
+                                          key={w} 
+                                          onClick={() => updatePrinterConfig(station, { paperWidth: w })}
+                                          className={`flex-grow py-7 rounded-[2.5rem] font-black text-xl transition-all border-2 ${config.paperWidth === w ? 'bg-white border-[#C29F5C] text-slate-900 shadow-xl scale-105' : 'bg-white border-slate-100 text-slate-300'}`}
+                                       >
+                                          {w}
+                                       </button>
+                                    ))}
+                                 </div>
                               </div>
 
-                              <div className="flex items-center justify-between bg-white p-5 rounded-2xl border border-slate-100">
-                                 <div>
-                                    <p className="font-black text-xs uppercase tracking-tight text-slate-700">Auto-Imprimir</p>
-                                    <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Imprimir ticket al marcar listo</p>
+                              <div className="space-y-4">
+                                 <label className="text-[10px] font-black text-slate-400 uppercase ml-6">AUTO-DESCARGA</label>
+                                 <div onClick={() => updatePrinterConfig(station, { autoDownload: !config.autoDownload })} className="flex items-center gap-6 bg-slate-50 p-7 rounded-[2.5rem] border border-slate-100 cursor-pointer group hover:bg-white transition-all h-[80px]">
+                                    <div className={`w-8 h-8 shrink-0 rounded-xl border-2 flex items-center justify-center transition-all ${config.autoDownload ? 'bg-[#C29F5C]/10 border-[#C29F5C]' : 'bg-white border-slate-200'}`}>
+                                       {config.autoDownload && <div className="w-3 h-3 bg-[#C29F5C] rounded-sm" />}
+                                    </div>
+                                    <span className="text-[10px] font-black uppercase italic tracking-tighter text-slate-900 leading-none">ACTIVAR AUTO-DESCARGA PDF</span>
                                  </div>
-                                 <button 
-                                    onClick={() => updatePrinterConfig(station, { autoPrint: !config.autoPrint })}
-                                    className={`w-14 h-8 rounded-full transition-all relative ${config.autoPrint ? 'bg-emerald-500' : 'bg-slate-200'}`}
-                                 >
-                                    <div className={`absolute top-1 w-6 h-6 bg-white rounded-full shadow-md transition-all ${config.autoPrint ? 'right-1' : 'left-1'}`} />
-                                 </button>
                               </div>
                            </div>
                         </div>
@@ -1015,7 +940,7 @@ const AdminPanel = () => {
 
                   <div className="flex-grow w-full overflow-y-auto flex justify-center pb-20 custom-scrollbar rounded-[3rem]">
                      <div className="max-w-[210mm] mx-auto">
-                        <Receipt order={selectedInvoice} />
+                        <Receipt order={selectedInvoice} station={selectedStation} />
                      </div>
                   </div>
                </motion.div>

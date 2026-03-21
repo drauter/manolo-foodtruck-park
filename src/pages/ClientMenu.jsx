@@ -61,6 +61,17 @@ const ClientMenu = () => {
     const order = placeOrder(customerName.trim());
     if (order) {
       localStorage.setItem('manolo_active_order', order.id);
+      
+      // Update multi-tracking list
+      try {
+        const saved = localStorage.getItem('manolo_tracked_orders');
+        const list = saved ? JSON.parse(saved) : [];
+        if (!list.includes(order.id)) {
+          localStorage.setItem('manolo_tracked_orders', JSON.stringify([...list, order.id]));
+        }
+      } catch (e) {
+        localStorage.setItem('manolo_tracked_orders', JSON.stringify([order.id]));
+      }
       setOrderConfirmed(order);
       setIsCartOpen(false);
       setCustomerName('');

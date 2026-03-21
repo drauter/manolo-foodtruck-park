@@ -19,10 +19,10 @@ export const OrderProvider = ({ children }) => {
     try {
       const saved = localStorage.getItem('foodtruck_printer_config');
       return saved ? JSON.parse(saved) : {
-        'BAR': { name: 'Páramo Bar', autoPrint: true },
-        'COMIDA RÁPIDA': { name: 'Páramo Cocina', autoPrint: true },
-        'DULCES/POSTRES': { name: 'Páramo Postres', autoPrint: true },
-        'CAJA': { name: 'Páramo Caja', autoPrint: true },
+        'BAR': { name: 'Páramo Bar', autoPrint: true, paperWidth: '58mm', connection: 'web', autoDownload: false },
+        'COMIDA RÁPIDA': { name: 'Páramo Cocina', autoPrint: true, paperWidth: '58mm', connection: 'web', autoDownload: false },
+        'DULCES/POSTRES': { name: 'Páramo Postres', autoPrint: true, paperWidth: '58mm', connection: 'web', autoDownload: false },
+        'CAJA': { name: 'Páramo Caja', autoPrint: true, paperWidth: '80mm', connection: 'web', autoDownload: false },
       };
     } catch (e) { return {}; }
   });

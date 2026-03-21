@@ -8,20 +8,41 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 
 const OrderTracking = () => {
-  const { orderId } = useParams();
+  const { orderId: currentOrderId } = useParams();
   const { orders } = useOrder();
   const navigate = useNavigate();
   
-  const order = orders.find(o => o.id === orderId);
+  const [trackedOrderIds, setTrackedOrderIds] = useState(() => {
+    const saved = localStorage.getItem('manolo_tracked_orders');
+    return saved ? JSON.parse(saved) : [];
+  });
 
-  if (!order) {
+  const [activeTabId, setActiveTabId] = useState(currentOrderId);
+
+  // Sync current URL ID with tracked list and state
+  useEffect(() => {
+    if (currentOrderId && !trackedOrderIds.includes(currentOrderId)) {
+      const newList = [...trackedOrderIds, currentOrderId];
+      setTrackedOrderIds(newList);
+      localStorage.setItem('manolo_tracked_orders', JSON.stringify(newList));
+    }
+    setActiveTabId(currentOrderId);
+  }, [currentOrderId]);
+
+  // Use activeTabId to find the order to display
+  const order = orders.find(o => o.id === activeTabId) || orders.find(o => o.id === currentOrderId);
+
+  // Filter tracked orders to only show those that still exist in Supabase (or at least valid ones)
+  const activeOrders = orders.filter(o => trackedOrderIds.includes(o.id));
+
+  if (!order && !activeOrders.length) {
     return (
       <div className="min-h-screen bg-slate-950 text-white flex flex-col items-center justify-center p-6 text-center">
         <div className="w-24 h-24 bg-slate-900 rounded-full flex items-center justify-center mb-8 border border-white/5 shadow-2xl">
            <Package size={48} className="text-slate-700" />
         </div>
-        <h2 className="text-3xl font-black uppercase italic tracking-tighter">Pedido no encontrado</h2>
-        <p className="text-slate-500 mt-4 font-bold uppercase text-[10px] tracking-[0.3em] max-w-[250px] leading-relaxed">Verifica tu número de ticket o escanea el QR nuevamente</p>
+        <h2 className="text-3xl font-black uppercase italic tracking-tighter">No hay pedidos activos</h2>
+        <p className="text-slate-500 mt-4 font-bold uppercase text-[10px] tracking-[0.3em] max-w-[250px] leading-relaxed">Escanea el QR para ver el estado de tu orden</p>
         <Link to="/menu" className="mt-10 bg-white text-slate-950 px-10 py-5 rounded-2xl font-black uppercase text-xs tracking-[0.2em] hover:scale-105 active:scale-95 transition-all shadow-xl">Ir al Menú</Link>
       </div>
     );
@@ -77,9 +98,30 @@ const OrderTracking = () => {
          <button onClick={() => navigate('/menu')} className="p-4 bg-slate-900/50 backdrop-blur-xl border border-white/5 rounded-2xl text-slate-400 hover:text-white transition-all shadow-lg active:scale-95"><ChevronLeft size={24} /></button>
          <div className="text-right">
             <div className="text-[10px] font-black uppercase text-emerald-500 tracking-[0.4em] mb-1">MANOLO FOODTRUCK PARK • LIVE TRACKING</div>
-            <div className="text-4xl font-black italic text-white tracking-tighter leading-none">#{order.ticket_number}</div>
+            <div className="text-4xl font-black italic text-white tracking-tighter leading-none">#{order?.ticket_number || '---'}</div>
          </div>
       </header>
+
+      {/* Multi-Order Tabs */}
+      {activeOrders.length > 1 && (
+        <div className="max-w-md mx-auto mb-10 relative z-10">
+           <div className="flex items-center gap-3 overflow-x-auto pb-4 custom-scrollbar-hide no-scrollbar">
+              {activeOrders.map(o => (
+                 <button 
+                    key={o.id}
+                    onClick={() => {
+                        setActiveTabId(o.id);
+                        navigate(`/order-tracking/${o.id}`, { replace: true });
+                    }}
+                    className={`shrink-0 px-6 py-4 rounded-2xl border transition-all flex flex-col items-center gap-1 ${activeTabId === o.id ? 'bg-emerald-500 border-emerald-400 text-white shadow-lg scale-105' : 'bg-slate-900 border-white/5 text-slate-500 hover:text-slate-300'}`}
+                 >
+                    <span className="text-[8px] font-black uppercase tracking-widest opacity-60">Ticket</span>
+                    <span className="text-xl font-black italic tracking-tighter leading-none">#{o.ticket_number}</span>
+                 </button>
+              ))}
+           </div>
+        </div>
+      )}
 
       <div className="max-w-md mx-auto space-y-8 relative z-10">
          {/* Overall Status Banner */}

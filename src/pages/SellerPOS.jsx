@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import Receipt from '../components/Receipt';
 
 const ProductItem = ({ product, addToCart }) => {
   const [qty, setQty] = useState(1);
@@ -143,86 +144,7 @@ const SellerPOS = () => {
     navigate('/');
   };
 
-  const Receipt = ({ order }) => {
-    const is_paid = order.is_paid;
-    const totalPaid = order.is_paid ? order.total_price: 0;
-    const pending = order.is_paid ? 0 : order.total_price;
-
-    return (
-      <div className="bg-white p-10 max-w-[440px] mx-auto rounded-[3.5rem] shadow-xl font-sans text-slate-600 relative overflow-hidden ring-1 ring-slate-100" id="printable-invoice">
-          <div className="flex flex-col items-center mb-10 pb-10 border-b-2 border-slate-900 border-double">
-             <div className="w-20 h-20 bg-slate-900 rounded-[2rem] flex items-center justify-center mb-4 shadow-xl rotate-3">
-                <ShoppingCart className="text-white" size={40} />
-             </div>
-             <h1 className="text-3xl font-black italic tracking-tighter text-slate-900 leading-none">MANOLO</h1>
-             <h2 className="text-xl font-black uppercase tracking-[0.2em] text-slate-400 mt-1">FOODTRUCK PARK</h2>
-          </div>
-
-         <div className="space-y-4 mb-8">
-            <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest">
-               <span className="text-slate-400">ESTADO:</span>               <span className={`font-black tracking-tighter italic ${is_paid ? "text-emerald-500" : "text-orange-500"}`}>{is_paid ? 'PAGADO' : 'PENDIENTE'}</span>
-            </div>
-            <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-slate-400">
-               <div className="flex flex-col items-end">
-                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Factura de Venta</span>
-                  <span className="text-slate-900 font-mono">#FAC-{order.ticket_number}-{order.id.toString().slice(-3)}</span>
-               </div>
-            </div>
-            <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-slate-400">
-               <span>FECHA:</span>
-               <span className="text-slate-900">{new Date(order.timestamp).toLocaleString()}</span>
-            </div>
-            <div className="flex flex-col gap-1">
-               <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">Cliente</span>
-               <span className="text-slate-900 font-black italic">{order.customer_name.toUpperCase()}</span>
-            </div>
-         </div>
-
-         <div className="border-t border-dashed border-slate-200 my-8" />
-
-         <div className="space-y-6 mb-10">
-            <div className="grid grid-cols-6 text-[9px] font-black uppercase tracking-widest text-slate-300">
-               <div className="col-span-1">CANT</div>
-               <div className="col-span-3">DESCRIPCIÓN</div>
-               <div className="col-span-2 text-right">TOTAL</div>
-            </div>
-            {order.items.map((item, i) => (
-               <div key={i} className="grid grid-cols-6 items-center">
-                  <div className="col-span-1 font-black text-slate-900">{item.quantity}</div>
-                  <div className="col-span-3">
-                     <p className="font-black text-[12px] text-slate-900 uppercase italic tracking-tighter leading-none">{item.name}</p>
-                     <p className="text-[8px] font-bold text-slate-400 mt-1 uppercase tracking-widest">{item.station}</p>
-                  </div>
-                  <div className="col-span-2 text-right font-black text-slate-900 font-mono italic">RD$ {item.price * item.quantity}</div>
-               </div>
-            ))}
-         </div>
-
-         <div className="border-t border-dashed border-slate-200 my-8" />
-
-         <div className="bg-slate-50/80 p-8 rounded-[2.5rem] flex flex-col items-center justify-center gap-2 mb-10 border border-slate-100 shadow-inner">
-            <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">TOTAL VENTA</span>
-            <span className="text-4xl font-black italic tracking-tighter text-slate-900 font-mono">RD$ {order.total_price}.00</span>
-         </div>
-
-         <div className="space-y-5 mb-12">
-            <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest">
-               <span className="text-slate-400">ABONADO / PAGADO</span>
-               <span className="text-emerald-500">RD$ {totalPaid}.00</span>
-            </div>
-            <div className="flex justify-between items-center text-[11px] font-black uppercase tracking-widest">
-               <span className="text-red-500 underline decoration-2 underline-offset-8 italic">RESTA / PENDIENTE</span>
-               <span className="text-red-500 font-mono text-lg tracking-tighter">RD$ {pending}.00</span>
-            </div>
-         </div>
-
-         <div className="text-center pt-10 border-t border-slate-100">
-            <p className="text-[11px] font-black text-slate-300 uppercase tracking-[0.4em] italic leading-none">¡GRACIAS POR PREFERIRNOS!</p>
-            <p className="text-[8px] font-black text-slate-200 mt-4 uppercase tracking-[0.6em]">MANOLO FOODTRUCK PARK</p>
-         </div>
-      </div>
-    );
-  };
+  // Local Receipt component removed - using shared one from components/Receipt
   return (
     <div className="min-h-screen lg:h-screen bg-slate-50 text-slate-900 flex flex-col lg:flex-row overflow-auto lg:overflow-hidden font-sans">
       
@@ -611,7 +533,7 @@ const SellerPOS = () => {
 
                 <div className="flex-grow overflow-y-auto w-full flex justify-center pb-20 custom-scrollbar">
                    <div ref={printRef} className="origin-top transition-transform duration-500">
-                      <Receipt order={selectedInvoice} />
+                      <Receipt order={selectedInvoice} station={currentUser.station || 'CAJA'} />
                    </div>
                 </div>
              </motion.div>
