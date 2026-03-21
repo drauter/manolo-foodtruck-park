@@ -329,7 +329,7 @@ const AdminPanel = () => {
   const handleWhatsAppShare = (order) => {
     if (!order) return;
     const itemsText = (order.items || []).map(i => `${i.quantity} x ${i.products?.name || i.product?.name || 'Producto'}`).join('\n');
-    const text = `ðŸ• *MANOLO FOODTRUCK PARK* ðŸ•\n---------------------------\n*Ticket:* #${order.ticket_number}\n*Cliente:* ${order.customer_name?.toUpperCase()}\n---------------------------\n${itemsText}\n---------------------------\n*TOTAL: RD$ ${order.total_price}.00*\n\nÂ¡Gracias por preferirnos!`;
+    const text = `🌭 *MANOLO FOODTRUCK PARK* 🌭\n---------------------------\n*Ticket:* #${order.ticket_number}\n*Cliente:* ${order.customer_name?.toUpperCase()}\n---------------------------\n${itemsText}\n---------------------------\n*TOTAL: RD$ ${order.total_price}.00*\n\n¡Gracias por preferirnos!`;
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
   };
 
@@ -374,6 +374,15 @@ const AdminPanel = () => {
             </button>
           ))}
         </nav>
+        <div className="border-t border-white/10 pt-6 space-y-2 mt-auto">
+          <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest ml-4 mb-2">Vistas Externas</p>
+          <button onClick={() => window.open('/display', '_blank')} className="w-full text-left p-4 rounded-2xl flex items-center gap-3 hover:bg-slate-800 text-slate-400 transition-all">
+            <TrendingUp size={18} /> <span className="font-bold text-sm tracking-tight text-white/50">Pantalla Pública</span>
+          </button>
+          <button onClick={() => window.open('/menu', '_blank')} className="w-full text-left p-4 rounded-2xl flex items-center gap-3 hover:bg-slate-800 text-slate-400 transition-all">
+            <Coffee size={18} /> <span className="font-bold text-sm tracking-tight text-white/50">Menú Digital</span>
+          </button>
+        </div>
         <button onClick={() => { logout(); navigate('/login'); }} className="p-4 bg-slate-800 rounded-2xl flex items-center gap-3 text-red-400 font-bold hover:bg-red-500/10 transition-all text-sm">
           <LogOut size={18} /> Salir
         </button>
@@ -396,7 +405,7 @@ const AdminPanel = () => {
         <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-10">
           <div>
             <h1 className="text-3xl sm:text-4xl font-black tracking-tighter capitalize leading-none">{menuItems.find(m => m.id === activeTab)?.label}</h1>
-            <p className="text-slate-400 font-bold text-xs mt-2 uppercase tracking-widest italic">GestiÃ³n Administrativa</p>
+            <p className="text-slate-400 font-bold text-xs mt-2 uppercase tracking-widest italic">Gestión Administrativa</p>
           </div>
           <div className="flex flex-wrap gap-4 w-full sm:w-auto">
             {currentUser?.role === 'admin' && (
@@ -914,7 +923,7 @@ const AdminPanel = () => {
                   <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-10">
                      <div>
                         <h2 className="text-2xl font-black uppercase italic tracking-tighter text-emerald-600">Control de Inventario</h2>
-                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">GestiÃ³n de existencias y costos</p>
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Gestión de existencias y costos</p>
                      </div>
                      <div className="bg-amber-50 text-amber-600 px-6 py-3 rounded-2xl text-[10px] font-black uppercase border border-amber-100 italic">
                         {lowStockProducts.length} Alertas de Stock Bajo
@@ -991,7 +1000,7 @@ const AdminPanel = () => {
                         <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Vínculo independiente para estaciones de trabajo</p>
                      </div>
                      <div className="flex gap-4">
-                        <button className="flex items-center gap-3 px-8 py-5 bg-[#C29F5C] text-white rounded-[2rem] font-black uppercase text-[10px] shadow-lg hover:opacity-90 transition-all tracking-widest">
+                        <button onClick={() => alert("Función: Buscar impresoras Bluetooth/Red...")} className="flex items-center gap-3 px-8 py-5 bg-[#C29F5C] text-white rounded-[2rem] font-black uppercase text-[10px] shadow-lg hover:opacity-90 transition-all tracking-widest">
                            <Printer size={20} />
                            <span>VER IMPRESORAS</span>
                         </button>
@@ -999,7 +1008,7 @@ const AdminPanel = () => {
                            <FileText size={20} />
                            <span>IMPRIMIR</span>
                         </button>
-                        <button className="flex items-center gap-3 px-8 py-5 bg-[#6C757D] text-white rounded-[2rem] font-black uppercase text-[10px] shadow-lg hover:opacity-90 transition-all tracking-widest">
+                        <button onClick={() => alert("Proximamente: Subir logo para tickets...")} className="flex items-center gap-3 px-8 py-5 bg-[#6C757D] text-white rounded-[2rem] font-black uppercase text-[10px] shadow-lg hover:opacity-90 transition-all tracking-widest">
                            <Settings size={20} />
                            <span>LOGO</span>
                         </button>
@@ -1009,11 +1018,11 @@ const AdminPanel = () => {
                   <div className="bg-slate-50 p-12 rounded-[4rem] mb-12 border border-slate-100 flex flex-col items-center">
                      <div className="max-w-md w-full space-y-5 text-center sm:text-left">
                         {[
-                           { paso: 1, text: "Conecte su impresora vÃ­a bluetooth" },
+                           { paso: 1, text: "Conecte su impresora vía bluetooth" },
                            { paso: 2, text: "Dele a ver impresoras" },
                            { paso: 3, text: "Busque el nombre de su impresora" },
                            { paso: 4, text: "Toque nombre de su impresora" },
-                           { paso: 5, text: "Imprima un recibo de prueba en el botÃ³n azul" }
+                           { paso: 5, text: "Imprima un recibo de prueba en el botón azul" }
                         ].map(step => (
                            <div key={step.paso} className="flex items-center gap-6 group">
                               <span className="text-[#C29F5C] font-black uppercase text-[11px] w-20 text-right whitespace-nowrap">Paso {step.paso} -</span>
