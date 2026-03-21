@@ -22,14 +22,18 @@ const OrderTracking = () => {
   // Sync current URL ID with tracked list and state
   useEffect(() => {
     if (currentOrderId) {
-      if (!trackedOrderIds.includes(currentOrderId)) {
-        const newList = [...trackedOrderIds, currentOrderId];
-        setTrackedOrderIds(newList);
-        localStorage.setItem('manolo_tracked_orders', JSON.stringify(newList));
-      }
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setTrackedOrderIds(prev => {
+        if (!prev.includes(currentOrderId)) {
+          const newList = [...prev, currentOrderId];
+          localStorage.setItem('manolo_tracked_orders', JSON.stringify(newList));
+          return newList;
+        }
+        return prev;
+      });
       setActiveTabId(currentOrderId);
     }
-  }, [currentOrderId, trackedOrderIds]);
+  }, [currentOrderId]);
 
   // Use activeTabId to find the order to display
   const order = orders.find(o => o.id === activeTabId) || orders.find(o => o.id === currentOrderId);

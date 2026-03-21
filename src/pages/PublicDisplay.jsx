@@ -1,9 +1,9 @@
-import React from 'react';
+﻿import React from 'react';
 import { useOrder } from '../context/OrderContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Coffee, Utensils, IceCream, Clock, CheckCircle } from 'lucide-react';
 
-const StationColumn = ({ label, icon: Icon, color, orders, stationKey }) => {
+const StationColumn = ({ label, icon: _unusedIcon, color, orders, stationKey }) => {
   // Filter orders that have items for this specific station
   const stationOrders = orders.filter(o => o.items.some(i => i.station === stationKey));
   
@@ -89,7 +89,7 @@ const PublicDisplay = () => {
 
   const stations = [
     { label: 'BAR / BEBIDAS', icon: Coffee, color: 'blue', key: 'BAR' },
-    { label: 'COMIDA RÁPIDA', icon: Utensils, color: 'amber', key: 'COMIDA RÁPIDA' },
+    { label: 'COMIDA RÃPIDA', icon: Utensils, color: 'amber', key: 'COMIDA RÃPIDA' },
     { label: 'POSTRES / DULCES', icon: IceCream, color: 'pink', key: 'DULCES/POSTRES' },
   ];
 
@@ -134,11 +134,11 @@ const PublicDisplay = () => {
         <div className="flex items-center gap-20 whitespace-nowrap animate-marquee">
           {[1,2,3].map(i => (
             <span key={i} className="text-lg font-black text-emerald-950 uppercase italic flex items-center gap-8">
-              <span>🍔 ¡Bienvenidos a MANOLO FOODTRUCK PARK!</span>
+              <span>ðŸ” Â¡Bienvenidos a MANOLO FOODTRUCK PARK!</span>
               <div className="w-2 h-2 bg-white rounded-full" />
-              <span>🥤 Escanea el QR para pedir</span>
+              <span>ðŸ¥¤ Escanea el QR para pedir</span>
               <div className="w-2 h-2 bg-white rounded-full" />
-              <span>🍰 Retira tu pedido en ventana</span>
+              <span>ðŸ° Retira tu pedido en ventana</span>
               <div className="w-2 h-2 bg-white rounded-full" />
             </span>
           ))}

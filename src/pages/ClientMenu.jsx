@@ -70,7 +70,7 @@ const ClientMenu = () => {
         if (!list.includes(order.id)) {
           localStorage.setItem('manolo_tracked_orders', JSON.stringify([...list, order.id]));
         }
-      } catch (e) {
+      } catch {
         localStorage.setItem('manolo_tracked_orders', JSON.stringify([order.id]));
       }
       setOrderConfirmed(order);
