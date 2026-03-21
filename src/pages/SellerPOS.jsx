@@ -1,10 +1,10 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useOrder } from '../context/OrderContext';
 import { 
   ShoppingCart, Plus, Minus, X, CheckCircle, Wallet, LogOut, 
   Banknote, CreditCard, Landmark, Search, Clock, Trash2, Edit2, Printer, FileText, RotateCcw, Utensils, Shield
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+
 import { useNavigate } from 'react-router-dom';
 import Receipt from '../components/Receipt';
 

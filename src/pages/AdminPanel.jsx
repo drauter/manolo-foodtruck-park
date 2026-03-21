@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useOrder } from '../context/OrderContext';
 import { 
   Plus, Edit2, Trash2, DollarSign, Package, TrendingUp, 
@@ -136,15 +136,7 @@ const AdminPanel = () => {
     }
   }, [selectedInvoice, activeTab]);
   
-  if (!currentUser || (currentUser.role !== 'admin' && currentUser.role !== 'catalogo' && currentUser.role !== 'contador')) {
-     return (
-       <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-6 text-center">
-          <AlertCircle size={64} className="text-red-500 mb-6" />
-          <h1 className="text-4xl font-black text-white mb-2">ACCESO RESTRINGIDO</h1>
-          <button onClick={() => navigate('/login')} className="bg-emerald-600 px-8 py-4 rounded-2xl font-black uppercase mt-8 text-white">Ir al Login</button>
-       </div>
-     );
-  }
+
 
   const [newProduct, setNewProduct] = useState({
     name: '', description: '', price: '', cost: '', stock: '', category: 'Burgers',
@@ -332,6 +324,16 @@ const AdminPanel = () => {
     { id: 'settings', label: 'Configuración', icon: Settings, roles: ['admin'] },
   ].filter(item => !item.roles || item.roles.includes(currentUser?.role));
    // Local Receipt component removed - using shared one from components/Receipt
+ 
+  if (!currentUser || (currentUser.role !== 'admin' && currentUser.role !== 'catalogo' && currentUser.role !== 'contador')) {
+     return (
+       <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-6 text-center">
+          <AlertCircle size={64} className="text-red-500 mb-6" />
+          <h1 className="text-4xl font-black text-white mb-2">ACCESO RESTRINGIDO</h1>
+          <button onClick={() => navigate('/login')} className="bg-emerald-600 px-8 py-4 rounded-2xl font-black uppercase mt-8 text-white">Ir al Login</button>
+       </div>
+     );
+  }
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col lg:flex-row font-sans overflow-x-hidden">
