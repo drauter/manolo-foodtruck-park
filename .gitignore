@@ -38,3 +38,7 @@ build
 # Misc
 .DS_Store
 Thumbs.db
+lint_report.json
+lint_results*
+lint_output*
+build_error.log
