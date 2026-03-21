@@ -280,7 +280,9 @@ const AdminPanel = () => {
       });
 
       const wsInv = XLSX.utils.json_to_sheet(invData);
-      XLSX.utils.book_append_sheet(wb, wsInv, station || "Sin Estación");
+      // Sanitize sheet name: remove : \ / ? * [ ] and truncate to 31 chars
+      const sanitizedName = (station || "Sin Estación").replace(/[:\\/?*\[\]]/g, '_').substring(0, 31);
+      XLSX.utils.book_append_sheet(wb, wsInv, sanitizedName);
     });
 
     // Sheet: Shifts (Cuadre)
