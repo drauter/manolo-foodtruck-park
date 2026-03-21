@@ -525,6 +525,7 @@ const SellerPOS = () => {
                       <span>PDF</span>
                    </button>
                    <button 
+                      onClick={() => handleWhatsAppShare(selectedInvoice)}
                       className="flex flex-col items-center justify-center gap-2 p-6 bg-[#00D95A] text-white rounded-[2rem] font-black uppercase text-[10px] shadow-lg hover:opacity-90 transition-all"
                    >
                       <div className="w-6 h-6 border-2 border-white rounded flex items-center justify-center text-[10px]">W</div>
