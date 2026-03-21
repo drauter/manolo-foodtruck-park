@@ -6,8 +6,8 @@ import {
   Layers, X, Save, LogOut, Users, FileText, Filter, CheckCircle2, CheckCircle,
   ShoppingCart, Wallet, Banknote, CreditCard, Landmark, Search, ChevronRight, Printer, RotateCcw, Settings, Volume2, Shield
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import * as XLSX from 'xlsx';
 import Receipt from '../components/Receipt';
 
@@ -460,7 +460,7 @@ const AdminPanel = () => {
                             </div>
                             <div className="font-black text-xl italic uppercase mb-4">{order.customer_name}</div>
                             <div className="space-y-2">
-                               {Object.entries(order.station_statuses).filter(([_, s]) => s !== 'delivered').map(([st, s]) => (
+                               {Object.entries(order.station_statuses).filter(([ignored_station_key, s]) => s !== 'delivered').map(([st, s]) => (
                                  <button key={st} onClick={() => { setPaymentOrder(order); setPaymentStation(st); }} className={`w-full p-4 ${s === 'ready' ? 'bg-emerald-600' : 'bg-slate-900'} text-white rounded-2xl text-[10px] font-black uppercase hover:opacity-80 transition-all flex items-center justify-between`}>
                                     <div className="flex items-center gap-2">
                                        <span>Pagar {st}</span>
@@ -1182,7 +1182,7 @@ const AdminPanel = () => {
 
                   <div className="flex-grow w-full overflow-y-auto flex justify-center pb-20 custom-scrollbar rounded-[3rem]">
                      <div className="max-w-[210mm] mx-auto">
-                        <Receipt order={selectedInvoice} station={selectedStation} />
+                        <Receipt order={selectedInvoice} station="CAJA" />
                      </div>
                   </div>
                </motion.div>

@@ -3,8 +3,8 @@ import { ShoppingCart } from 'lucide-react';
 import { useOrder } from '../context/OrderContext';
 
 const Receipt = ({ order, station = 'CAJA' }) => {
-  if (!order) return null;
   const { printerConfig } = useOrder();
+  if (!order) return null;
   const config = printerConfig[station] || printerConfig['CAJA'];
   const is58mm = config.paperWidth === '58mm';
 

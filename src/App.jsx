@@ -1,5 +1,5 @@
 // Version 1.0.5 - Final build fix attempt
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { OrderProvider } from './context/OrderContext';
 import ClientMenu from './pages/ClientMenu';

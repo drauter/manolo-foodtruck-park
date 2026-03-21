@@ -7,11 +7,6 @@ const StationColumn = ({ label, icon: Icon, color, orders, stationKey }) => {
   // Filter orders that have items for this specific station
   const stationOrders = orders.filter(o => o.items.some(i => i.station === stationKey));
   
-  // An order is "Ready" at this station if its status for this station is 'ready' or 'delivered'
-  const isReadyAtStation = (order) => {
-    return order.station_statuses && (order.station_statuses[stationKey] === 'ready' || order.station_statuses[stationKey] === 'delivered');
-  };
-
   const preparing = stationOrders.filter(o => o.station_statuses && (o.station_statuses[stationKey] === 'preparing' || o.station_statuses[stationKey] === 'received'));
   const ready = stationOrders.filter(o => o.station_statuses && o.station_statuses[stationKey] === 'ready');
 

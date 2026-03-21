@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useOrder } from '../context/OrderContext';
 import { 
   ShoppingCart, Plus, Minus, X, CheckCircle, Wallet, LogOut, 
@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 
 import { useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import Receipt from '../components/Receipt';
 
 const ProductItem = ({ product, addToCart }) => {
@@ -49,7 +50,7 @@ const SellerPOS = () => {
   const [selectedInvoice, setSelectedInvoice] = useState(null);
   const [activeTab, setActiveTab] = useState('ventas'); // 'ventas', 'cobros', 'historial'
   const [isCartOpen, setIsCartOpen] = useState(false);
-  const [orderConfirmed, setOrderConfirmed] = useState(null);
+  
   const [customerName, setCustomerName] = useState('');
   const [isClosingShift, setIsClosingShift] = useState(false);
   const [actualCash, setActualCash] = useState('');
@@ -96,8 +97,6 @@ const SellerPOS = () => {
       navigate('/login');
     }
   }, [currentUser, navigate]);
-
-  if (!currentUser) return null;
 
   const isCajeroGeneral = currentUser && currentUser.station === 'CAJA';
   const total = (cart || []).reduce((acc, item) => acc + (item.price * item.quantity), 0);
@@ -180,7 +179,8 @@ const SellerPOS = () => {
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
   };
 
-  // Local Receipt component removed - using shared one from components/Receipt
+  if (!currentUser) return null;
+  
   return (
     <div className="min-h-screen lg:h-screen bg-slate-50 text-slate-900 flex flex-col lg:flex-row overflow-auto lg:overflow-hidden font-sans">
       

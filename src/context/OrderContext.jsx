@@ -3,7 +3,7 @@ import { supabase } from '../lib/supabase';
 
 const OrderContext = createContext();
 
-export const useOrder = () => useContext(OrderContext);
+const useOrder = () => useContext(OrderContext);
 
 export const OrderProvider = ({ children }) => {
   const [products, setProducts] = useState([]);
@@ -455,3 +455,5 @@ export const OrderProvider = ({ children }) => {
     </OrderContext.Provider>
   );
 };
+
+export { OrderContext, useOrder };

@@ -1,0 +1,97 @@
+﻿
+> proyecto-foodtruck@0.0.0 lint
+> eslint .
+
+
+C:\Users\depor\OneDrive\Documentos\Proyecto Foodtruck\dev-dist\sw.js
+  34:13  error  'importScripts' is not defined  no-undef
+  70:1   error  'define' is not defined         no-undef
+
+C:\Users\depor\OneDrive\Documentos\Proyecto Foodtruck\dev-dist\workbox-5a5d9309.js
+     1:1   error    'define' is not defined                                                         no-undef
+     5:37  error    '_' is not defined                                                              no-undef
+     6:14  error    'e' is defined but never used                                                   no-unused-vars
+     6:17  error    Empty block statement                                                           no-empty
+    69:7   error    Definition for rule '@typescript-eslint/ban-types' was not found                @typescript-eslint/ban-types
+   436:5   error    Definition for rule '@typescript-eslint/ban-types' was not found                @typescript-eslint/ban-types
+   452:5   warning  Unused eslint-disable directive (no problems were reported)
+   475:40  error    '_' is not defined                                                              no-undef
+   476:14  error    'e' is defined but never used                                                   no-unused-vars
+   476:17  error    Empty block statement                                                           no-empty
+   769:11  error    Definition for rule '@typescript-eslint/no-unsafe-member-access' was not found  @typescript-eslint/no-unsafe-member-access
+   771:13  error    Definition for rule '@typescript-eslint/no-unsafe-assignment' was not found     @typescript-eslint/no-unsafe-assignment
+   965:11  error    Definition for rule '@typescript-eslint/no-unsafe-assignment' was not found     @typescript-eslint/no-unsafe-assignment
+   981:13  error    Definition for rule '@typescript-eslint/no-unsafe-assignment' was not found     @typescript-eslint/no-unsafe-assignment
+   987:13  warning  Unused eslint-disable directive (no problems were reported)
+  1214:53  error    'registration' is not defined                                                   no-undef
+  1272:43  error    '_' is not defined                                                              no-undef
+  1273:14  error    'e' is defined but never used                                                   no-unused-vars
+  1273:17  error    Empty block statement                                                           no-empty
+  1406:11  warning  Unused eslint-disable directive (no problems were reported)
+  1521:20  error    'error' is defined but never used                                               no-unused-vars
+  1665:5   error    Definition for rule '@typescript-eslint/ban-types' was not found                @typescript-eslint/ban-types
+  1717:43  error    '_' is not defined                                                              no-undef
+  1718:14  error    'e' is defined but never used                                                   no-unused-vars
+  1718:17  error    Empty block statement                                                           no-empty
+  1796:56  error    'ExtendableEvent' is not defined                                                no-undef
+  1835:61  error    'FetchEvent' is not defined                                                     no-undef
+  1870:15  error    Unexpected constant condition                                                   no-constant-condition
+  2062:35  warning  Unused eslint-disable directive (no problems were reported)
+  2336:32  error    'FetchEvent' is not defined                                                     no-undef
+  2404:18  error    'error' is defined but never used                                               no-unused-vars
+  2793:9   error    Definition for rule '@typescript-eslint/no-unsafe-return' was not found         @typescript-eslint/no-unsafe-return
+  2840:9   error    Definition for rule '@typescript-eslint/no-unsafe-return' was not found         @typescript-eslint/no-unsafe-return
+
+C:\Users\depor\OneDrive\Documentos\Proyecto Foodtruck\src\App.jsx
+  2:17  error  'useState' is defined but never used. Allowed unused vars must match /^[A-Z_]/u   no-unused-vars
+  2:27  error  'useEffect' is defined but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+C:\Users\depor\OneDrive\Documentos\Proyecto Foodtruck\src\components\Receipt.jsx
+  7:29  error  React Hook "useOrder" is called conditionally. React Hooks must be called in the exact same order in every component render  react-hooks/rules-of-hooks
+
+C:\Users\depor\OneDrive\Documentos\Proyecto Foodtruck\src\context\OrderContext.jsx
+   6:14  error  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+  27:14  error  'e' is defined but never used                                                                                                   no-unused-vars
+
+C:\Users\depor\OneDrive\Documentos\Proyecto Foodtruck\src\pages\AdminPanel.jsx
+  1196:178  error  Parsing error: Unexpected token 60
+
+C:\Users\depor\OneDrive\Documentos\Proyecto Foodtruck\src\pages\ClientMenu.jsx
+   4:10  error  'motion' is defined but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+  73:16  error  'e' is defined but never used                                                  no-unused-vars
+
+C:\Users\depor\OneDrive\Documentos\Proyecto Foodtruck\src\pages\EmployeePanel.jsx
+  5:10  error  'motion' is defined but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+C:\Users\depor\OneDrive\Documentos\Proyecto Foodtruck\src\pages\LoginPage.jsx
+  1:27  error  'useEffect' is defined but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+  5:10  error  'motion' is defined but never used. Allowed unused vars must match /^[A-Z_]/u     no-unused-vars
+
+C:\Users\depor\OneDrive\Documentos\Proyecto Foodtruck\src\pages\OrderTracking.jsx
+   8:10  error    'motion' is defined but never used. Allowed unused vars must match /^[A-Z_]/u                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  no-unused-vars
+  26:7   error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  24 |     if (currentOrderId && !trackedOrderIds.includes(currentOrderId)) {
+  25 |       const newList = [...trackedOrderIds, currentOrderId];
+> 26 |       setTrackedOrderIds(newList);
+     |       ^^^^^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  27 |       localStorage.setItem('manolo_tracked_orders', JSON.stringify(newList));
+  28 |     }
+  29 |     setActiveTabId(currentOrderId);  react-hooks/set-state-in-effect
+  30:6   warning  React Hook useEffect has a missing dependency: 'trackedOrderIds'. Either include it or remove the dependency array                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             react-hooks/exhaustive-deps
+
+C:\Users\depor\OneDrive\Documentos\Proyecto Foodtruck\src\pages\PublicDisplay.jsx
+  3:41  error  Parsing error: Unterminated string constant
+
+C:\Users\depor\OneDrive\Documentos\Proyecto Foodtruck\src\pages\SellerPOS.jsx
+  155:9  error  Parsing error: Identifier 'amountToPay' has already been declared
+
+Ô£û 51 problems (46 errors, 5 warnings)
+  0 errors and 4 warnings potentially fixable with the `--fix` option.
+

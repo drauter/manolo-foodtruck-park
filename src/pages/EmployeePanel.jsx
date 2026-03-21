@@ -2,7 +2,7 @@ import React from 'react';
 import { useParams } from 'react-router-dom';
 import { useOrder } from '../context/OrderContext';
 import { Clock, CheckCircle, Package, Printer, X, Settings, AlertCircle } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence } from 'framer-motion';
 import Receipt from '../components/Receipt';
 
 const EmployeePanel = () => {
