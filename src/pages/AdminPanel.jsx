@@ -1,4 +1,4 @@
-﻿import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useOrder } from '../context/OrderContext';
 import { 
   Plus, Edit2, Trash2, DollarSign, Package, TrendingUp, 
@@ -11,6 +11,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import * as XLSX from 'xlsx';
 import Receipt from '../components/Receipt';
 
+// Main Admin Panel Component for Foodtruck Management
 const AdminPanel = () => {
   const { products, addProduct, updateProduct, deleteProduct, uploadProductImage, orders, updateStationStatus, updateOrder, cancelOrder, deleteOrder, deletePayment, currentUser, logout, shifts, deleteShift, users, addUser, deleteUser, addToCart, cart, removeFromCart, clearCart, placeOrder, printerConfig, updatePrinterConfig } = useOrder();
   const [activeTab, setActiveTab] = useState('dashboard'); 
