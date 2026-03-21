@@ -56,9 +56,9 @@ const AdminPanel = () => {
             
             let message = '';
             if (order.is_paid) {
-              message = `Orden nÃºmero ${ticket}, cliente ${name}, su pedido en la estaciÃ³n de ${station} estÃ¡ listo. Por favor pasar a retirar.`;
+              message = `Orden número ${ticket}, cliente ${name}, su pedido en la estación de ${station} está listo. Por favor pasar a retirar.`;
             } else {
-              message = `Orden nÃºmero ${ticket}, cliente ${name}, su pedido en la estaciÃ³n de ${station} estÃ¡ listo. Por favor pasar por caja para pagar y retirar su pedido.`;
+              message = `Orden número ${ticket}, cliente ${name}, su pedido en la estación de ${station} está listo. Por favor pasar por caja para pagar y retirar su pedido.`;
             }
             
             const utterance = new SpeechSynthesisUtterance(message);
@@ -121,6 +121,10 @@ const AdminPanel = () => {
   };
 
   const requireAdminAuth = (action) => {
+    if (currentUser?.role === 'admin') {
+      action();
+      return;
+    }
     setAuthAction(() => action);
     setIsAuthModalOpen(true);
   };
@@ -249,21 +253,39 @@ const AdminPanel = () => {
     const wsSales = XLSX.utils.json_to_sheet(salesData);
     XLSX.utils.book_append_sheet(wb, wsSales, "Ventas");
 
-    // Sheet 2: Inventory
-    const invData = products.map(p => ({
-      Nombre: p.name,
-      Estacion: p.station,
-      Precio: p.price,
-      Costo: p.cost,
-      Stock: p.stock,
-      Alerta: p.stock < 10 ? 'STOCK BAJO' : 'OK'
-    }));
-    const wsInv = XLSX.utils.json_to_sheet(invData);
-    XLSX.utils.book_append_sheet(wb, wsInv, "Inventario");
+    // Inventory sheets by station
+    const stations = [...new Set(products.map(p => p.station))];
+    
+    stations.forEach(station => {
+      const stationProducts = products.filter(p => p.station === station);
+      const invData = stationProducts.map(p => ({
+        Nombre: p.name,
+        Precio: p.price,
+        Costo: p.cost,
+        Stock: p.stock,
+        Valor: (Number(p.price) || 0) * (Number(p.stock) || 0),
+        Alerta: p.stock < 10 ? 'STOCK BAJO' : 'OK'
+      }));
 
-    // Sheet 3: Shifts (Cuadre)
+      const totalValue = invData.reduce((sum, item) => sum + item.Valor, 0);
+      
+      // Add Total Row
+      invData.push({
+        Nombre: 'TOTAL ESTACION',
+        Precio: '',
+        Costo: '',
+        Stock: '',
+        Valor: totalValue,
+        Alerta: ''
+      });
+
+      const wsInv = XLSX.utils.json_to_sheet(invData);
+      XLSX.utils.book_append_sheet(wb, wsInv, station || "Sin Estación");
+    });
+
+    // Sheet: Shifts (Cuadre)
     const shiftData = shifts.map(s => ({
-      Estacion: s.station,
+      Estación: s.station,
       Fecha: new Date(s.timestamp).toLocaleString(),
       Esperado: s.expected_sales,
       Efectivo: s.actual_cash,
@@ -277,7 +299,7 @@ const AdminPanel = () => {
 
   const handleFinalizePayment = () => {
     if (paymentMethod === 'cash' && (!amountReceived || Number(amountReceived) <= 0)) {
-      return alert("El campo de dinero estÃ¡ vacÃ­o o es invÃ¡lido.");
+      return alert("El campo de dinero está vacío o es inválido.");
     }
 
     const amountToPay = paymentOrder.items?.filter(i => i.station === paymentStation).reduce((sum, i) => sum + ((Number(i.price_at_time) || 0) * (Number(i.quantity) || 0)), 0) || 0;
@@ -322,7 +344,7 @@ const AdminPanel = () => {
     { id: 'inventory', label: 'Inventario', icon: Layers, roles: ['admin', 'catalogo', 'contador'] },
     { id: 'shifts', label: 'Turnos', icon: Filter, roles: ['admin'] },
     { id: 'users', label: 'Usuarios', icon: Users, roles: ['admin'] },
-    { id: 'settings', label: 'ConfiguraciÃ³n', icon: Settings, roles: ['admin'] },
+    { id: 'settings', label: 'Configuración', icon: Settings, roles: ['admin'] },
   ].filter(item => !item.roles || item.roles.includes(currentUser?.role));
    // Local Receipt component removed - using shared one from components/Receipt
  
@@ -722,7 +744,7 @@ const AdminPanel = () => {
                   <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8 mb-12">
                      <div>
                         <h2 className="text-4xl font-black uppercase italic tracking-tighter">Historial de Cobros</h2>
-                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-2">Registro de recaudaciÃ³n por cajero y estaciÃ³n</p>
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-2">Registro de recaudación por cajero y estación</p>
                      </div>
                      <div className="flex gap-4 bg-slate-100 p-2 rounded-3xl">
                         {['Todos', 'cash', 'card', 'transfer'].map(m => (
@@ -731,7 +753,7 @@ const AdminPanel = () => {
                              onClick={() => setSalesFilter(m)} 
                              className={`px-6 py-3 rounded-2xl text-[9px] font-black uppercase tracking-widest transition-all ${salesFilter === m ? 'bg-white text-slate-900 shadow-lg' : 'text-slate-400'}`}
                            >
-                              {m === 'Todos' ? 'MÃ©todos' : m === 'cash' ? 'Efectivo' : m === 'card' ? 'Tarjeta' : 'Transf.'}
+                              {m === 'Todos' ? 'Métodos' : m === 'cash' ? 'Efectivo' : m === 'card' ? 'Tarjeta' : 'Transf.'}
                            </button>
                         ))}
                      </div>
@@ -743,11 +765,11 @@ const AdminPanel = () => {
                            <tr className="bg-slate-950 text-white text-[10px] uppercase font-black tracking-widest">
                               <th className="p-8 border-r border-white/5">Ticket</th>
                               <th className="p-8 border-r border-white/5">Cliente</th>
-                              <th className="p-8 border-r border-white/5">EstaciÃ³n</th>
-                              <th className="p-8 border-r border-white/5">MÃ©todo</th>
+                              <th className="p-8 border-r border-white/5">Estación</th>
+                              <th className="p-8 border-r border-white/5">Método</th>
                               <th className="p-8 border-r border-white/5">Fecha/Hora</th>
                               <th className="p-8 border-r border-white/5 text-right">Monto</th>
-                              <th className="p-8 text-right">AcciÃ³n</th>
+                              <th className="p-8 text-right">Acción</th>
                            </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-200">
@@ -783,7 +805,7 @@ const AdminPanel = () => {
                                   <td className="p-8 text-right">
                                      <button onClick={() => { 
                                         requireAdminAuth(() => {
-                                          if(confirm("Â¿Eliminar registro de cobro?")) deletePayment(tx.order.id, tx.station); 
+                                          if(currentUser?.role === 'admin' || confirm("¿Eliminar registro de cobro?")) deletePayment(tx.order.id, tx.station); 
                                         });
                                       }} className="p-3 text-slate-300 hover:text-red-500 transition-all opacity-0 group-hover:opacity-100"><Trash2 size={20} /></button>
                                   </td>
@@ -792,13 +814,13 @@ const AdminPanel = () => {
                         </tbody>
                      </table>
                      {orders.filter(o => o.paymentDetails).length === 0 && (
-                        <div className="p-20 text-center opacity-20 italic font-black uppercase tracking-widest">No hay registros de cobros aÃºn</div>
+                        <div className="p-20 text-center opacity-20 italic font-black uppercase tracking-widest">No hay registros de cobros aún</div>
                      )}
                   </div>
                   
                   <div className="mt-12 flex justify-end gap-12 items-center bg-slate-900 p-8 rounded-[3rem] text-white">
                      <div className="text-right">
-                        <p className="text-[10px] font-black uppercase opacity-40">RecaudaciÃ³n Total</p>
+                        <p className="text-[10px] font-black uppercase opacity-40">Recaudación Total</p>
                         <p className="text-4xl font-black font-mono tracking-tighter text-emerald-400 shadow-emerald-500/20 shadow-lg">
                            ${orders
                              .filter(o => o.payment_details)
@@ -826,12 +848,12 @@ const AdminPanel = () => {
                   <table className="w-full text-left">
                      <thead>
                         <tr className="border-b border-slate-100 text-[10px] font-black uppercase tracking-widest text-slate-400">
-                           <th className="pb-6 px-4">EstaciÃ³n</th>
+                           <th className="pb-6 px-4">Estación</th>
                            <th className="pb-6 px-4">Fecha/Hora Cerrado</th>
                            <th className="pb-6 px-4">Esperado (Cash)</th>
                            <th className="pb-6 px-4">Reportado</th>
                            <th className="pb-6 px-4 text-center">Diferencia</th>
-                           <th className="pb-6 px-4 text-right">AcciÃ³n</th>
+                           <th className="pb-6 px-4 text-right">Acción</th>
                         </tr>
                      </thead>
                      <tbody className="divide-y divide-slate-50 font-bold text-sm">
@@ -849,7 +871,7 @@ const AdminPanel = () => {
                               <td className="py-6 px-4 text-right">
                                  <button onClick={() => { 
                                     requireAdminAuth(() => {
-                                      if(confirm("Â¿Eliminar registro de cuadre?")) deleteShift(shift.id); 
+                                      if(currentUser?.role === 'admin' || confirm("¿Eliminar registro de cuadre?")) deleteShift(shift.id); 
                                     });
                                   }} className="p-3 text-slate-300 hover:text-red-500 transition-all opacity-0 group-hover:opacity-100"><Trash2 size={20} /></button>
                               </td>
@@ -900,7 +922,7 @@ const AdminPanel = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                      <button onClick={() => { setIsEditingProduct(false); setEditingProduct(null); setIsModalOpen(true); }} className="p-6 rounded-[2.5rem] border-2 border-dashed border-slate-200 hover:border-emerald-500 hover:bg-emerald-50 transition-all flex flex-col items-center justify-center gap-4 text-slate-400 hover:text-emerald-600 group">
                         <div className="w-16 h-16 rounded-2xl bg-slate-50 flex items-center justify-center group-hover:bg-white transition-colors"><Plus size={32} /></div>
-                        <span className="font-black uppercase italic tracking-tighter">AÃ±adir Producto</span>
+                        <span className="font-black uppercase italic tracking-tighter">Añadir Producto</span>
                      </button>
                      {products.map(product => (
                         <div key={product.id} className={`p-6 rounded-[2.5rem] border transition-all relative group-inventory ${product.stock < 10 ? 'bg-amber-50 border-amber-200' : 'bg-slate-50 border-slate-100'}`}>
@@ -913,9 +935,9 @@ const AdminPanel = () => {
                                  });
                                }} className="p-2 bg-white rounded-xl shadow-sm text-slate-400 hover:text-blue-500 transition-colors"><Edit2 size={16} /></button>
                                <button onClick={() => { 
-                                 requireAdminAuth(() => {
-                                   if(confirm("Â¿Eliminar producto?")) deleteProduct(product.id); 
-                                 });
+                                  requireAdminAuth(() => {
+                                    if(currentUser?.role === 'admin' || confirm("¿Eliminar producto?")) deleteProduct(product.id); 
+                                  });
                                }} className="p-2 bg-white rounded-xl shadow-sm text-slate-400 hover:text-red-500 transition-colors"><Trash2 size={16} /></button>
                             </div>
                            <div className="flex gap-4 mb-6">
@@ -963,8 +985,8 @@ const AdminPanel = () => {
                <div className="bg-white p-12 rounded-[4rem] border border-slate-100 shadow-sm">
                   <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8 mb-12">
                      <div>
-                        <h2 className="text-3xl font-black uppercase italic tracking-tighter">ConfiguraciÃ³n de Impresoras</h2>
-                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">VÃ­nculo independiente para estaciones de trabajo</p>
+                        <h2 className="text-3xl font-black uppercase italic tracking-tighter">Configuración de Impresoras</h2>
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Vínculo independiente para estaciones de trabajo</p>
                      </div>
                      <div className="flex gap-4">
                         <button className="flex items-center gap-3 px-8 py-5 bg-[#C29F5C] text-white rounded-[2rem] font-black uppercase text-[10px] shadow-lg hover:opacity-90 transition-all tracking-widest">
@@ -1010,9 +1032,9 @@ const AdminPanel = () => {
                         <div>
                            <div className="flex items-center gap-3">
                                <h3 className="text-2xl font-black uppercase italic tracking-tighter text-slate-900">Voz de Anuncios</h3>
-                               <span className="px-3 py-1 bg-emerald-100 text-emerald-700 text-[8px] font-black uppercase rounded-full tracking-widest animate-pulse border border-emerald-200">Guardado AutomÃ¡tico</span>
+                               <span className="px-3 py-1 bg-emerald-100 text-emerald-700 text-[8px] font-black uppercase rounded-full tracking-widest animate-pulse border border-emerald-200">Guardado Automático</span>
                             </div>
-                           <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-0.5">Personaliza el llamado a clientes (SegÃºn tu navegador)</p>
+                           <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-0.5">Personaliza el llamado a clientes (Según tu navegador)</p>
                         </div>
                      </div>
 
@@ -1084,10 +1106,10 @@ const AdminPanel = () => {
                   <div className="mt-12 p-8 bg-amber-50 rounded-[3rem] border border-amber-100 flex items-start gap-6">
                      <AlertCircle className="text-amber-500 shrink-0" size={24} />
                      <div>
-                        <p className="font-black text-sm uppercase text-amber-900 tracking-tight">Nota sobre ImpresiÃ³n Web</p>
+                        <p className="font-black text-sm uppercase text-amber-900 tracking-tight">Nota sobre Impresión Web</p>
                         <p className="text-[10px] font-bold text-amber-700 uppercase tracking-wide mt-1 leading-relaxed">
-                           Debido a restricciones de seguridad del navegador, la impresiÃ³n fÃ­sica requiere confirmar el diÃ¡logo de impresiÃ³n. 
-                           AsegÃºrate de configurar cada impresora como la predeterminada en su estaciÃ³n de trabajo correspondiente.
+                           Debido a restricciones de seguridad del navegador, la impresiÃ³n física requiere confirmar el diálogo de impresiÃ³n. 
+                           Asegúrate de configurar cada impresora como la predeterminada en su estación de trabajo correspondiente.
                         </p>
                      </div>
                   </div>
@@ -1240,8 +1262,8 @@ const AdminPanel = () => {
                   </div>
                   
                   <div className="space-y-2">
-                     <label className="text-[10px] font-black uppercase text-slate-400 ml-2">DescripciÃ³n</label>
-                     <textarea placeholder="DescripciÃ³n..." value={isEditingProduct ? editingProduct.description : newProduct.description} onChange={e => isEditingProduct ? setEditingProduct({...editingProduct, description: e.target.value}) : setNewProduct({...newProduct, description: e.target.value})} className="w-full bg-slate-50 p-5 rounded-2xl font-bold h-24 border border-slate-100" />
+                     <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Descripción</label>
+                     <textarea placeholder="Descripción..." value={isEditingProduct ? editingProduct.description : newProduct.description} onChange={e => isEditingProduct ? setEditingProduct({...editingProduct, description: e.target.value}) : setNewProduct({...newProduct, description: e.target.value})} className="w-full bg-slate-50 p-5 rounded-2xl font-bold h-24 border border-slate-100" />
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
@@ -1257,15 +1279,15 @@ const AdminPanel = () => {
 
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                       <label className="text-[10px] font-black uppercase text-slate-400 ml-2">CategorÃ­a</label>
+                       <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Categoría</label>
                        <select value={isEditingProduct ? editingProduct.category : newProduct.category} onChange={e => isEditingProduct ? setEditingProduct({...editingProduct, category: e.target.value}) : setNewProduct({...newProduct, category: e.target.value})} className="w-full bg-slate-50 p-5 rounded-2xl font-bold border border-slate-100">
                           <option>Burgers</option><option>Complementos</option><option>Bebidas</option><option>Postres</option>
                        </select>
                     </div>
                     <div className="space-y-2">
-                       <label className="text-[10px] font-black uppercase text-slate-400 ml-2">EstaciÃ³n</label>
+                       <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Estación</label>
                        <select value={isEditingProduct ? editingProduct.station : newProduct.station} onChange={e => isEditingProduct ? setEditingProduct({...editingProduct, station: e.target.value}) : setNewProduct({...newProduct, station: e.target.value})} className="w-full bg-slate-50 p-5 rounded-2xl font-black uppercase text-[10px] border border-slate-100">
-                          <option value="COMIDA RÃPIDA">Comida RÃ¡pida</option>
+                          <option value="COMIDA RÃPIDA">Comida Rápida</option>
                           <option value="BAR">Bar / Bebidas</option>
                           <option value="DULCES/POSTRES">Postres / Dulces</option>
                        </select>
@@ -1333,10 +1355,10 @@ const AdminPanel = () => {
                   </div>
                   {userData.role === 'vendedor' && (
                     <div className="space-y-2">
-                      <label className="text-xs font-black uppercase text-slate-400 ml-2 italic">EstaciÃ³n</label>
+                      <label className="text-xs font-black uppercase text-slate-400 ml-2 italic">Estación</label>
                       <select value={userData.station} onChange={e => setUserData({...userData, station: e.target.value})} className="w-full bg-slate-50 p-5 rounded-2xl font-black uppercase text-[10px]">
                          <option value="BAR">Bar</option>
-                         <option value="COMIDA RÃPIDA">Comida RÃ¡pida</option>
+                         <option value="COMIDA RÃPIDA">Comida Rápida</option>
                          <option value="DULCES/POSTRES">Postres / Dulces</option>
                          <option value="CAJA">Caja</option>
                       </select>
@@ -1355,8 +1377,8 @@ const AdminPanel = () => {
               <div className="w-16 h-16 bg-slate-100 rounded-3xl flex items-center justify-center mx-auto mb-6 text-slate-400">
                 <Shield size={32} />
               </div>
-              <h2 className="text-2xl font-black uppercase italic tracking-tighter mb-2">AutorizaciÃ³n Admin</h2>
-              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-8">Esta acciÃ³n requiere la clave del administrador</p>
+              <h2 className="text-2xl font-black uppercase italic tracking-tighter mb-2">Autorización Admin</h2>
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-8">Esta acción requiere la clave del administrador</p>
               
               <form onSubmit={handleAuthSubmit} className="space-y-6">
                 <input 
