@@ -1,4 +1,6 @@
 -- Setup for Supabase Digital Ordering System: MANOLO FOODTRUCK PARK
+-- MIGRACIÓN MANUAL (CORRER EN SQL EDITOR DE SUPABASE):
+-- ALTER TABLE orders ADD COLUMN notes TEXT;
 
 -- 1. Enable UUID Extension
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
@@ -29,6 +31,7 @@ CREATE TABLE orders (
   total_price NUMERIC NOT NULL,
   total_cost NUMERIC DEFAULT 0,
   is_paid BOOLEAN DEFAULT false,
+  notes TEXT, -- New: Special instructions or comments
   station_statuses JSONB DEFAULT '{}'::jsonb, -- { "STATION": "status" }
   payment_details JSONB DEFAULT '{}'::jsonb, -- { "STATION": { "method": "...", "received": 0 } }
   timestamp TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL

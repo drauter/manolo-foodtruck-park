@@ -111,7 +111,7 @@ const OrderTracking = () => {
                     key={o.id}
                     onClick={() => {
                         setActiveTabId(o.id);
-                        navigate(`/order-tracking/${o.id}`, { replace: true });
+                        navigate(`/tracking/${o.id}`, { replace: true });
                     }}
                     className={`shrink-0 px-6 py-4 rounded-2xl border transition-all flex flex-col items-center gap-1 ${activeTabId === o.id ? 'bg-emerald-500 border-emerald-400 text-white shadow-lg scale-105' : 'bg-slate-900 border-white/5 text-slate-500 hover:text-slate-300'}`}
                  >
@@ -215,12 +215,18 @@ const OrderTracking = () => {
                       <div key={i} className="flex justify-between items-center text-xs font-black uppercase tracking-tight">
                           <div className="flex items-center gap-3 basis-2/3">
                               <span className="text-slate-400 font-mono italic">x{item.quantity}</span>
-                              <span className="truncate">{item.name}</span>
+                              <span className="truncate">{item.products?.name || item.product?.name || 'Producto'}</span>
                           </div>
                           <span className="font-mono text-slate-950">${item.price_at_time * item.quantity}</span>
                       </div>
                     ))}
                 </div>
+                {order.notes && (
+                  <div className="mb-8 p-6 bg-slate-50 rounded-[2rem] border border-slate-100">
+                    <div className="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-1">Notas:</div>
+                    <div className="text-sm font-bold italic text-slate-900 leading-tight">"{order.notes}"</div>
+                  </div>
+                )}
 
                 <div className="flex justify-between items-end border-t-4 border-slate-950 pt-8 mt-auto">
                     <div>

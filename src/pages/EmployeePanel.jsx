@@ -1,14 +1,15 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
 import { useOrder } from '../context/OrderContext';
-import { Clock, CheckCircle, Package, Printer, X } from 'lucide-react';
+import { Clock, CheckCircle, Package, Printer, X, Settings, AlertCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Receipt from '../components/Receipt';
 
 const EmployeePanel = () => {
   const { station } = useParams();
-  const { orders, updateStationStatus } = useOrder();
+  const { orders, updateStationStatus, printerConfig, updatePrinterConfig } = useOrder();
   const [printingOrder, setPrintingOrder] = React.useState(null);
+  const [showSettings, setShowSettings] = React.useState(false);
 
   // Map URL parameter to display name and icon
   const stationConfig = {
@@ -21,29 +22,65 @@ const EmployeePanel = () => {
 
   const currentStation = stationConfig[station.toLowerCase()] || stationConfig['comida-rapida'];
   const stationKey = currentStation.label;
+  const [activeTab, setActiveTab] = React.useState('prep'); // 'prep', 'dispatch', or 'history'
 
-  const stationOrders = orders.filter(order => 
-    order.items?.some(item => item.station === stationKey) && 
-    order.station_statuses && order.station_statuses[stationKey] !== 'delivered' &&
-    order.station_statuses[stationKey] !== 'ready'
-  );
+  const stationOrders = orders.filter(order => {
+    const isOurOrder = order.items?.some(item => item.station === stationKey);
+    const stationStatus = order.station_statuses?.[stationKey];
+    
+    if (activeTab === 'prep') {
+      return isOurOrder && stationStatus !== 'delivered' && stationStatus !== 'ready';
+    } else if (activeTab === 'dispatch') {
+      return isOurOrder && stationStatus === 'ready';
+    } else {
+      return isOurOrder && stationStatus === 'delivered';
+    }
+  }).sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+  if (activeTab === 'history') {
+    stationOrders.splice(20); // Limit history to last 20
+  }
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 p-6 font-sans">
       <header className="mb-10 flex flex-col md:flex-row md:items-center justify-between gap-6 bg-slate-900 p-8 rounded-[2.5rem] border border-slate-800 shadow-2xl">
         <div className="flex items-center gap-6">
           <div className={`p-5 rounded-3xl ${currentStation.bg} ${currentStation.color} shadow-lg border border-current/20`}>
-            <Printer size={32} />
+            <Package size={32} />
           </div>
           <div>
             <h1 className="text-4xl font-black text-white tracking-tighter uppercase italic leading-none">ESTACIÓN: <span className={currentStation.color}>{currentStation.label}</span></h1>
-            <p className="text-slate-400 mt-1 font-bold uppercase tracking-widest text-xs opacity-60">Panel de Producción Independiente</p>
+            <p className="text-slate-400 mt-1 font-bold uppercase tracking-widest text-xs opacity-60">Gestión de Producción y Despacho</p>
           </div>
         </div>
         
-        <div className="bg-slate-950 px-6 py-4 rounded-3xl border border-slate-800 flex items-center gap-4">
-          <div className={`w-3 h-3 rounded-full animate-pulse ${currentStation.color.replace('text', 'bg')}`} />
-          <span className="font-black text-xl">{stationOrders.length} Pendientes</span>
+        <div className="flex gap-4 items-center">
+          <div className="flex gap-2 bg-slate-950 p-2 rounded-[2rem] border border-slate-800">
+            <button 
+              onClick={() => setActiveTab('prep')}
+              className={`px-8 py-3 rounded-2xl font-black text-xs uppercase tracking-widest transition-all ${activeTab === 'prep' ? currentStation.bg + ' ' + currentStation.color : 'text-slate-500 hover:text-slate-300'}`}
+            >
+              Producción
+            </button>
+            <button 
+              onClick={() => setActiveTab('dispatch')}
+              className={`px-8 py-3 rounded-2xl font-black text-xs uppercase tracking-widest transition-all ${activeTab === 'dispatch' ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20' : 'text-slate-500 hover:text-slate-300'}`}
+            >
+              Despacho
+            </button>
+            <button 
+              onClick={() => setActiveTab('history')}
+              className={`px-8 py-3 rounded-2xl font-black text-xs uppercase tracking-widest transition-all ${activeTab === 'history' ? 'bg-slate-800 text-white border border-white/10' : 'text-slate-500 hover:text-slate-300'}`}
+            >
+              Entregados
+            </button>
+          </div>
+          <button 
+            onClick={() => setShowSettings(true)}
+            className="p-4 bg-slate-950 text-slate-500 hover:text-white rounded-2xl border border-slate-800 transition-all hover:scale-105 active:scale-95"
+          >
+            <Settings size={24} />
+          </button>
         </div>
       </header>
 
@@ -85,11 +122,30 @@ const EmployeePanel = () => {
                       <span className="bg-emerald-500 text-emerald-950 font-black w-10 h-10 rounded-xl flex items-center justify-center text-xl shadow-lg">
                         {item.quantity}
                       </span>
-                      <span className="text-xl font-bold text-slate-100">{item.name}</span>
+                      <div className="flex flex-col">
+                        <span className="text-xl font-bold text-slate-100 uppercase tracking-tight leading-none">
+                          {item.products?.name || item.product?.name || 'Producto'}
+                        </span>
+                        {(item.products?.description || item.product?.description) && (
+                          <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1.5 opacity-60 italic leading-tight">
+                            {item.products?.description || item.product?.description}
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
                 ))}
               </div>
+
+              {order.notes && (
+                <div className="mx-8 mb-6 p-4 bg-amber-500/10 border border-amber-500/20 rounded-2xl shadow-inner">
+                  <div className="flex items-center gap-2 mb-1">
+                    <AlertCircle size={14} className="text-amber-500" />
+                    <span className="text-[10px] font-black uppercase tracking-widest text-amber-500">Notas/Instrucciones</span>
+                  </div>
+                  <p className="text-sm font-bold text-amber-100 italic">"{order.notes}"</p>
+                </div>
+              )}
 
               <div className="flex gap-4 p-6 bg-slate-800/20 mt-auto">
                 <button 
@@ -98,12 +154,27 @@ const EmployeePanel = () => {
                 >
                   <Printer size={24} /> IMPRIMIR
                 </button>
-                <button 
-                  onClick={() => updateStationStatus(order.id, stationKey, 'ready')}
-                  className="flex-[2] py-5 bg-emerald-600 text-white font-black rounded-2xl hover:bg-emerald-500 active:scale-95 transition-all flex items-center justify-center gap-3 text-lg shadow-xl"
-                >
-                  <CheckCircle size={24} /> MARCAR LISTO
-                </button>
+                {activeTab === 'prep' && (
+                  <button 
+                    onClick={() => updateStationStatus(order.id, stationKey, 'ready')}
+                    className="flex-[2] py-5 bg-emerald-600 text-white font-black rounded-2xl hover:bg-emerald-500 active:scale-95 transition-all flex items-center justify-center gap-3 text-lg shadow-xl"
+                  >
+                    <CheckCircle size={24} /> MARCAR LISTO
+                  </button>
+                )}
+                {activeTab === 'dispatch' && (
+                  <button 
+                    onClick={() => updateStationStatus(order.id, stationKey, 'delivered')}
+                    className="flex-[2] py-5 bg-blue-600 text-white font-black rounded-2xl hover:bg-blue-500 active:scale-95 transition-all flex items-center justify-center gap-3 text-lg shadow-xl uppercase italic tracking-tighter"
+                  >
+                    <Package size={24} /> Entregar Pedido
+                  </button>
+                )}
+                {activeTab === 'history' && (
+                  <div className="flex-[2] py-5 bg-slate-950 text-emerald-500 font-black rounded-2xl flex items-center justify-center gap-3 text-sm uppercase italic border border-emerald-500/20">
+                    <CheckCircle size={18} /> Entregado
+                  </div>
+                )}
               </div>
             </motion.div>
           ))}
@@ -132,6 +203,73 @@ const EmployeePanel = () => {
                   </button>
                 </div>
               </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+      {/* Settings Modal */}
+      <AnimatePresence>
+        {showSettings && (
+          <>
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowSettings(false)} className="fixed inset-0 bg-slate-950/90 backdrop-blur-xl z-[200]" />
+            <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg bg-white p-12 rounded-[4rem] shadow-2xl z-[201] border border-slate-100 text-slate-950">
+               <div className="flex justify-between items-center mb-10">
+                  <h2 className="text-3xl font-black uppercase italic tracking-tighter">Configuración Station</h2>
+                  <button onClick={() => setShowSettings(false)} className="p-3 bg-slate-100 rounded-2xl text-slate-400 hover:text-red-500 transition-colors"><X size={24} /></button>
+               </div>
+
+               <div className="space-y-8">
+                  <div className="space-y-4">
+                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-6">ANCHO DE PAPEL (STATION)</label>
+                     <div className="grid grid-cols-2 gap-4">
+                        {['80mm', '58mm'].map(w => (
+                           <button 
+                              key={w} 
+                              onClick={() => updatePrinterConfig(stationKey, { paperWidth: w })}
+                              className={`py-8 rounded-[2.5rem] font-black text-2xl transition-all border-2 ${printerConfig[stationKey]?.paperWidth === w ? 'bg-emerald-600 border-emerald-500 text-white shadow-xl scale-105' : 'bg-slate-50 border-slate-100 text-slate-300 hover:border-slate-200'}`}
+                           >
+                              {w}
+                           </button>
+                        ))}
+                     </div>
+                  </div>
+
+                  <div className="space-y-4">
+                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-6">AUTO-DESCARGA PDF</label>
+                     <div 
+                        onClick={() => updatePrinterConfig(stationKey, { autoDownload: !printerConfig[stationKey]?.autoDownload })} 
+                        className={`flex items-center gap-6 p-8 rounded-[2.5rem] border cursor-pointer group transition-all ${printerConfig[stationKey]?.autoDownload ? 'bg-emerald-50 border-emerald-200' : 'bg-slate-50 border-slate-100'}`}
+                     >
+                        <div className={`w-8 h-8 shrink-0 rounded-xl border-2 flex items-center justify-center transition-all ${printerConfig[stationKey]?.autoDownload ? 'bg-emerald-600 border-emerald-500' : 'bg-white border-slate-200'}`}>
+                           {printerConfig[stationKey]?.autoDownload && <div className="w-3 h-3 bg-white rounded-sm" />}
+                        </div>
+                        <span className="text-[10px] font-black uppercase italic tracking-tighter text-slate-900 leading-none">Activar descarga automática de tickets</span>
+                     </div>
+                  </div>
+
+                  <div className="pt-6 border-t border-slate-100 flex flex-col gap-4">
+                     <button 
+                        onClick={() => window.print()}
+                        className="w-full py-6 bg-blue-600 text-white rounded-[2rem] font-black uppercase text-xs tracking-[0.2em] shadow-lg hover:bg-blue-500 transition-all flex items-center justify-center gap-3"
+                     >
+                        <Printer size={20} />
+                        BUSCAR / PROBAR IMPRESORA
+                     </button>
+                     <div className="bg-amber-50 p-6 rounded-3xl border border-amber-100 flex items-start gap-4">
+                        <AlertCircle className="text-amber-500 shrink-0" size={20} />
+                        <p className="text-[9px] font-bold text-amber-700 uppercase tracking-wide leading-relaxed">
+                           Al tocar el botón azul, se abrirá el buscador de impresoras de tu dispositivo. Selecciona tu impresora térmica y guárdala como predeterminada.
+                        </p>
+                     </div>
+                  </div>
+
+                  <button 
+                    onClick={() => setShowSettings(false)}
+                    className="w-full py-6 bg-slate-900 text-white rounded-[2rem] font-black uppercase text-xs tracking-[0.2em] shadow-xl hover:bg-slate-800 transition-all mt-4"
+                  >
+                    Guardar y Cerrar
+                  </button>
+               </div>
             </motion.div>
           </>
         )}

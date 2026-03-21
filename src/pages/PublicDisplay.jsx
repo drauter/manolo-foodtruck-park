@@ -76,9 +76,10 @@ const StationColumn = ({ label, icon: Icon, color, orders, stationKey }) => {
                   key={order.id}
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  className="bg-slate-800/50 px-3 py-1.5 rounded-xl border border-slate-700/50 flex items-center gap-1.5"
+                  className="bg-slate-800/50 px-3 py-1.5 rounded-xl border border-slate-700/50 flex items-center gap-2"
                 >
                   <span className="text-[11px] font-black text-slate-400">#{order.ticket_number}</span>
+                  <span className="text-[9px] font-bold text-slate-500 uppercase truncate max-w-[60px]">{order.customer_name}</span>
                 </motion.div>
               ))}
             </AnimatePresence>

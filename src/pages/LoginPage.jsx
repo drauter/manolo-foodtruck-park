@@ -44,7 +44,7 @@ const LoginPage = () => {
       // Brief delay to show who was identified
       setTimeout(() => {
         login(user.role, user.station);
-        if (user.role === 'admin' || user.role === 'catalogo') {
+        if (user.role === 'admin' || user.role === 'catalogo' || user.role === 'contador') {
           navigate('/admin');
         } else {
           if (user.role === 'vendedor') {

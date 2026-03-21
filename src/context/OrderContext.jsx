@@ -37,9 +37,9 @@ export const OrderProvider = ({ children }) => {
       } else {
         // Seed if empty
         const initialProducts = [
-          { name: 'Burger Clásica', description: 'Carne, queso, lechuga y tomate.', price: 1200, category: 'Burgers', station: 'COMIDA RÁPIDA' },
-          { name: 'Coca Cola 500ml', description: 'Bebida gaseosa.', price: 400, category: 'Bebidas', station: 'BAR' },
-          { name: 'Mini Donas (6 uds)', description: 'Glaseadas y con chispas.', price: 800, category: 'Postres', station: 'DULCES/POSTRES' },
+          { name: 'Burger Clásica', description: 'Carne, queso, lechuga y tomate.', price: 1200, category: 'Burgers', station: 'COMIDA RÁPIDA', image_url: '/burger.png' },
+          { name: 'Coca Cola 500ml', description: 'Bebida gaseosa.', price: 400, category: 'Bebidas', station: 'BAR', image_url: '/soda.png' },
+          { name: 'Mini Donas (6 uds)', description: 'Glaseadas y con chispas.', price: 800, category: 'Postres', station: 'DULCES/POSTRES', image_url: '/donas.png' },
         ];
         const { data: seeded } = await supabase.from('products').insert(initialProducts).select();
         if (seeded) setProducts(seeded);
@@ -59,7 +59,7 @@ export const OrderProvider = ({ children }) => {
       }
 
       // Fetch Orders
-      const { data: ordersData } = await supabase.from('orders').select('*, order_items(*)').order('timestamp', { ascending: false });
+      const { data: ordersData } = await supabase.from('orders').select('*, order_items(*, products(name, description))').order('timestamp', { ascending: false });
       if (ordersData) {
         setOrders(ordersData.map(o => ({ ...o, items: o.order_items })));
       }
@@ -71,7 +71,7 @@ export const OrderProvider = ({ children }) => {
     const ordersSubscription = supabase
       .channel('public:orders')
       .on('postgres_changes', { event: '*', table: 'orders' }, async () => {
-        const { data } = await supabase.from('orders').select('*, order_items(*)').order('timestamp', { ascending: false });
+        const { data } = await supabase.from('orders').select('*, order_items(*, products(name, description))').order('timestamp', { ascending: false });
         if (data) setOrders(data.map(o => ({ ...o, items: o.order_items })));
       })
       .subscribe();
@@ -116,7 +116,7 @@ export const OrderProvider = ({ children }) => {
 
   const clearCart = () => setCart([]);
 
-  const placeOrder = async (customerName, source = 'client') => {
+  const placeOrder = async (customerName, source = 'client', notes = '') => {
     if (cart.length === 0) return;
 
     const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
@@ -131,6 +131,7 @@ export const OrderProvider = ({ children }) => {
       status: 'received',
       station_statuses: stationStatuses,
       is_paid: false,
+      notes: notes || '',
       timestamp: new Date().toISOString()
     };
 
@@ -146,7 +147,16 @@ export const OrderProvider = ({ children }) => {
     }));
 
     await supabase.from('order_items').insert(itemsToInsert);
+    
+    // Fetch the full order with its items to return it
+    const { data: fullOrder } = await supabase
+      .from('orders')
+      .select('*, order_items(*, products(name, description))')
+      .eq('id', order.id)
+      .single();
+
     clearCart();
+    return { ...fullOrder, items: fullOrder.order_items };
   };
 
   const updateOrderStatus = (orderId, newStatus) => {
@@ -223,8 +233,35 @@ export const OrderProvider = ({ children }) => {
     await supabase.from('orders').delete().eq('id', orderId);
   };
 
-  const updateProduct = async (productId, updatedData) => {
-    await supabase.from('products').update(updatedData).eq('id', productId);
+  const updateProduct = async (id, updates) => {
+    const { data: updatedProd, error } = await supabase
+      .from('products')
+      .update(updates)
+      .eq('id', id)
+      .select();
+
+    if (error) {
+      console.error('ERROR UPDATING PRODUCT:', error);
+      alert("Error al actualizar producto: " + error.message);
+      return null;
+    }
+
+    if (updatedProd) {
+      setProducts(prev => prev.map(p => p.id === id ? updatedProd[0] : p));
+      return updatedProd[0];
+    }
+  };
+
+  const deleteProduct = async (id) => {
+    const { error } = await supabase
+      .from('products')
+      .delete()
+      .eq('id', id);
+
+    if (!error) {
+      setProducts(prev => prev.filter(p => p.id !== id));
+      return true;
+    }
   };
 
   const addStock = async (productId, quantity) => {
@@ -263,15 +300,90 @@ export const OrderProvider = ({ children }) => {
     }));
   };
 
-  const addProduct = async (newProduct) => {
-    await supabase.from('products').insert(newProduct);
+  const addProduct = async (newProductData) => {
+    const { data: newProd, error } = await supabase
+      .from('products')
+      .insert([newProductData])
+      .select();
+
+    if (error) {
+      console.error('ERROR ADDING PRODUCT:', error);
+      alert("Error al añadir producto: " + error.message);
+      return null;
+    }
+
+    if (newProd) {
+      setProducts(prev => [...prev, newProd[0]]);
+      return newProd[0];
+    }
+  };
+
+  const compressImage = (file) => {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = (event) => {
+        const img = new Image();
+        img.src = event.target.result;
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+          const maxDim = 800;
+
+          if (width > height && width > maxDim) {
+            height *= maxDim / width;
+            width = maxDim;
+          } else if (height > maxDim) {
+            width *= maxDim / height;
+            height = maxDim;
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+          
+          canvas.toBlob((blob) => {
+            resolve(new File([blob], file.name.replace(/\.[^/.]+$/, "") + ".webp", {
+              type: 'image/webp',
+              lastModified: Date.now()
+            }));
+          }, 'image/webp', 0.8);
+        };
+      };
+    });
+  };
+
+  const uploadProductImage = async (file) => {
+    try {
+      const compressedFile = await compressImage(file);
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.webp`;
+      const filePath = `${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('products')
+        .upload(filePath, compressedFile);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('products')
+        .getPublicUrl(filePath);
+
+      return publicUrl;
+    } catch (err) {
+      console.error('DETAILED UPLOAD ERROR:', err);
+      // We can't easily show the console to the user, but we can alert the message
+      if (err.message) alert("Error técnico: " + err.message);
+      return null;
+    }
   };
 
   const login = (role, station = null) => {
     let normalizedStation = station ? station.toUpperCase() : null;
     if (normalizedStation === 'COMIDA RAPIDA') normalizedStation = 'COMIDA RÁPIDA';
     
-    console.log("Logging in with role:", role, "Original station:", station, "Normalized:", normalizedStation);
     const user = { role, station: normalizedStation };
     setCurrentUser(user);
     localStorage.setItem('foodtruck_user', JSON.stringify(user));
@@ -291,7 +403,7 @@ export const OrderProvider = ({ children }) => {
       const method = detail ? detail.method : 'desconocido';
       const itemsTotal = o.items
         .filter(i => i.station === stationName)
-        .reduce((sum, i) => sum + (i.price_at_time * i.quantity), 0);
+        .reduce((sum, i) => sum + ((Number(i.price_at_time) || 0) * (Number(i.quantity) || 0)), 0);
       
       acc[method] = (acc[method] || 0) + itemsTotal;
       return acc;
@@ -330,7 +442,7 @@ export const OrderProvider = ({ children }) => {
 
   return (
     <OrderContext.Provider value={{ 
-      products, setProducts, addProduct, updateProduct, addStock,
+      products, setProducts, addProduct, updateProduct, deleteProduct, addStock, uploadProductImage,
       cart, addToCart, removeFromCart, clearCart, placeOrder, 
       orders, updateOrderStatus, updateStationStatus, updateOrder, cancelOrder, deleteOrder, deletePayment,
       markStationReady,

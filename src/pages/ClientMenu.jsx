@@ -10,7 +10,7 @@ const ProductItem = ({ product, addToCart }) => {
   return (
     <div className="bg-slate-900 rounded-[2.5rem] overflow-hidden border border-slate-800 flex shadow-xl hover:border-emerald-500/50 transition-all group p-4 gap-6">
       <div className="w-24 h-24 flex-shrink-0 bg-slate-800 rounded-3xl overflow-hidden relative">
-        <img src={product.image} alt={product.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+        <img src={product.image_url} alt={product.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
       </div>
       <div className="flex-grow flex flex-col justify-between py-1">
         <div>
@@ -45,6 +45,7 @@ const ClientMenu = () => {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [orderConfirmed, setOrderConfirmed] = useState(null);
   const [customerName, setCustomerName] = useState('');
+  const [orderNotes, setOrderNotes] = useState('');
   
   const navigate = useNavigate();
 
@@ -56,9 +57,9 @@ const ClientMenu = () => {
   const menuStations = ['COMIDA RÁPIDA', 'BAR', 'DULCES/POSTRES'];
   const [activeStation, setActiveStation] = useState('COMIDA RÁPIDA');
 
-  const handlePlaceOrder = () => {
+  const handlePlaceOrder = async () => {
     if (!customerName.trim()) return alert("Ingresa tu nombre para el ticket");
-    const order = placeOrder(customerName.trim());
+    const order = await placeOrder(customerName.trim(), 'client', orderNotes);
     if (order) {
       localStorage.setItem('manolo_active_order', order.id);
       
@@ -75,8 +76,9 @@ const ClientMenu = () => {
       setOrderConfirmed(order);
       setIsCartOpen(false);
       setCustomerName('');
+      setOrderNotes('');
       // Redirect to tracking for customers
-      setTimeout(() => navigate(`/tracking/${order.id}`), 4000);
+      setTimeout(() => navigate(`/tracking/${order.id}`), 1000);
     }
   };
 
@@ -220,9 +222,20 @@ const ClientMenu = () => {
                 </div>
 
                 <div className="bg-slate-950 p-8 rounded-[3rem] border border-white/5 shadow-inner space-y-6 mt-auto">
-                   <div className="space-y-2">
-                      <label className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-600 ml-4">Tu Nombre para el Ticket</label>
-                      <input type="text" value={customerName} onChange={e => setCustomerName(e.target.value)} placeholder="..." className="w-full bg-slate-900 p-6 rounded-3xl font-black text-4xl italic text-center text-white border border-white/5 outline-none focus:ring-4 focus:ring-emerald-500/20" />
+                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="space-y-2">
+                         <label className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-600 ml-4">Tu Nombre</label>
+                         <input type="text" value={customerName} onChange={e => setCustomerName(e.target.value)} placeholder="..." className="w-full bg-slate-900 p-6 rounded-3xl font-black text-2xl italic text-center text-white border border-white/5 outline-none focus:ring-4 focus:ring-emerald-500/20" />
+                      </div>
+                      <div className="space-y-2">
+                         <label className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-600 ml-4">Instrucciones Especiales</label>
+                         <textarea 
+                           value={orderNotes} 
+                           onChange={e => setOrderNotes(e.target.value)} 
+                           placeholder="Ej: Sin cebolla, extra salsa..." 
+                           className="w-full bg-slate-900 p-6 rounded-3xl font-bold text-sm italic text-white border border-white/5 outline-none focus:ring-4 focus:ring-emerald-500/20 resize-none h-[88px] placeholder:text-slate-700" 
+                         />
+                      </div>
                    </div>
                    <div className="flex justify-between items-center pt-4">
                       <span className="text-4xl font-black font-mono tracking-tighter text-white">${total}</span>
@@ -250,7 +263,7 @@ const ClientMenu = () => {
                       <Clock className="text-emerald-600" />
                       <p className="text-[10px] font-black uppercase tracking-widest leading-relaxed">Redirigiendo al RASTREADOR en vivo...</p>
                       <div className="w-full h-1 bg-slate-200 rounded-full overflow-hidden">
-                          <motion.div initial={{ width: 0 }} animate={{ width: '100%' }} transition={{ duration: 4 }} className="h-full bg-emerald-500" />
+                          <motion.div initial={{ width: 0 }} animate={{ width: '100%' }} transition={{ duration: 1 }} className="h-full bg-emerald-500" />
                       </div>
                    </div>
                    <button onClick={() => setOrderConfirmed(null)} className="w-full py-5 bg-slate-900 text-white rounded-[1.5rem] font-black uppercase text-xs tracking-widest shadow-xl">Entendido</button>

@@ -77,7 +77,7 @@ const Receipt = ({ order, station = 'CAJA' }) => {
              <tbody className="divide-y divide-slate-100">
                 {order.items?.filter(item => station === 'CAJA' || item.station === station).map((item, i) => (
                    <tr key={i} className="text-xs font-bold text-slate-900">
-                      <td className="py-4 uppercase tracking-tighter italic">{item.name}</td>
+                      <td className="py-4 uppercase tracking-tighter italic">{item.products?.name || item.product?.name || 'Producto'}</td>
                       <td className="py-4 text-center font-mono">x{item.quantity}</td>
                       <td className="py-4 text-right font-mono">${item.price_at_time * item.quantity}</td>
                    </tr>

@@ -2,7 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { useOrder } from '../context/OrderContext';
 import { 
   ShoppingCart, Plus, Minus, X, CheckCircle, Wallet, LogOut, 
-  Banknote, CreditCard, Landmark, Search, Clock, Trash2, Edit2, Printer, FileText, RotateCcw, Utensils
+  Banknote, CreditCard, Landmark, Search, Clock, Trash2, Edit2, Printer, FileText, RotateCcw, Utensils, Shield
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
@@ -14,7 +14,7 @@ const ProductItem = ({ product, addToCart }) => {
   return (
     <div className="bg-slate-900 rounded-[2.5rem] overflow-hidden border border-slate-800 flex shadow-xl hover:border-emerald-500/50 transition-all group p-4 gap-6">
       <div className="w-24 h-24 flex-shrink-0 bg-slate-800 rounded-3xl overflow-hidden relative">
-        <img src={product.image} alt={product.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+        <img src={product.image_url} alt={product.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
       </div>
       <div className="flex-grow flex flex-col justify-between py-1">
         <div>
@@ -62,6 +62,32 @@ const SellerPOS = () => {
   const [parkedCarts, setParkedCarts] = useState([]);
   const [historyTab, setHistoryTab] = useState('ventas'); // 'ventas' or 'cobros'
 
+  // Auth Modal States
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [authPin, setAuthPin] = useState('');
+  const [authAction, setAuthAction] = useState(null);
+  const [authError, setAuthError] = useState('');
+  const { users } = useOrder(); // Ensure we have users list for verification
+
+  const handleAuthSubmit = (e) => {
+    if (e) e.preventDefault();
+    const adminUser = users.find(u => u.role === 'admin' && u.pin === authPin);
+    if (adminUser) {
+      if (authAction) authAction();
+      setIsAuthModalOpen(false);
+      setAuthPin('');
+      setAuthError('');
+    } else {
+      setAuthError('PIN de Administrador Incorrecto');
+      setAuthPin('');
+    }
+  };
+
+  const requireAdminAuth = (action) => {
+    setAuthAction(() => action);
+    setIsAuthModalOpen(true);
+  };
+
   const navigate = useNavigate();
   const printRef = React.useRef();
 
@@ -86,13 +112,13 @@ const SellerPOS = () => {
     
   const categories = [...new Set(filteredProducts.map(p => p.category || 'Varios'))];
 
-  const handlePlaceOrder = (directPayment = false) => {
+  const handlePlaceOrder = async (directPayment = false) => {
     if (!customerName.trim()) return alert("Ingresa nombre del cliente");
-    const order = placeOrder(customerName.trim());
+    const order = await placeOrder(customerName.trim());
     if (order) {
       if (directPayment) {
         setPaymentOrder(order);
-        setPaymentStation(isCajeroGeneral ? Object.keys(order.station_statuses)[0] : currentUser.station);
+        setPaymentStation(currentUser.station || Object.keys(order.station_statuses || {})[0]);
       } else {
         setSelectedInvoice(order);
       }
@@ -121,12 +147,15 @@ const SellerPOS = () => {
 
   const amountToPay = useMemo(() => {
     if (!paymentOrder || !paymentStation) return 0;
-    return paymentOrder.items.filter(i => i.station === paymentStation).reduce((sum, i) => sum + (i.price * i.quantity), 0);
+    return (paymentOrder.items || [])
+      .filter(i => i.station === paymentStation)
+      .reduce((sum, i) => sum + ((Number(i.price_at_time) || 0) * (Number(i.quantity) || 0)), 0);
   }, [paymentOrder, paymentStation]);
 
   const handleFinalizePayment = () => {
     const received = Number(amountReceived) || amountToPay;
-    updateStationStatus(paymentOrder.id, paymentStation, 'delivered', {
+    const currentStatus = paymentOrder.station_statuses?.[paymentStation] || 'received';
+    updateStationStatus(paymentOrder.id, paymentStation, currentStatus, {
       method: paymentMethod,
       received: received,
       change: received - amountToPay,
@@ -146,7 +175,7 @@ const SellerPOS = () => {
 
   const handleWhatsAppShare = (order) => {
     if (!order) return;
-    const itemsText = (order.items || []).map(i => `${i.quantity} x ${i.name}`).join('\n');
+    const itemsText = (order.items || []).map(i => `${i.quantity} x ${i.products?.name || i.product?.name || 'Producto'}`).join('\n');
     const text = `🍕 *MANOLO FOODTRUCK PARK* 🍕\n---------------------------\n*Ticket:* #${order.ticket_number}\n*Cliente:* ${order.customer_name?.toUpperCase()}\n---------------------------\n${itemsText}\n---------------------------\n*TOTAL: RD$ ${order.total_price}.00*\n\n¡Gracias por preferirnos!`;
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
   };
@@ -214,7 +243,7 @@ const SellerPOS = () => {
                            <Plus size={20} />
                         </div>
                         <div className="w-full aspect-square bg-slate-50 rounded-[2rem] overflow-hidden mb-6 relative">
-                           <img src={product.image} alt={product.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                           <img src={product.image_url} alt={product.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
                         </div>
                         <h3 className="font-black text-xs uppercase italic tracking-tighter text-slate-400 mb-1">{product.station}</h3>
                         <h4 className="font-black text-lg uppercase tracking-tight text-slate-900 mb-3">{product.name}</h4>
@@ -259,8 +288,16 @@ const SellerPOS = () => {
 
                            <div className="grid grid-cols-2 gap-3 pt-6 border-t border-white/5">
                               <button onClick={() => setSelectedInvoice(order)} title="Imprimir" className="p-4 bg-slate-800 rounded-2xl flex items-center justify-center text-slate-400 hover:text-white transition-all"><Printer size={20} /></button>
-                              <button onClick={() => { if(confirm("¿Seguro que desea anular su venta? Las existencias regresarán al inventario.")) cancelOrder(order.id); }} title="Anular" className="p-4 bg-slate-800 rounded-2xl flex items-center justify-center text-slate-400 hover:text-amber-500 transition-all"><RotateCcw size={20} /></button>
-                              <button onClick={() => { if(confirm("¿BORRAR DEFINITIVAMENTE? Esta acción no se puede deshacer y no devolverá stock.")) deleteOrder(order.id); }} title="Eliminar" className="p-4 bg-slate-800 rounded-2xl flex items-center justify-center text-slate-400 hover:text-red-500 transition-all"><Trash2 size={20} /></button>
+                               <button onClick={() => { 
+                                 requireAdminAuth(() => {
+                                   if(confirm("¿Seguro que desea anular su venta? Las existencias regresarán al inventario.")) cancelOrder(order.id); 
+                                 });
+                               }} title="Anular" className="p-4 bg-slate-800 rounded-2xl flex items-center justify-center text-slate-400 hover:text-amber-500 transition-all"><RotateCcw size={20} /></button>
+                               <button onClick={() => { 
+                                 requireAdminAuth(() => {
+                                   if(confirm("¿BORRAR DEFINITIVAMENTE? Esta acción no se puede deshacer y no devolverá stock.")) deleteOrder(order.id); 
+                                 });
+                               }} title="Eliminar" className="p-4 bg-slate-800 rounded-2xl flex items-center justify-center text-slate-400 hover:text-red-500 transition-all"><Trash2 size={20} /></button>
                            </div>
                         </div>
                       ))
@@ -290,7 +327,9 @@ const SellerPOS = () => {
                        orders.filter(o => o.payment_details && currentUser.station && o.payment_details[currentUser.station]).map((order, idx) => {
                          const tx = order.payment_details[currentUser.station];
                          if (!tx) return null;
-                         const stationAmt = order.items?.filter(i => i.station === currentUser.station).reduce((s, i) => s + (i.price_at_time * i.quantity), 0) || 0;
+                         const stationAmt = (order.items || [])
+                           .filter(i => i.station === currentUser.station)
+                           .reduce((s, i) => s + ((Number(i.price_at_time) || 0) * (Number(i.quantity) || 0)), 0) || 0;
                          return (
                            <div key={`${order.id}-${idx}`} className="bg-slate-900/50 p-8 rounded-[3rem] border border-white/5 hover:border-emerald-500/30 transition-all group relative shadow-2xl overflow-hidden">
                               <div className="absolute top-0 right-0 w-20 h-20 bg-emerald-500/10 rounded-bl-[3rem]" />
@@ -306,7 +345,11 @@ const SellerPOS = () => {
                                     <Clock size={12} className="text-slate-500" />
                                     <span className="text-[10px] font-bold text-slate-500 uppercase">{new Date(tx.timestamp).toLocaleString()}</span>
                                  </div>
-                                 <button onClick={() => { if(confirm("¿Eliminar este registro de cobro?")) deletePayment(order.id, currentUser.station); }} className="p-3 bg-slate-800 rounded-xl text-slate-500 hover:text-red-500 transition-all"><Trash2 size={16} /></button>
+                                  <button onClick={() => { 
+                                    requireAdminAuth(() => {
+                                      if(confirm("¿Eliminar este registro de cobro?")) deletePayment(order.id, currentUser.station); 
+                                    });
+                                  }} className="p-3 bg-slate-800 rounded-xl text-slate-500 hover:text-red-500 transition-all"><Trash2 size={16} /></button>
                               </div>
                            </div>
                          );
@@ -339,7 +382,7 @@ const SellerPOS = () => {
                                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mt-1">{new Date(order.timestamp).toLocaleTimeString()}</p>
                                </div>
                             </div>
-                            <div className={`text-3xl font-black font-mono tracking-tighter decoration-emerald-500 underline decoration-4 ${order.is_paid ? 'text-emerald-600' : 'text-slate-900'}`}>${order.total_price}</div>
+                            <div className={`text-3xl font-black font-mono tracking-tighter decoration-emerald-500 underline decoration-4 ${order.is_paid ? 'text-emerald-600' : 'text-slate-900'}`}>${Number(order.total_price) || 0}</div>
                          </div>
                          <div className="flex gap-3 mt-2">
                             {order.is_paid ? (
@@ -348,7 +391,7 @@ const SellerPOS = () => {
                               </div>
                             ) : (
                               <button 
-                                 onClick={() => { setPaymentOrder(order); setPaymentStation(currentUser.station); }}
+                                 onClick={() => { setPaymentOrder(order); setPaymentStation(currentUser.station || Object.keys(order.station_statuses || {})[0]); }}
                                  className="flex-grow py-5 bg-emerald-600 text-white rounded-[2rem] font-black text-xs uppercase tracking-widest shadow-xl shadow-emerald-500/20 hover:bg-emerald-500 transition-all flex items-center justify-center gap-3"
                               >
                                  <Wallet size={20} /> Cobrar Orden
@@ -600,8 +643,49 @@ const SellerPOS = () => {
                  </div>
               </motion.div>
            </>
-         )}
-      </AnimatePresence>
+          )}
+
+          {isAuthModalOpen && (
+            <>
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsAuthModalOpen(false)} className="fixed inset-0 bg-slate-950/90 backdrop-blur-xl z-[5000]" />
+              <motion.div initial={{ scale: 0.9, y: 50 }} animate={{ scale: 1, y: 0 }} className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-sm bg-slate-900 p-12 rounded-[4rem] shadow-2xl z-[5001] border border-white/5 text-center">
+                <div className="w-16 h-16 bg-slate-800 rounded-3xl flex items-center justify-center mx-auto mb-6 text-slate-400">
+                  <Shield size={32} />
+                </div>
+                <h2 className="text-2xl font-black uppercase italic tracking-tighter mb-2 text-white">Autorización Admin</h2>
+                <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-8">Esta acción requiere la clave del administrador</p>
+                
+                <form onSubmit={handleAuthSubmit} className="space-y-6">
+                  <input 
+                    type="password" 
+                    maxLength="4" 
+                    autoFocus
+                    value={authPin} 
+                    onChange={e => setAuthPin(e.target.value)}
+                    placeholder="PIN"
+                    className="w-full bg-slate-950 p-6 rounded-3xl text-center text-4xl font-black font-mono tracking-[0.5em] shadow-inner border border-white/5 text-white focus:ring-4 focus:ring-emerald-500/10"
+                  />
+                  {authError && <p className="text-[10px] font-black text-red-500 uppercase tracking-widest animate-shake">{authError}</p>}
+                  <div className="flex gap-4">
+                    <button type="button" onClick={() => setIsAuthModalOpen(false)} className="flex-grow py-5 bg-slate-800 rounded-2xl font-black text-slate-500 uppercase text-[10px]">Cancelar</button>
+                    <button type="submit" className="flex-[2] py-5 bg-emerald-600 text-white rounded-2xl font-black uppercase text-[10px] hover:bg-emerald-500 transition-all">Autorizar</button>
+                  </div>
+                </form>
+              </motion.div>
+            </>
+          )}
+       </AnimatePresence>
+       <style dangerouslySetInnerHTML={{ __html: `
+        .animate-shake {
+          animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+        }
+        @keyframes shake {
+          10%, 90% { transform: translate3d(-1px, 0, 0); }
+          20%, 80% { transform: translate3d(2px, 0, 0); }
+          30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+          40%, 60% { transform: translate3d(4px, 0, 0); }
+        }
+      `}} />
     </div>
   );
 };
