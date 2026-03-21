@@ -1,9 +1,9 @@
-﻿import React from 'react';
+import React from 'react';
 import { useOrder } from '../context/OrderContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Coffee, Utensils, IceCream, Clock, CheckCircle } from 'lucide-react';
+import { Coffee, Utensils, IceCream, Clock, CheckCircle, LogOut } from 'lucide-react';
 
-const StationColumn = ({ label, icon: _unusedIcon, color, orders, stationKey }) => {
+const StationColumn = ({ label, icon: Icon, color, orders, stationKey }) => {
   // Filter orders that have items for this specific station
   const stationOrders = orders.filter(o => o.items.some(i => i.station === stationKey));
   
@@ -89,7 +89,7 @@ const PublicDisplay = () => {
 
   const stations = [
     { label: 'BAR / BEBIDAS', icon: Coffee, color: 'blue', key: 'BAR' },
-    { label: 'COMIDA RÃPIDA', icon: Utensils, color: 'amber', key: 'COMIDA RÃPIDA' },
+    { label: 'COMIDA RÁPIDA', icon: Utensils, color: 'amber', key: 'COMIDA RÁPIDA' },
     { label: 'POSTRES / DULCES', icon: IceCream, color: 'pink', key: 'DULCES/POSTRES' },
   ];
 
@@ -105,8 +105,18 @@ const PublicDisplay = () => {
           <h1 className="text-2xl sm:text-4xl font-black italic tracking-tighter leading-none opacity-90 uppercase italic underline decoration-emerald-500 decoration-4 underline-offset-4">MANOLO <span className="text-emerald-500">FOODTRUCK</span></h1>
         </div>
         <div className="w-full sm:w-auto text-left sm:text-right flex flex-row sm:flex-col items-center sm:items-end justify-between sm:justify-end gap-2">
-           <div className="text-2xl sm:text-4xl font-black font-mono leading-none tracking-tighter tabular-nums text-emerald-500">
-             {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+           <div className="flex items-center gap-4">
+             <div className="text-2xl sm:text-4xl font-black font-mono leading-none tracking-tighter tabular-nums text-emerald-500">
+               {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+             </div>
+             <button 
+               onClick={() => window.location.href = '/login'}
+               className="p-3 bg-slate-900 text-slate-500 hover:text-white rounded-2xl border border-slate-800 transition-all hover:scale-105 active:scale-95 flex items-center gap-2 group"
+               title="Salir"
+             >
+               <LogOut size={18} className="group-hover:text-red-500" />
+               <span className="text-[10px] font-black uppercase tracking-widest hidden sm:inline">Cerrar</span>
+             </button>
            </div>
            <div className="flex items-center gap-2 bg-slate-900 px-3 py-0.5 rounded-full border border-slate-800">
               <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
@@ -134,11 +144,11 @@ const PublicDisplay = () => {
         <div className="flex items-center gap-20 whitespace-nowrap animate-marquee">
           {[1,2,3].map(i => (
             <span key={i} className="text-lg font-black text-emerald-950 uppercase italic flex items-center gap-8">
-              <span>ðŸ” Â¡Bienvenidos a MANOLO FOODTRUCK PARK!</span>
+              <span>🍔 ¡Bienvenidos a MANOLO FOODTRUCK PARK!</span>
               <div className="w-2 h-2 bg-white rounded-full" />
-              <span>ðŸ¥¤ Escanea el QR para pedir</span>
+              <span>🥤 Escanea el QR para pedir</span>
               <div className="w-2 h-2 bg-white rounded-full" />
-              <span>ðŸ° Retira tu pedido en ventana</span>
+              <span>🍟 Retira tu pedido en ventana</span>
               <div className="w-2 h-2 bg-white rounded-full" />
             </span>
           ))}

@@ -1,7 +1,7 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
 import { useOrder } from '../context/OrderContext';
-import { Clock, CheckCircle, Package, Printer, X, Settings, AlertCircle } from 'lucide-react';
+import { Clock, CheckCircle, Package, Printer, X, Settings, AlertCircle, LogOut } from 'lucide-react';
 import { AnimatePresence } from 'framer-motion';
 import Receipt from '../components/Receipt';
 
@@ -75,6 +75,14 @@ const EmployeePanel = () => {
               Entregados
             </button>
           </div>
+          <button 
+            onClick={() => window.location.href = '/login'}
+            className="p-4 bg-slate-950 text-slate-500 hover:text-white rounded-2xl border border-slate-800 transition-all hover:scale-105 active:scale-95 flex items-center gap-2 group"
+            title="Cerrar Panel"
+          >
+            <LogOut size={24} className="group-hover:text-red-500" />
+            <span className="text-[10px] font-black uppercase tracking-widest hidden sm:inline">Salir</span>
+          </button>
           <button 
             onClick={() => setShowSettings(true)}
             className="p-4 bg-slate-950 text-slate-500 hover:text-white rounded-2xl border border-slate-800 transition-all hover:scale-105 active:scale-95"
