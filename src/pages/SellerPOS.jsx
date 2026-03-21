@@ -144,6 +144,13 @@ const SellerPOS = () => {
     navigate('/');
   };
 
+  const handleWhatsAppShare = (order) => {
+    if (!order) return;
+    const itemsText = (order.items || []).map(i => `${i.quantity} x ${i.name}`).join('\n');
+    const text = `🍕 *MANOLO FOODTRUCK PARK* 🍕\n---------------------------\n*Ticket:* #${order.ticket_number}\n*Cliente:* ${order.customer_name?.toUpperCase()}\n---------------------------\n${itemsText}\n---------------------------\n*TOTAL: RD$ ${order.total_price}.00*\n\n¡Gracias por preferirnos!`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+  };
+
   // Local Receipt component removed - using shared one from components/Receipt
   return (
     <div className="min-h-screen lg:h-screen bg-slate-50 text-slate-900 flex flex-col lg:flex-row overflow-auto lg:overflow-hidden font-sans">
