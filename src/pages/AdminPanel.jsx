@@ -9,6 +9,7 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import * as XLSX from 'xlsx';
+import Receipt from '../components/Receipt';
 
 const AdminPanel = () => {
   const { products, setProducts, addProduct, updateProduct, deleteProduct, uploadProductImage, orders, updateOrderStatus, updateStationStatus, updateOrder, cancelOrder, deleteOrder, deletePayment, currentUser, logout, shifts, deleteShift, users, addUser, deleteUser, addToCart, cart, removeFromCart, clearCart, placeOrder, printerConfig, updatePrinterConfig } = useOrder();
