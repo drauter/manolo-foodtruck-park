@@ -39,30 +39,14 @@ export const OrderProvider = ({ children }) => {
     const fetchData = async () => {
       // Fetch Products
       const { data: productsData } = await supabase.from('products').select('*');
-      if (productsData && productsData.length > 0) {
+      if (productsData) {
         setProducts(productsData);
-      } else {
-        // Seed if empty
-        const initialProducts = [
-          { name: 'Burger Clásica', description: 'Carne, queso, lechuga y tomate.', price: 1200, category: 'Burgers', station: 'COMIDA RÁPIDA', image_url: '/burger.png' },
-          { name: 'Coca Cola 500ml', description: 'Bebida gaseosa.', price: 400, category: 'Bebidas', station: 'BAR', image_url: '/soda.png' },
-          { name: 'Mini Donas (6 uds)', description: 'Glaseadas y con chispas.', price: 800, category: 'Postres', station: 'DULCES/POSTRES', image_url: '/donas.png' },
-        ];
-        const { data: seeded } = await supabase.from('products').insert(initialProducts).select();
-        if (seeded) setProducts(seeded);
       }
 
       // Fetch Users
       const { data: usersData } = await supabase.from('users').select('*');
-      if (usersData && usersData.length > 0) {
+      if (usersData) {
         setUsers(usersData);
-      } else {
-        const initialUsers = [
-          { name: 'Manolo Admin', role: 'admin', pin: '1234' },
-          { name: 'Vendedor 1', role: 'vendedor', station: 'COMIDA RÁPIDA', pin: '0000' }
-        ];
-        const { data: seededUsers } = await supabase.from('users').insert(initialUsers).select();
-        if (seededUsers) setUsers(seededUsers);
       }
 
       // Fetch Orders
