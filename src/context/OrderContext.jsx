@@ -93,8 +93,18 @@ export const OrderProvider = ({ children }) => {
       })
       .subscribe();
 
+    // 3. Real-time Subscription for Products
+    const productsSubscription = supabase
+      .channel('public:products')
+      .on('postgres_changes', { event: '*', table: 'products' }, async () => {
+        const { data } = await supabase.from('products').select('*');
+        if (data) setProducts(data);
+      })
+      .subscribe();
+
     return () => {
       supabase.removeChannel(ordersSubscription);
+      supabase.removeChannel(productsSubscription);
     };
   }, []);
 
