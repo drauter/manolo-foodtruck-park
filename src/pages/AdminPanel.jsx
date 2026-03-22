@@ -13,7 +13,7 @@ import Receipt from '../components/Receipt';
 
 // Main Admin Panel Component for Foodtruck Management
 const AdminPanel = () => {
-  const { products, addProduct, updateProduct, deleteProduct, uploadProductImage, orders, updateStationStatus, updateOrder, cancelOrder, deleteOrder, deletePayment, currentUser, logout, shifts, deleteShift, users, addUser, deleteUser, addToCart, cart, removeFromCart, clearCart, placeOrder, printerConfig, updatePrinterConfig } = useOrder();
+  const { products, addProduct, updateProduct, deleteProduct, uploadProductImage, orders, updateStationStatus, updateOrder, cancelOrder, deleteOrder, deletePayment, currentUser, logout, shifts, deleteShift, users, addUser, deleteUser, updateUser, addToCart, cart, removeFromCart, clearCart, placeOrder, printerConfig, updatePrinterConfig } = useOrder();
   const [activeTab, setActiveTab] = useState('dashboard'); 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [salesFilter, setSalesFilter] = useState('Todas');
@@ -21,6 +21,8 @@ const AdminPanel = () => {
   // Voice Selection State
   const [voices, setVoices] = useState([]);
   const [selectedVoice, setSelectedVoice] = useState(localStorage.getItem('preferredVoice') || '');
+  const [pendingVoice, setPendingVoice] = useState(localStorage.getItem('preferredVoice') || '');
+  const [saveSuccess, setSaveSuccess] = useState(false);
 
   useEffect(() => {
     const loadVoices = () => {
@@ -34,9 +36,16 @@ const AdminPanel = () => {
   const handleTestVoice = () => {
     const msg = new SpeechSynthesisUtterance("Esta es una prueba de voz para Manolo Foodtruck Park.");
     msg.lang = 'es-ES';
-    const voice = voices.find(v => v.voiceURI === selectedVoice);
+    const voice = voices.find(v => v.voiceURI === pendingVoice);
     if (voice) msg.voice = voice;
     window.speechSynthesis.speak(msg);
+  };
+
+  const handleSaveVoice = () => {
+    setSelectedVoice(pendingVoice);
+    localStorage.setItem('preferredVoice', pendingVoice);
+    setSaveSuccess(true);
+    setTimeout(() => setSaveSuccess(false), 3000);
   };
   // Voice Announcement Logic
   const announcedOrders = useRef(new Set());
@@ -61,7 +70,8 @@ const AdminPanel = () => {
               message = `Orden número ${ticket}, cliente ${name}, su pedido en la estación de ${station} está listo. Por favor pasar por caja para pagar y retirar su pedido.`;
             }
             
-            const utterance = new SpeechSynthesisUtterance(message);
+            const fullMessage = `${message} . . . Repito . . . ${message}`;
+            const utterance = new SpeechSynthesisUtterance(fullMessage);
             utterance.lang = 'es-ES';
             utterance.rate = 0.9;
             
@@ -79,6 +89,9 @@ const AdminPanel = () => {
   }, [orders, voices, selectedVoice]);
 
   const [isUserModalOpen, setIsUserModalOpen] = useState(false);
+  const [isEditingUser, setIsEditingUser] = useState(false);
+  const [editingUser, setEditingUser] = useState(null);
+  const [reportPeriod, setReportPeriod] = useState('Hoy'); // 'Hoy', 'Semana', 'Mes', 'Todo'
   const [searchQuery, setSearchQuery] = useState('');
   
 
@@ -145,7 +158,7 @@ const AdminPanel = () => {
 
   const [newProduct, setNewProduct] = useState({
     name: '', description: '', price: '', cost: '', stock: '', category: 'Burgers',
-    station: 'COMIDA RÃPIDA', image_url: 'https://images.unsplash.com/photo-1550547660-d9450f859349?q=80&w=300'
+    station: 'COMIDA RÁPIDA', image_url: 'https://images.unsplash.com/photo-1550547660-d9450f859349?q=80&w=300'
   });
 
   const handleImageUpload = async (e) => {
@@ -211,15 +224,21 @@ const AdminPanel = () => {
     setEditingProduct(null);
     setNewProduct({
       name: '', description: '', price: '', cost: '', stock: '', category: 'Burgers',
-      station: 'COMIDA RÃPIDA', image_url: '/burger.png'
+      station: 'COMIDA RÁPIDA', image_url: '/burger.png'
     });
   };
 
-  const handleAddUser = (e) => {
+  const handleAddUser = async (e) => {
     e.preventDefault();
-    addUser(userData);
+    if (isEditingUser && editingUser) {
+      await updateUser(editingUser.id, userData);
+    } else {
+      await addUser(userData);
+    }
     setIsUserModalOpen(false);
-    setUserData({ name: '', role: 'vendedor', station: 'Bar', pin: '' });
+    setIsEditingUser(false);
+    setEditingUser(null);
+    setUserData({ name: '', role: 'vendedor', station: 'BAR', pin: '' });
   };
 
   const handleAdminPlaceOrder = async (directPay = false) => {
@@ -240,63 +259,58 @@ const AdminPanel = () => {
 
   const exportToExcel = () => {
     const wb = XLSX.utils.book_new();
+    const now = new Date();
+    let startDate = new Date(0);
+    if (reportPeriod === 'Hoy') startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    else if (reportPeriod === 'Semana') startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+    else if (reportPeriod === 'Mes') startDate = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+
+    const filteredOrders = reportPeriod === 'Todo' ? orders : orders.filter(o => new Date(o.timestamp) >= startDate);
     
-    // Sheet 1: Sales
-    const salesData = orders.map(o => ({
-      TKT: o.ticket_number,
+    // 1. Web Sales
+    const salesData = filteredOrders.map(o => ({
+      Ticket: o.ticket_number,
       Cliente: o.customer_name,
       Fecha: new Date(o.timestamp).toLocaleString(),
       Total: o.total_price,
       Estado: o.status,
       Pagado: o.is_paid ? 'SI' : 'NO'
     }));
-    const wsSales = XLSX.utils.json_to_sheet(salesData);
-    XLSX.utils.book_append_sheet(wb, wsSales, "Ventas");
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(salesData), "Ventas");
 
-    // Inventory sheets by station
-    const stations = [...new Set(products.map(p => p.station))];
-    
+    // 2. Inventory by Station
+    const stations = ['BAR', 'COMIDA RÁPIDA', 'DULCES/POSTRES'];
     stations.forEach(station => {
       const stationProducts = products.filter(p => p.station === station);
-      const invData = stationProducts.map(p => ({
-        Nombre: p.name,
-        Precio: p.price,
-        Costo: p.cost,
-        Stock: p.stock,
-        Valor: (Number(p.price) || 0) * (Number(p.stock) || 0),
-        Alerta: p.stock < 10 ? 'STOCK BAJO' : 'OK'
-      }));
-
-      const totalValue = invData.reduce((sum, item) => sum + item.Valor, 0);
-      
-      // Add Total Row
-      invData.push({
-        Nombre: 'TOTAL ESTACION',
-        Precio: '',
-        Costo: '',
-        Stock: '',
-        Valor: totalValue,
-        Alerta: ''
+      const invData = stationProducts.map(p => {
+        const price = Number(p.price) || 0;
+        const cost = Number(p.cost) || 0;
+        const stock = Number(p.stock) || 0;
+        return {
+          Nombre: p.name,
+          Precio: price,
+          Costo: cost,
+          Stock: stock,
+          Valor: price * stock,
+          Ganancia: (price - cost) * stock,
+          Estado: stock < 10 ? 'STOCK BAJO' : 'OK'
+        };
       });
 
+      const totalValue = invData.reduce((sum, item) => sum + item.Valor, 0);
+      const totalProfit = invData.reduce((sum, item) => sum + item.Ganancia, 0);
+      invData.push({ Nombre: 'TOTAL ESTACION', Precio: '', Costo: '', Stock: '', Valor: totalValue, Ganancia: totalProfit, Estado: '' });
+
       const wsInv = XLSX.utils.json_to_sheet(invData);
-      // Sanitize sheet name: remove : \ / ? * [ ] and truncate to 31 chars
-      const sanitizedName = (station || "Sin Estación").replace(/[:\\/?*\[\]]/g, '_').substring(0, 31);
+      const sanitizedName = station.replace(/[:\\/?*\[\]]/g, '_').substring(0, 31);
       XLSX.utils.book_append_sheet(wb, wsInv, sanitizedName);
     });
 
-    // Sheet: Shifts (Cuadre)
-    const shiftData = shifts.map(s => ({
-      Estación: s.station,
-      Fecha: new Date(s.timestamp).toLocaleString(),
-      Esperado: s.expected_sales,
-      Efectivo: s.actual_cash,
-      Diferencia: s.difference
-    }));
-    const wsShifts = XLSX.utils.json_to_sheet(shiftData);
-    XLSX.utils.book_append_sheet(wb, wsShifts, "Turnos");
+    // 3. Shifts
+    const shiftData = shifts.map(s => ({ Estación: s.station, Fecha: new Date(s.timestamp).toLocaleString(), Esperado: s.expected_sales, Real: s.actual_cash, Diferencia: s.difference }));
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(shiftData), "Turnos");
 
-    XLSX.writeFile(wb, `Reporte_Manolo_${new Date().toISOString().split('T')[0]}.xlsx`);
+    XLSX.writeFile(wb, `Reporte_Manolo_${reportPeriod}_${new Date().toISOString().split('T')[0]}.xlsx`);
   };
 
   const handleFinalizePayment = () => {
@@ -570,7 +584,7 @@ const AdminPanel = () => {
                      </div>
                      <div className="grid grid-cols-2 gap-3">
                         <button onClick={() => handleAdminPlaceOrder(false)} className="bg-slate-800 p-5 rounded-3xl font-black uppercase text-[10px] hover:bg-slate-700 transition-all border border-white/5">Registrar</button>
-                        <button onClick={() => handleAdminPlaceOrder(true)} className="bg-emerald-600 p-5 rounded-3xl font-black uppercase text-[10px] hover:bg-emerald-500 transition-all shadow-xl shadow-emerald-900/40">Cobrar Ahora</button>
+                        <button onClick={() => handleAdminPlaceOrder(true)} className="bg-emerald-600 p-5 rounded-3xl font-black uppercase text-[10px] hover:bg-emerald-500 shadow-xl shadow-emerald-900/40">Cobrar Ahora</button>
                      </div>
                   </div>
                </div>
@@ -722,7 +736,7 @@ const AdminPanel = () => {
                   </div>
                </div>
 
-               {/* SECCIÃ“N 3: ENTREGADOS RECIENTMENTE */}
+               {/* SECCIÃ“N 3: ENTREGADOS RECIENTEMENTE */}
                <div className="pt-12 border-t border-slate-200/60">
                   <div className="flex items-center gap-4 mb-8">
                      <div className="w-3 h-12 bg-slate-300 rounded-full" />
@@ -898,14 +912,22 @@ const AdminPanel = () => {
             <motion.div key="users" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                {users.map(user => (
                   <div key={user.id} className="bg-white p-8 rounded-[3rem] border border-slate-100 shadow-sm relative group overflow-hidden">
-                     <button onClick={() => {
-                        requireAdminAuth(() => deleteUser(user.id));
-                      }} className="absolute top-6 right-6 text-slate-300 hover:text-red-500 transition-colors z-10"><Trash2 size={24} /></button>
+                     <div className="absolute top-6 right-6 flex gap-2 z-10">
+                        <button onClick={() => {
+                           setUserData({ name: user.name, role: user.role, station: user.station || 'BAR', pin: user.pin });
+                           setEditingUser(user);
+                           setIsEditingUser(true);
+                           setIsUserModalOpen(true);
+                        }} className="text-slate-300 hover:text-blue-500 transition-colors"><Edit2 size={24} /></button>
+                        <button onClick={() => {
+                           requireAdminAuth(() => deleteUser(user.id));
+                        }} className="text-slate-300 hover:text-red-500 transition-colors"><Trash2 size={24} /></button>
+                     </div>
                      <div className="flex items-center gap-5 mb-6">
                         <div className="w-16 h-16 bg-slate-900 text-white rounded-3xl flex items-center justify-center"><Users size={32} /></div>
                         <div>
                            <h3 className="text-xl font-black uppercase italic tracking-tighter">{user.name}</h3>
-                           <p className="text-[10px] font-black text-slate-400 uppercase">{user.role} {user.station && `â€¢ ${user.station}`}</p>
+                           <p className="text-[10px] font-black text-slate-400 uppercase">{user.role} {user.station && `• ${user.station}`}</p>
                         </div>
                      </div>
                      <div className="bg-slate-50 p-6 rounded-3xl border border-slate-100 flex justify-between items-center">
@@ -1043,7 +1065,11 @@ const AdminPanel = () => {
                         <div>
                            <div className="flex items-center gap-3">
                                <h3 className="text-2xl font-black uppercase italic tracking-tighter text-slate-900">Voz de Anuncios</h3>
-                               <span className="px-3 py-1 bg-emerald-100 text-emerald-700 text-[8px] font-black uppercase rounded-full tracking-widest animate-pulse border border-emerald-200">Guardado Automático</span>
+                               {saveSuccess && (
+                                 <motion.span initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} className="px-3 py-1 bg-emerald-500 text-white text-[8px] font-black uppercase rounded-full tracking-widest border border-emerald-600">
+                                   ¡Cambios Guardados!
+                                 </motion.span>
+                               )}
                             </div>
                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-0.5">Personaliza el llamado a clientes (Según tu navegador)</p>
                         </div>
@@ -1052,33 +1078,94 @@ const AdminPanel = () => {
                      <div className="flex flex-col md:flex-row gap-6">
                         <div className="flex-grow space-y-2">
                            <label className="text-[10px] font-black uppercase text-slate-400 ml-4">Seleccionar Voz</label>
-                           <select 
-                              value={selectedVoice} 
-                              onChange={(e) => {
-                                 setSelectedVoice(e.target.value);
-                                 localStorage.setItem('preferredVoice', e.target.value);
-                              }}
-                              className="w-full bg-slate-50 p-6 rounded-[2rem] font-bold border border-slate-100 text-slate-700 outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all appearance-none cursor-pointer"
-                           >
-                              <option value="">Sistema (Predeterminada)</option>
-                              {voices.map(v => (
-                                 <option key={v.voiceURI} value={v.voiceURI}>{v.name} ({v.lang})</option>
-                              ))}
-                           </select>
+                           <div className="relative">
+                              <select 
+                                 value={pendingVoice} 
+                                 onChange={(e) => setPendingVoice(e.target.value)}
+                                 className="w-full bg-slate-50 p-6 rounded-[2rem] font-bold border border-slate-100 text-slate-700 outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all appearance-none cursor-pointer"
+                              >
+                                 <option value="">Sistema (Predeterminada)</option>
+                                 {voices.map(v => (
+                                    <option key={v.voiceURI} value={v.voiceURI}>{v.name} ({v.lang})</option>
+                                 ))}
+                              </select>
+                              <div className="absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                                 <ChevronRight className="rotate-90" size={20} />
+                              </div>
+                           </div>
                         </div>
-                        <div className="flex items-end">
+                        <div className="flex items-end gap-4">
                            <button 
                               onClick={handleTestVoice}
-                              className="w-full md:w-auto px-10 py-6 bg-emerald-600 text-white rounded-[2rem] font-black uppercase text-xs shadow-xl shadow-emerald-900/10 hover:bg-emerald-500 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3"
+                              className="px-10 py-6 bg-slate-100 text-slate-600 rounded-[2rem] font-black uppercase text-xs hover:bg-slate-200 transition-all flex items-center justify-center gap-3"
                            >
                               <Volume2 size={18} />
-                              <span>Probar Voz</span>
+                              <span>Probar</span>
+                           </button>
+                           <button 
+                              onClick={handleSaveVoice}
+                              className={`px-10 py-6 text-white rounded-[2rem] font-black uppercase text-xs shadow-xl shadow-emerald-900/10 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3 ${pendingVoice !== selectedVoice ? 'bg-emerald-600 hover:bg-emerald-500' : 'bg-slate-300 cursor-not-allowed'}`}
+                              disabled={pendingVoice === selectedVoice}
+                           >
+                              <Save size={18} />
+                              <span>Guardar Cambios</span>
                            </button>
                         </div>
                      </div>
                   </div>
 
                   <div className="border-t border-dashed border-slate-200 my-12" />
+
+                  {/* Reportes Section */}
+                  <div className="bg-white p-10 rounded-[3.5rem] border border-slate-100 shadow-sm space-y-8 mb-12">
+                     <div className="flex items-center gap-6">
+                        <div className="w-16 h-16 bg-blue-50 text-blue-600 rounded-[1.5rem] flex items-center justify-center shadow-inner">
+                           <FileText size={32} />
+                        </div>
+                        <div>
+                           <h3 className="text-2xl font-black uppercase italic tracking-tighter text-slate-900">Reportes de Ventas</h3>
+                           <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-0.5">Genera informes detallados de ventas</p>
+                        </div>
+                     </div>
+
+                     <div className="flex flex-col md:flex-row gap-6">
+                         <div className="flex-grow space-y-2">
+                            <label className="text-[10px] font-black uppercase text-slate-400 ml-4">Periodo de Reporte</label>
+                            <div className="flex gap-2">
+                               {['Hoy', 'Semana', 'Mes', 'Todo'].map(p => (
+                                  <button 
+                                     key={p} 
+                                     onClick={() => setReportPeriod(p)}
+                                     className={`flex-grow py-4 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all border ${reportPeriod === p ? 'bg-emerald-600 border-emerald-600 text-white shadow-lg' : 'bg-white border-slate-200 text-slate-400'}`}
+                                  >
+                                     {p}
+                                  </button>
+                               ))}
+                            </div>
+                         </div>
+                         <div className="flex items-end">
+                            <button 
+                               onClick={exportToExcel}
+                               className="w-full md:w-auto px-10 py-4 bg-slate-900 text-white rounded-xl font-black uppercase text-[10px] tracking-widest shadow-xl hover:bg-slate-800 transition-all flex items-center justify-center gap-3"
+                            >
+                               <FileText size={18} />
+                               <span>Descargar Reporte Excel</span>
+                            </button>
+                         </div>
+                      </div>
+                  </div>
+
+                  <div className="border-t border-dashed border-slate-200 my-10" />
+
+                  <div className="flex items-center gap-6 mb-10">
+                     <div className="w-16 h-16 bg-amber-50 text-amber-600 rounded-[1.5rem] flex items-center justify-center shadow-inner">
+                        <Printer size={32} />
+                     </div>
+                     <div>
+                        <h3 className="text-2xl font-black uppercase italic tracking-tighter text-slate-900">Configuración de Impresoras</h3>
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-0.5">Gestión de dispositivos por estación de trabajo</p>
+                     </div>
+                  </div>
 
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
                      {Object.entries(printerConfig).map(([station, config]) => (
@@ -1119,7 +1206,7 @@ const AdminPanel = () => {
                      <div>
                         <p className="font-black text-sm uppercase text-amber-900 tracking-tight">Nota sobre Impresión Web</p>
                         <p className="text-[10px] font-bold text-amber-700 uppercase tracking-wide mt-1 leading-relaxed">
-                           Debido a restricciones de seguridad del navegador, la impresiÃ³n física requiere confirmar el diálogo de impresiÃ³n. 
+                           Debido a restricciones de seguridad del navegador, la impresión física requiere confirmar el diálogo de impresión. 
                            Asegúrate de configurar cada impresora como la predeterminada en su estación de trabajo correspondiente.
                         </p>
                      </div>
@@ -1298,7 +1385,7 @@ const AdminPanel = () => {
                     <div className="space-y-2">
                        <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Estación</label>
                        <select value={isEditingProduct ? editingProduct.station : newProduct.station} onChange={e => isEditingProduct ? setEditingProduct({...editingProduct, station: e.target.value}) : setNewProduct({...newProduct, station: e.target.value})} className="w-full bg-slate-50 p-5 rounded-2xl font-black uppercase text-[10px] border border-slate-100">
-                          <option value="COMIDA RÃPIDA">Comida Rápida</option>
+                          <option value="COMIDA RÁPIDA">Comida Rápida</option>
                           <option value="BAR">Bar / Bebidas</option>
                           <option value="DULCES/POSTRES">Postres / Dulces</option>
                        </select>
@@ -1343,7 +1430,9 @@ const AdminPanel = () => {
           <>
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsUserModalOpen(false)} className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[200]" />
             <motion.div initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[95vw] max-w-md max-h-[90vh] overflow-y-auto bg-white rounded-[4rem] p-12 z-[201] shadow-2xl scrollbar-hide">
-               <h2 className="text-3xl font-black italic mb-8 uppercase italic underline decoration-wavy">Nuevo Acceso</h2>
+               <h2 className="text-3xl font-black italic mb-8 uppercase italic underline decoration-wavy">
+                  {isEditingUser ? 'Editar Usuario' : 'Nuevo Acceso'}
+               </h2>
                <form onSubmit={handleAddUser} className="space-y-6">
                   <div className="space-y-2">
                      <label className="text-xs font-black uppercase text-slate-400 ml-2 tracking-widest leading-none">Nombre Colaborador</label>
@@ -1375,7 +1464,9 @@ const AdminPanel = () => {
                       </select>
                     </div>
                   )}
-                  <button type="submit" className="w-full bg-slate-900 text-white py-6 rounded-3xl font-black text-xl hover:bg-emerald-600 transition-all shadow-xl uppercase">Generar Credencial</button>
+                  <button type="submit" className="w-full bg-slate-900 text-white py-6 rounded-3xl font-black text-xl hover:bg-emerald-600 transition-all shadow-xl uppercase">
+                     {isEditingUser ? 'Guardar Cambios' : 'Generar Credencial'}
+                  </button>
                </form>
             </motion.div>
           </>

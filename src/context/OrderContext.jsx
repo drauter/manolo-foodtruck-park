@@ -1,4 +1,4 @@
-﻿import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 
 const OrderContext = createContext();
@@ -19,10 +19,10 @@ export const OrderProvider = ({ children }) => {
     try {
       const saved = localStorage.getItem('foodtruck_printer_config');
       return saved ? JSON.parse(saved) : {
-        'BAR': { name: 'PÃ¡ramo Bar', autoPrint: true, paperWidth: '58mm', connection: 'web', autoDownload: false },
-        'COMIDA RÃPIDA': { name: 'PÃ¡ramo Cocina', autoPrint: true, paperWidth: '58mm', connection: 'web', autoDownload: false },
-        'DULCES/POSTRES': { name: 'PÃ¡ramo Postres', autoPrint: true, paperWidth: '58mm', connection: 'web', autoDownload: false },
-        'CAJA': { name: 'PÃ¡ramo Caja', autoPrint: true, paperWidth: '80mm', connection: 'web', autoDownload: false },
+        'BAR': { name: 'Páramo Bar', autoPrint: true, paperWidth: '58mm', connection: 'web', autoDownload: false },
+        'COMIDA RÁPIDA': { name: 'Páramo Cocina', autoPrint: true, paperWidth: '58mm', connection: 'web', autoDownload: false },
+        'DULCES/POSTRES': { name: 'Páramo Postres', autoPrint: true, paperWidth: '58mm', connection: 'web', autoDownload: false },
+        'CAJA': { name: 'Páramo Caja', autoPrint: true, paperWidth: '80mm', connection: 'web', autoDownload: false },
       };
     } catch { return {}; }
   });
@@ -37,7 +37,7 @@ export const OrderProvider = ({ children }) => {
       } else {
         // Seed if empty
         const initialProducts = [
-          { name: 'Burger ClÃ¡sica', description: 'Carne, queso, lechuga y tomate.', price: 1200, category: 'Burgers', station: 'COMIDA RÃPIDA', image_url: '/burger.png' },
+          { name: 'Burger Clásica', description: 'Carne, queso, lechuga y tomate.', price: 1200, category: 'Burgers', station: 'COMIDA RÁPIDA', image_url: '/burger.png' },
           { name: 'Coca Cola 500ml', description: 'Bebida gaseosa.', price: 400, category: 'Bebidas', station: 'BAR', image_url: '/soda.png' },
           { name: 'Mini Donas (6 uds)', description: 'Glaseadas y con chispas.', price: 800, category: 'Postres', station: 'DULCES/POSTRES', image_url: '/donas.png' },
         ];
@@ -52,7 +52,7 @@ export const OrderProvider = ({ children }) => {
       } else {
         const initialUsers = [
           { name: 'Manolo Admin', role: 'admin', pin: '1234' },
-          { name: 'Vendedor 1', role: 'vendedor', station: 'COMIDA RÃPIDA', pin: '0000' }
+          { name: 'Vendedor 1', role: 'vendedor', station: 'COMIDA RÁPIDA', pin: '0000' }
         ];
         const { data: seededUsers } = await supabase.from('users').insert(initialUsers).select();
         if (seededUsers) setUsers(seededUsers);
@@ -124,6 +124,18 @@ export const OrderProvider = ({ children }) => {
     const stations = [...new Set(cart.map(item => item.station))];
     stations.forEach(s => stationStatuses[s] = 'received');
 
+    // Calculate daily ticket number
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const { data: todayOrders } = await supabase
+      .from('orders')
+      .select('ticket_number')
+      .gte('timestamp', today.toISOString())
+      .order('ticket_number', { ascending: false })
+      .limit(1);
+    
+    const nextTicket = (todayOrders?.[0]?.ticket_number || 0) + 1;
+
     const newOrder = {
       customer_name: customerName,
       source,
@@ -132,7 +144,8 @@ export const OrderProvider = ({ children }) => {
       station_statuses: stationStatuses,
       is_paid: false,
       notes: notes || '',
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
+      ticket_number: nextTicket
     };
 
     const { data: order, error } = await supabase.from('orders').insert(newOrder).select().single();
@@ -382,7 +395,7 @@ export const OrderProvider = ({ children }) => {
 
   const login = (role, station = null) => {
     let normalizedStation = station ? station.toUpperCase() : null;
-    if (normalizedStation === 'COMIDA RAPIDA') normalizedStation = 'COMIDA RÃPIDA';
+    if (normalizedStation === 'COMIDA RAPIDA') normalizedStation = 'COMIDA RÁPIDA';
     
     const user = { role, station: normalizedStation };
     setCurrentUser(user);
@@ -426,11 +439,45 @@ export const OrderProvider = ({ children }) => {
   };
 
   const addUser = async (userData) => {
-    await supabase.from('users').insert(userData);
+    const { data, error } = await supabase.from('users').insert(userData).select();
+    if (error) {
+      console.error('ERROR ADDING USER:', error);
+      alert("Error al añadir usuario: " + error.message);
+      return null;
+    }
+    if (data) {
+      setUsers(prev => [...prev, data[0]]);
+      return data[0];
+    }
+  };
+
+  const updateUser = async (id, updates) => {
+    const { data, error } = await supabase
+      .from('users')
+      .update(updates)
+      .eq('id', id)
+      .select();
+
+    if (error) {
+      console.error('ERROR UPDATING USER:', error);
+      alert("Error al actualizar usuario: " + error.message);
+      return null;
+    }
+
+    if (data) {
+      setUsers(prev => prev.map(u => u.id === id ? data[0] : u));
+      return data[0];
+    }
   };
 
   const deleteUser = async (userId) => {
-    await supabase.from('users').delete().eq('id', userId);
+    const { error } = await supabase.from('users').delete().eq('id', userId);
+    if (error) {
+       console.error('ERROR DELETING USER:', error);
+       alert("Error al eliminar usuario: " + error.message);
+       return;
+    }
+    setUsers(prev => prev.filter(u => u.id !== userId));
   };
 
   const updatePrinterConfig = (station, config) => {
@@ -448,7 +495,7 @@ export const OrderProvider = ({ children }) => {
       markStationReady,
       currentUser, setCurrentUser, login, logout,
       shifts, setShifts, closeShift, deleteShift,
-      users, setUsers, addUser, deleteUser,
+      users, setUsers, addUser, deleteUser, updateUser,
       printerConfig, updatePrinterConfig
     }}>
       {children}
