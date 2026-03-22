@@ -507,42 +507,59 @@ export const OrderProvider = ({ children }) => {
     if (announcementQueue.current.length === 0 || isSpeaking.current) return;
     
     isSpeaking.current = true;
-    const { message, key } = announcementQueue.current.shift();
+    const { message, key, manual } = announcementQueue.current.shift();
     
-    // Cross-tab lock check
-    const now = Date.now();
-    const lastAnnounceKey = `last_announce_${key}`;
-    const lastAnnounceTime = localStorage.getItem(lastAnnounceKey);
-    
-    if (lastAnnounceTime && (now - parseInt(lastAnnounceTime)) < 60000) {
-      isSpeaking.current = false;
-      setTimeout(processQueue, 100);
-      return;
+    // Cross-tab lock check (Only for automatic announcements)
+    if (!manual) {
+      const now = Date.now();
+      const lastAnnounceKey = `last_announce_${key}`;
+      const lastAnnounceTime = localStorage.getItem(lastAnnounceKey);
+      
+      if (lastAnnounceTime && (now - parseInt(lastAnnounceTime)) < 60000) {
+        isSpeaking.current = false;
+        setTimeout(processQueue, 100);
+        return;
+      }
+      localStorage.setItem(lastAnnounceKey, now.toString());
     }
 
-    localStorage.setItem(lastAnnounceKey, now.toString());
+    // Failsafe timeout: if speech gets stuck, reset isSpeaking after 20s
+    const failsafe = setTimeout(() => {
+      isSpeaking.current = false;
+      processQueue();
+    }, 20000);
 
     const speak = (text, isRepeat = false) => {
       const finalMessage = isRepeat ? `Repito. ${text}` : text;
       const utterance = new SpeechSynthesisUtterance(finalMessage);
-      utterance.lang = 'es-ES';
-      utterance.rate = 0.85;
       
-      const v = (window.speechSynthesis.getVoices() || voices).find(voice => voice.voiceURI === selectedVoice);
-      if (v) utterance.voice = v;
+      // Better voice selection: try selected, then any Spanish
+      const allVoices = window.speechSynthesis.getVoices();
+      let v = allVoices.find(voice => voice.voiceURI === selectedVoice);
+      if (!v) v = allVoices.find(voice => voice.lang.startsWith('es'));
+      
+      if (v) {
+        utterance.voice = v;
+        utterance.lang = v.lang;
+      } else {
+        utterance.lang = 'es-ES';
+      }
+      
+      utterance.rate = 0.85;
       
       utterance.onend = () => {
         if (!isRepeat) {
-          // Explicit delay between the two announcements
-          setTimeout(() => speak(text, true), 2000);
+          setTimeout(() => speak(text, true), 1500);
         } else {
+          clearTimeout(failsafe);
           isSpeaking.current = false;
-          // Small pause before processing the next order in queue
-          setTimeout(processQueue, 1500);
+          setTimeout(processQueue, 1000);
         }
       };
 
-      utterance.onerror = () => {
+      utterance.onerror = (e) => {
+        console.error('Speech Error:', e);
+        clearTimeout(failsafe);
         isSpeaking.current = false;
         setTimeout(processQueue, 500);
       };
@@ -570,7 +587,7 @@ export const OrderProvider = ({ children }) => {
 
     if (!manual) announcedOrdersRef.current.add(announcementKey);
     
-    announcementQueue.current.push({ message, key: announcementKey });
+    announcementQueue.current.push({ message, key: announcementKey, manual });
     processQueue();
   }, [processQueue]);
 
