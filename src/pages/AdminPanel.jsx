@@ -70,18 +70,39 @@ const AdminPanel = () => {
               message = `Orden número ${ticket}, cliente ${name}, su pedido en la estación de ${station} está listo. Por favor pasar por caja para pagar y retirar su pedido.`;
             }
             
-            const fullMessage = `${message} . . . Repito . . . ${message}`;
-            const utterance = new SpeechSynthesisUtterance(fullMessage);
-            utterance.lang = 'es-ES';
-            utterance.rate = 0.9;
+            // Robust Cross-Tab Announcement Guard
+            const lastAnnounceKey = `last_announce_${announcementKey}`;
+            const now = Date.now();
+            const lastAnnounceTime = localStorage.getItem(lastAnnounceKey);
             
-            // Apply selected voice if available
-            const voice = voices.find(v => v.voiceURI === selectedVoice);
-            if (voice) utterance.voice = voice;
-            
-            window.speechSynthesis.speak(utterance);
-            
+            // If already announced in the last 60 seconds (by any tab), skip
+            if (lastAnnounceTime && (now - parseInt(lastAnnounceTime)) < 60000) {
+              announcedOrders.current.add(announcementKey);
+              return;
+            }
+
+            localStorage.setItem(lastAnnounceKey, now.toString());
             announcedOrders.current.add(announcementKey);
+
+            const playAnnouncement = (text, isRepeat = false) => {
+              const finalMessage = isRepeat ? `Repito, ${text}` : text;
+              const utterance = new SpeechSynthesisUtterance(finalMessage);
+              utterance.lang = 'es-ES';
+              utterance.rate = 0.85; // Slightly slower for clarity
+              
+              const voice = voices.find(v => v.voiceURI === selectedVoice);
+              if (voice) utterance.voice = voice;
+              
+              window.speechSynthesis.speak(utterance);
+              
+              if (!isRepeat) {
+                // Wait 3 seconds after the first one ends (roughly) or use a fixed timeout
+                // Fixed timeout is safer across browsers
+                setTimeout(() => playAnnouncement(text, true), 8000);
+              }
+            };
+
+            playAnnouncement(message);
           }
         });
       }
