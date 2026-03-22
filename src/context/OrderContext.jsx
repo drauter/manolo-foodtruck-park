@@ -304,10 +304,18 @@ export const OrderProvider = ({ children }) => {
       .delete()
       .eq('id', id);
 
-    if (!error) {
-      setProducts(prev => prev.filter(p => p.id !== id));
-      return true;
+    if (error) {
+      console.error('ERROR DELETING PRODUCT:', error);
+      if (error.code === '23503') {
+        alert("No se puede eliminar el producto porque existen pedidos antiguos asociados a él. Prueba a cambiar el stock a 0 o desactivarlo.");
+      } else {
+        alert("Error al eliminar producto: " + error.message);
+      }
+      return false;
     }
+
+    setProducts(prev => prev.filter(p => p.id !== id));
+    return true;
   };
 
   const addStock = async (productId, quantity) => {
