@@ -7,7 +7,7 @@ import Receipt from '../components/Receipt';
 
 const EmployeePanel = () => {
   const { station } = useParams();
-  const { orders, updateStationStatus, printerConfig, updatePrinterConfig } = useOrder();
+  const { orders, updateStationStatus, printerConfig, updatePrinterConfig, announceOrder } = useOrder();
   const [printingOrder, setPrintingOrder] = React.useState(null);
   const [showSettings, setShowSettings] = React.useState(false);
 
