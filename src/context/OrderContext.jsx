@@ -77,10 +77,28 @@ export const OrderProvider = ({ children }) => {
     // Load Voices
     const loadVoices = () => {
       const v = window.speechSynthesis.getVoices();
-      setVoices(v.filter(voice => voice.lang.startsWith('es')));
+      if (v.length > 0) {
+        console.log('Voices loaded:', v.length);
+        setVoices(v.filter(voice => voice.lang.startsWith('es')));
+      }
     };
+    
+    // Some browsers need this to fire
     loadVoices();
-    window.speechSynthesis.onvoiceschanged = loadVoices;
+    if (window.speechSynthesis.onvoiceschanged !== undefined) {
+      window.speechSynthesis.onvoiceschanged = loadVoices;
+    }
+
+    // Aggressive engine priming: Resume on any interaction
+    const primeEngine = () => {
+      window.speechSynthesis.resume();
+      console.log('Speech engine primed (resume)');
+      // After first interaction, we can stop listening
+      window.removeEventListener('click', primeEngine);
+      window.removeEventListener('keydown', primeEngine);
+    };
+    window.addEventListener('click', primeEngine);
+    window.addEventListener('keydown', primeEngine);
 
     // 2. Real-time Subscription for Orders
     const ordersSubscription = supabase
@@ -558,13 +576,16 @@ export const OrderProvider = ({ children }) => {
       };
 
       utterance.onerror = (e) => {
-        console.error('Speech Error:', e);
+        console.error('Speech Synthesis Error:', e);
         clearTimeout(failsafe);
         isSpeaking.current = false;
         setTimeout(processQueue, 500);
       };
       
+      // Aggressive: Always resume before speaking
+      window.speechSynthesis.resume();
       window.speechSynthesis.speak(utterance);
+      console.log('Speaking message:', finalMessage);
     };
     
     speak(message);
