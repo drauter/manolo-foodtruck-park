@@ -13,25 +13,19 @@ import Receipt from '../components/Receipt';
 
 // Main Admin Panel Component for Foodtruck Management
 const AdminPanel = () => {
-  const { products, addProduct, updateProduct, deleteProduct, uploadProductImage, orders, updateStationStatus, updateOrder, cancelOrder, deleteOrder, deletePayment, currentUser, logout, shifts, deleteShift, users, addUser, deleteUser, updateUser, addToCart, cart, removeFromCart, clearCart, placeOrder, printerConfig, updatePrinterConfig } = useOrder();
+  const { products, addProduct, updateProduct, deleteProduct, uploadProductImage, orders, updateStationStatus, updateOrder, cancelOrder, deleteOrder, deletePayment, currentUser, logout, shifts, deleteShift, users, addUser, deleteUser, updateUser, addToCart, cart, removeFromCart, clearCart, placeOrder, printerConfig, updatePrinterConfig, voices, selectedVoice, setSelectedVoice, announceOrder } = useOrder();
   const [activeTab, setActiveTab] = useState('dashboard'); 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [salesFilter, setSalesFilter] = useState('Todas');
   
-  // Voice Selection State
-  const [voices, setVoices] = useState([]);
-  const [selectedVoice, setSelectedVoice] = useState(localStorage.getItem('preferredVoice') || '');
-  const [pendingVoice, setPendingVoice] = useState(localStorage.getItem('preferredVoice') || '');
+  // Local pending voice for settings UI
+  const [pendingVoice, setPendingVoice] = useState(selectedVoice);
   const [saveSuccess, setSaveSuccess] = useState(false);
 
+  // Sync pending voice when selectedVoice changes (e.g. on load)
   useEffect(() => {
-    const loadVoices = () => {
-      const v = window.speechSynthesis.getVoices();
-      setVoices(v.filter(voice => voice.lang.startsWith('es')));
-    };
-    loadVoices();
-    window.speechSynthesis.onvoiceschanged = loadVoices;
-  }, []);
+    setPendingVoice(selectedVoice);
+  }, [selectedVoice]);
 
   const handleTestVoice = () => {
     const msg = new SpeechSynthesisUtterance("Esta es una prueba de voz para Manolo Foodtruck Park.");
@@ -47,67 +41,6 @@ const AdminPanel = () => {
     setSaveSuccess(true);
     setTimeout(() => setSaveSuccess(false), 3000);
   };
-  // Voice Announcement Logic
-  const announcedOrders = useRef(new Set());
-  
-  useEffect(() => {
-    if (!orders || orders.length === 0) return;
-    
-    orders.forEach(order => {
-      if (order.station_statuses) {
-        Object.entries(order.station_statuses).forEach(([station, status]) => {
-          // Only announce if 'ready' and not already announced for this specific state
-          const announcementKey = `${order.id}-${station}-${status}`;
-          
-          if (status === 'ready' && !announcedOrders.current.has(announcementKey)) {
-            const ticket = order.ticket_number || '';
-            const name = order.customer_name || 'Cliente';
-            
-            let message = '';
-            if (order.is_paid) {
-              message = `Orden número ${ticket}, cliente ${name}, su pedido en la estación de ${station} está listo. Por favor pasar a retirar.`;
-            } else {
-              message = `Orden número ${ticket}, cliente ${name}, su pedido en la estación de ${station} está listo. Por favor pasar por caja para pagar y retirar su pedido.`;
-            }
-            
-            // Robust Cross-Tab Announcement Guard
-            const lastAnnounceKey = `last_announce_${announcementKey}`;
-            const now = Date.now();
-            const lastAnnounceTime = localStorage.getItem(lastAnnounceKey);
-            
-            // If already announced in the last 60 seconds (by any tab), skip
-            if (lastAnnounceTime && (now - parseInt(lastAnnounceTime)) < 60000) {
-              announcedOrders.current.add(announcementKey);
-              return;
-            }
-
-            localStorage.setItem(lastAnnounceKey, now.toString());
-            announcedOrders.current.add(announcementKey);
-
-            const playAnnouncement = (text, isRepeat = false) => {
-              const finalMessage = isRepeat ? `Repito, ${text}` : text;
-              const utterance = new SpeechSynthesisUtterance(finalMessage);
-              utterance.lang = 'es-ES';
-              utterance.rate = 0.85; // Slightly slower for clarity
-              
-              const voice = voices.find(v => v.voiceURI === selectedVoice);
-              if (voice) utterance.voice = voice;
-              
-              window.speechSynthesis.speak(utterance);
-              
-              if (!isRepeat) {
-                // Wait 3 seconds after the first one ends (roughly) or use a fixed timeout
-                // Fixed timeout is safer across browsers
-                setTimeout(() => playAnnouncement(text, true), 8000);
-              }
-            };
-
-            playAnnouncement(message);
-          }
-        });
-      }
-    });
-  }, [orders, voices, selectedVoice]);
 
   const [isUserModalOpen, setIsUserModalOpen] = useState(false);
   const [isEditingUser, setIsEditingUser] = useState(false);

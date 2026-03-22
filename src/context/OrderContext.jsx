@@ -27,6 +27,13 @@ export const OrderProvider = ({ children }) => {
     } catch { return {}; }
   });
 
+  // Voice State
+  const [voices, setVoices] = useState([]);
+  const [selectedVoice, setSelectedVoice] = useState(localStorage.getItem('preferredVoice') || '');
+  const announcementQueue = React.useRef([]);
+  const isSpeaking = React.useRef(false);
+  const announcedOrdersRef = React.useRef(new Set());
+
   // 1. Initial Data Fetching from Supabase
   useEffect(() => {
     const fetchData = async () => {
@@ -66,6 +73,14 @@ export const OrderProvider = ({ children }) => {
     };
 
     fetchData();
+
+    // Load Voices
+    const loadVoices = () => {
+      const v = window.speechSynthesis.getVoices();
+      setVoices(v.filter(voice => voice.lang.startsWith('es')));
+    };
+    loadVoices();
+    window.speechSynthesis.onvoiceschanged = loadVoices;
 
     // 2. Real-time Subscription for Orders
     const ordersSubscription = supabase
@@ -487,6 +502,93 @@ export const OrderProvider = ({ children }) => {
     }));
   };
 
+  // Voice Announcement Queue Logic
+  const processQueue = React.useCallback(() => {
+    if (announcementQueue.current.length === 0 || isSpeaking.current) return;
+    
+    isSpeaking.current = true;
+    const { message, key } = announcementQueue.current.shift();
+    
+    // Cross-tab lock check
+    const now = Date.now();
+    const lastAnnounceKey = `last_announce_${key}`;
+    const lastAnnounceTime = localStorage.getItem(lastAnnounceKey);
+    
+    if (lastAnnounceTime && (now - parseInt(lastAnnounceTime)) < 60000) {
+      isSpeaking.current = false;
+      setTimeout(processQueue, 100);
+      return;
+    }
+
+    localStorage.setItem(lastAnnounceKey, now.toString());
+
+    const speak = (text, isRepeat = false) => {
+      const finalMessage = isRepeat ? `Repito. ${text}` : text;
+      const utterance = new SpeechSynthesisUtterance(finalMessage);
+      utterance.lang = 'es-ES';
+      utterance.rate = 0.85;
+      
+      const v = (window.speechSynthesis.getVoices() || voices).find(voice => voice.voiceURI === selectedVoice);
+      if (v) utterance.voice = v;
+      
+      utterance.onend = () => {
+        if (!isRepeat) {
+          // Explicit delay between the two announcements
+          setTimeout(() => speak(text, true), 2000);
+        } else {
+          isSpeaking.current = false;
+          // Small pause before processing the next order in queue
+          setTimeout(processQueue, 1500);
+        }
+      };
+
+      utterance.onerror = () => {
+        isSpeaking.current = false;
+        setTimeout(processQueue, 500);
+      };
+      
+      window.speechSynthesis.speak(utterance);
+    };
+    
+    speak(message);
+  }, [selectedVoice, voices]);
+
+  const announceOrder = React.useCallback((order, stationKey, manual = false) => {
+    const announcementKey = `${order.id}-${stationKey}-ready`;
+    
+    if (!manual && announcedOrdersRef.current.has(announcementKey)) return;
+    
+    const ticket = order.ticket_number || '';
+    const name = order.customer_name || 'Cliente';
+    
+    let message = '';
+    if (order.is_paid) {
+      message = `Orden número ${ticket}, cliente ${name}, su pedido en la estación de ${stationKey} está listo. Por favor pasar a retirar.`;
+    } else {
+      message = `Orden número ${ticket}, cliente ${name}, su pedido en la estación de ${stationKey} está listo. Por favor pasar por caja para pagar y retirar su pedido.`;
+    }
+
+    if (!manual) announcedOrdersRef.current.add(announcementKey);
+    
+    announcementQueue.current.push({ message, key: announcementKey });
+    processQueue();
+  }, [processQueue]);
+
+  // Effect to handle automatic announcements when orders are ready
+  useEffect(() => {
+    if (!orders || orders.length === 0) return;
+    
+    orders.forEach(order => {
+      if (order.station_statuses) {
+        Object.entries(order.station_statuses).forEach(([station, status]) => {
+          if (status === 'ready') {
+            announceOrder(order, station, false);
+          }
+        });
+      }
+    });
+  }, [orders, announceOrder]);
+
   return (
     <OrderContext.Provider value={{ 
       products, setProducts, addProduct, updateProduct, deleteProduct, addStock, uploadProductImage,
@@ -496,7 +598,8 @@ export const OrderProvider = ({ children }) => {
       currentUser, setCurrentUser, login, logout,
       shifts, setShifts, closeShift, deleteShift,
       users, setUsers, addUser, deleteUser, updateUser,
-      printerConfig, updatePrinterConfig
+      printerConfig, updatePrinterConfig,
+      voices, selectedVoice, setSelectedVoice, announceOrder
     }}>
       {children}
     </OrderContext.Provider>

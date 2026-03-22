@@ -1,7 +1,7 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
 import { useOrder } from '../context/OrderContext';
-import { Clock, CheckCircle, Package, Printer, X, Settings, AlertCircle, LogOut } from 'lucide-react';
+import { Clock, CheckCircle, Package, Printer, X, Settings, AlertCircle, LogOut, Volume2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Receipt from '../components/Receipt';
 
@@ -171,12 +171,20 @@ const EmployeePanel = () => {
                   </button>
                 )}
                 {activeTab === 'dispatch' && (
-                  <button 
-                    onClick={() => updateStationStatus(order.id, stationKey, 'delivered')}
-                    className="flex-[2] py-5 bg-blue-600 text-white font-black rounded-2xl hover:bg-blue-500 active:scale-95 transition-all flex items-center justify-center gap-3 text-lg shadow-xl uppercase italic tracking-tighter"
-                  >
-                    <Package size={24} /> Entregar Pedido
-                  </button>
+                  <div className="flex flex-col gap-3 flex-[2]">
+                    <button 
+                      onClick={() => announceOrder(order, stationKey, true)}
+                      className="py-4 bg-amber-500 text-white font-black rounded-2xl hover:bg-amber-400 active:scale-95 transition-all flex items-center justify-center gap-2 text-sm shadow-lg uppercase"
+                    >
+                      <Volume2 size={20} /> Repetir Llamado
+                    </button>
+                    <button 
+                      onClick={() => updateStationStatus(order.id, stationKey, 'delivered')}
+                      className="py-5 bg-blue-600 text-white font-black rounded-2xl hover:bg-blue-500 active:scale-95 transition-all flex items-center justify-center gap-3 text-lg shadow-xl uppercase italic tracking-tighter"
+                    >
+                      <Package size={24} /> Entregar Pedido
+                    </button>
+                  </div>
                 )}
                 {activeTab === 'history' && (
                   <div className="flex-[2] py-5 bg-slate-950 text-emerald-500 font-black rounded-2xl flex items-center justify-center gap-3 text-sm uppercase italic border border-emerald-500/20">
