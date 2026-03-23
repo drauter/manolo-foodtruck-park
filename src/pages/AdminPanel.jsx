@@ -1205,9 +1205,20 @@ const AdminPanel = () => {
                      ))}
                   </div>
                   {paymentMethod === 'cash' && (
-                     <div className="mb-8 space-y-4">
-                        <label className="text-[10px] font-black text-slate-400 ml-4">RECIBO EN EFECTIVO</label>
-                        <input type="number" value={amountReceived} onChange={e => setAmountReceived(e.target.value)} className="w-full bg-slate-50 p-6 rounded-3xl text-center text-5xl font-black font-mono shadow-inner outline-none focus:ring-4 focus:ring-emerald-500/10" placeholder="0" />
+                     <div className="mb-8 space-y-6">
+                        <div className="space-y-2">
+                           <label className="text-[10px] font-black text-slate-400 ml-4">RECIBO EN EFECTIVO</label>
+                           <input type="number" value={amountReceived} onChange={e => setAmountReceived(e.target.value)} className="w-full bg-slate-50 p-6 rounded-3xl text-center text-5xl font-black font-mono shadow-inner outline-none focus:ring-4 focus:ring-emerald-500/10 placeholder:text-slate-200" placeholder="0" />
+                        </div>
+                        
+                        {(Number(amountReceived) > 0) && (
+                           <div className="bg-emerald-50 p-6 rounded-3xl border border-emerald-100 flex justify-between items-center">
+                              <span className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">Cambio a Devolver:</span>
+                              <span className="text-3xl font-black font-mono text-emerald-600">
+                                 ${Math.max(0, Number(amountReceived) - (paymentOrder.items?.filter(i => i.station === paymentStation).reduce((sum, i) => sum + ((Number(i.price_at_time) || 0) * (Number(i.quantity) || 0)), 0) || 0))}
+                              </span>
+                           </div>
+                        )}
                      </div>
                   )}
                   <button onClick={handleFinalizePayment} className="w-full bg-slate-900 text-white py-6 rounded-[2.5rem] font-black text-xl hover:bg-emerald-600 transition-all uppercase tracking-widest shadow-2xl">Confirmar Registro</button>

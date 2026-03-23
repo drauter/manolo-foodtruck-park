@@ -86,21 +86,45 @@ const Receipt = ({ order, station = 'CAJA' }) => {
           </table>
        </div>
 
-       {/* Totals Section */}
-       <div className="space-y-3 pt-6 border-t-2 border-slate-900 border-dashed">
-          <div className="flex justify-between items-center text-xs font-black uppercase tracking-widest">
-             <span>SUBTOTAL:</span>
-             <span className="font-mono text-slate-900">${order.total_price}</span>
-          </div>
-          <div className="flex justify-between items-center text-xs font-black uppercase tracking-widest text-emerald-500">
-             <span>PAGADO:</span>
-             <span className="font-mono">${totalPaid}</span>
-          </div>
-          <div className="flex justify-between items-center text-lg font-black uppercase tracking-tighter text-slate-950 pt-2">
-             <span>PENDIENTE:</span>
-             <span className="font-mono decoration-slate-950 underline decoration-2">${pending}</span>
-          </div>
-       </div>
+        {/* Totals Section */}
+        <div className="space-y-3 pt-6 border-t-2 border-slate-900 border-dashed">
+           <div className="flex justify-between items-center text-xs font-black uppercase tracking-widest">
+              <span>SUBTOTAL:</span>
+              <span className="font-mono text-slate-900">${order.total_price}</span>
+           </div>
+           
+           {order.payment_details?.[station] && (
+             <>
+               <div className="flex justify-between items-center text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                  <span>MÉTODO:</span>
+                  <span className="text-slate-900">{order.payment_details[station].method === 'cash' ? 'EFECTIVO' : 'TARJETA'}</span>
+               </div>
+               {order.payment_details[station].method === 'cash' && (
+                 <>
+                   <div className="flex justify-between items-center text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                      <span>RECIBIDO:</span>
+                      <span className="text-slate-900 font-mono">${order.payment_details[station].received}</span>
+                   </div>
+                   <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-emerald-600">
+                      <span>CAMBIO:</span>
+                      <span className="font-mono">${order.payment_details[station].change}</span>
+                   </div>
+                 </>
+               )}
+             </>
+           )}
+
+           <div className="flex justify-between items-center text-xs font-black uppercase tracking-widest text-emerald-500 border-t border-slate-100 pt-2 mt-2">
+              <span>TOTAL PAGADO:</span>
+              <span className="font-mono">${totalPaid}</span>
+           </div>
+           {pending > 0 && (
+             <div className="flex justify-between items-center text-lg font-black uppercase tracking-tighter text-slate-950 pt-2">
+                <span>PENDIENTE:</span>
+                <span className="font-mono decoration-slate-950 underline decoration-2">${pending}</span>
+             </div>
+           )}
+        </div>
 
        {/* Footer */}
        <div className="mt-12 text-center">
