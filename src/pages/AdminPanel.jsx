@@ -16,7 +16,6 @@ const AdminPanel = () => {
   const { products, addProduct, updateProduct, deleteProduct, uploadProductImage, orders, updateStationStatus, updateOrder, cancelOrder, deleteOrder, deletePayment, currentUser, logout, shifts, deleteShift, users, addUser, deleteUser, updateUser, addToCart, cart, removeFromCart, clearCart, placeOrder, printerConfig, updatePrinterConfig, voices, selectedVoice, setSelectedVoice, announceOrder } = useOrder();
   const [activeTab, setActiveTab] = useState('dashboard'); 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [salesFilter, setSalesFilter] = useState('Todas');
   
   // Local pending voice for settings UI
   const [pendingVoice, setPendingVoice] = useState(selectedVoice);
@@ -64,6 +63,9 @@ const AdminPanel = () => {
 
   // Invoice/Receipt States
   const [selectedInvoice, setSelectedInvoice] = useState(null);
+  const [selectedCheckoutStation, setSelectedCheckoutStation] = useState('TODAS');
+  const [selectedCollectionsStation, setSelectedCollectionsStation] = useState('TODAS');
+  const [salesFilter, setSalesFilter] = useState('Todos');
   
   const [isEditingOrder, setIsEditingOrder] = useState(null);
 
@@ -155,6 +157,12 @@ const AdminPanel = () => {
   }, 0);
   const totalProfit = totalSales - totalCost;
 
+  const stationPending = ['BAR', 'COMIDA RAPIDA', 'DULCES/POSTRES'].map(st => ({
+    name: st,
+    amount: orders.filter(o => !o.is_paid && o.station_statuses?.[st] && o.station_statuses[st] !== 'delivered')
+      .reduce((sum, o) => sum + (o.items?.filter(i => i.station === st).reduce((s, i) => s + ((Number(i.price_at_time) || 0) * (Number(i.quantity) || 0)), 0) || 0), 0)
+  }));
+
   const lowStockProducts = products.filter(p => p.stock < 10);
 
   const handleSaveProduct = async (e) => {
@@ -233,7 +241,7 @@ const AdminPanel = () => {
     XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(salesData), "Ventas");
 
     // 2. Inventory by Station
-    const stations = ['BAR', 'COMIDA RÁPIDA', 'DULCES/POSTRES'];
+    const stations = ['BAR', 'COMIDA RAPIDA', 'DULCES/POSTRES'];
     stations.forEach(station => {
       const stationProducts = products.filter(p => p.station === station);
       const invData = stationProducts.map(p => {
@@ -438,6 +446,31 @@ const AdminPanel = () => {
                       </div>
                    </div>
                  ))}
+              </div>
+
+              {/* Station Pending Summary */}
+              <div className="bg-slate-950 p-8 rounded-[3rem] border border-slate-800 shadow-2xl relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/5 rounded-full blur-3xl -mr-32 -mt-32" />
+                <div className="flex items-center gap-4 mb-8 relative z-10">
+                  <div className="w-10 h-1bg-emerald-500 rounded-full" />
+                  <h3 className="text-xl font-black uppercase italic tracking-tighter text-white">Pendientes por Estación</h3>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 relative z-10">
+                  {['BAR', 'COMIDA RAPIDA', 'DULCES/POSTRES'].map(st => {
+                    const pendingAmt = orders.filter(o => !o.is_paid && o.station_statuses?.[st] && o.station_statuses[st] !== 'delivered')
+                      .reduce((sum, o) => sum + (o.items?.filter(i => i.station === st).reduce((s, i) => s + (i.price_at_time * i.quantity), 0) || 0), 0);
+                    
+                    return (
+                      <div key={st} className="bg-white/5 backdrop-blur-md p-6 rounded-2xl border border-white/10 group hover:bg-white/10 transition-all">
+                        <div className="text-[9px] font-black text-slate-500 uppercase tracking-[0.2em] mb-2">{st === 'COMIDA RAPIDA' ? 'COMIDA RÁPIDA' : st}</div>
+                        <div className={`text-2xl font-black font-mono tracking-tighter ${pendingAmt > 0 ? 'text-amber-400' : 'text-slate-600'}`}>${pendingAmt}</div>
+                        <div className="mt-2 h-1 w-full bg-white/5 rounded-full overflow-hidden">
+                           <motion.div initial={{ width: 0 }} animate={{ width: pendingAmt > 0 ? '60%' : '0%' }} className="h-full bg-amber-500/50" />
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
 
               <div className="bg-white p-8 rounded-[3rem] border border-slate-100 shadow-sm">
@@ -657,33 +690,49 @@ const AdminPanel = () => {
 
                {/* SECCIÃ“N 2: PENDIENTES DE PAGO */}
                <div className="pt-12 border-t border-slate-200/60">
-                  <div className="flex items-center gap-4 mb-8">
-                     <div className="w-3 h-12 bg-amber-500 rounded-full" />
-                     <h2 className="text-3xl font-black uppercase italic tracking-tighter text-slate-400">Pendientes de Cobro</h2>
-                     <div className="bg-amber-100 text-amber-600 px-4 py-1 rounded-full text-[10px] font-black">{orders.filter(o => !o.is_paid && o.status !== 'delivered' && o.status !== 'cancelled').length}</div>
-                  </div>
+                   <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8">
+                      <div className="flex items-center gap-4">
+                         <div className="w-3 h-12 bg-amber-500 rounded-full" />
+                         <h2 className="text-3xl font-black uppercase italic tracking-tighter text-slate-400">Pendientes de Cobro</h2>
+                         <div className="bg-amber-100 text-amber-600 px-4 py-1 rounded-full text-[10px] font-black">{orders.filter(o => !o.is_paid && o.status !== 'delivered' && o.status !== 'cancelled').length}</div>
+                      </div>
+                      
+                      <div className="flex bg-slate-100 p-1.5 rounded-2xl gap-2 w-full md:w-auto overflow-x-auto no-scrollbar">
+                        {['TODAS', 'BAR', 'COMIDA RAPIDA', 'DULCES/POSTRES'].map(st => (
+                          <button 
+                            key={st} 
+                            onClick={() => setSelectedCheckoutStation(st)} 
+                            className={`px-6 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${selectedCheckoutStation === st ? 'bg-slate-900 text-white shadow-lg' : 'text-slate-400 hover:text-slate-600'}`}
+                          >
+                            {st === 'COMIDA RAPIDA' ? 'COMIDA RÁPIDA' : st}
+                          </button>
+                        ))}
+                      </div>
+                   </div>
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                     {orders.filter(o => !o.is_paid && o.status !== 'delivered' && o.status !== 'cancelled').map(order => (
+                      {orders.filter(o => !o.is_paid && o.status !== 'delivered' && o.status !== 'cancelled' && (selectedCheckoutStation === 'TODAS' || (o.station_statuses && o.station_statuses[selectedCheckoutStation]))).map(order => (
                         <div key={order.id} className="bg-white p-8 rounded-[3.5rem] border border-slate-100 shadow-xl relative opacity-90 hover:opacity-100 transition-opacity">
                            <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Ticket #{order.ticket_number}</div>
                            <h3 className="text-2xl font-black uppercase italic tracking-tighter mb-6 truncate">{order.customer_name}</h3>
                            
                            <div className="space-y-3">
-                              {Object.entries(order.station_statuses || {}).map(([st, s]) => {
-                                 const stAmt = order.items?.filter(i => i.station === st).reduce((sum, i) => sum + (i.price_at_time * i.quantity), 0) || 0;
-                                 return (
-                                   <div key={st} className="flex items-center gap-3">
-                                      <button onClick={() => { setPaymentOrder(order); setPaymentStation(st); }} className={`flex-grow ${s === 'ready' ? 'bg-emerald-600' : 'bg-slate-900'} text-white p-5 rounded-[1.5rem] flex items-center justify-between hover:scale-105 active:scale-95 transition-all font-black text-xs uppercase shadow-lg`}>
-                                         <div className="flex items-center gap-2">
-                                            <span>{st}</span>
-                                            {s === 'ready' && <div className="w-2 h-2 bg-white rounded-full animate-ping" />}
-                                         </div>
-                                         <div className="text-xl font-mono tracking-tighter">${stAmt}</div>
-                                      </button>
-                                   </div>
-                                 );
-                              })}
+                              {Object.entries(order.station_statuses || {})
+                                 .filter(([st, s]) => (selectedCheckoutStation === 'TODAS' || st === selectedCheckoutStation) && s !== 'delivered')
+                                 .map(([st, s]) => {
+                                  const stAmt = order.items?.filter(i => i.station === st).reduce((sum, i) => sum + (i.price_at_time * i.quantity), 0) || 0;
+                                  return (
+                                    <div key={st} className="flex items-center gap-3">
+                                       <button onClick={() => { setPaymentOrder(order); setPaymentStation(st); }} className={`flex-grow ${s === 'ready' ? 'bg-emerald-600' : 'bg-slate-900'} text-white p-5 rounded-[1.5rem] flex items-center justify-between hover:scale-105 active:scale-95 transition-all font-black text-xs uppercase shadow-lg`}>
+                                          <div className="flex items-center gap-2">
+                                             <span>{st === 'COMIDA RAPIDA' ? 'C. RÁPIDA' : st}</span>
+                                             {s === 'ready' && <div className="w-2 h-2 bg-white rounded-full animate-ping" />}
+                                          </div>
+                                          <div className="text-xl font-mono tracking-tighter">${stAmt}</div>
+                                       </button>
+                                    </div>
+                                  );
+                               })}
                            </div>
                         </div>
                      ))}
@@ -725,16 +774,29 @@ const AdminPanel = () => {
                         <h2 className="text-4xl font-black uppercase italic tracking-tighter">Historial de Cobros</h2>
                         <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-2">Registro de recaudación por cajero y estación</p>
                      </div>
-                     <div className="flex gap-4 bg-slate-100 p-2 rounded-3xl">
-                        {['Todos', 'cash', 'card', 'transfer'].map(m => (
-                           <button 
-                             key={m} 
-                             onClick={() => setSalesFilter(m)} 
-                             className={`px-6 py-3 rounded-2xl text-[9px] font-black uppercase tracking-widest transition-all ${salesFilter === m ? 'bg-white text-slate-900 shadow-lg' : 'text-slate-400'}`}
-                           >
-                              {m === 'Todos' ? 'Métodos' : m === 'cash' ? 'Efectivo' : m === 'card' ? 'Tarjeta' : 'Transf.'}
-                           </button>
-                        ))}
+                     <div className="flex flex-wrap gap-4 bg-slate-100 p-2 rounded-3xl">
+                        <div className="flex gap-2 border-r border-slate-200 pr-4 mr-2">
+                           {['TODAS', 'BAR', 'COMIDA RAPIDA', 'DULCES/POSTRES'].map(st => (
+                              <button 
+                                 key={st} 
+                                 onClick={() => setSelectedCollectionsStation(st)} 
+                                 className={`px-4 py-2 rounded-xl text-[8px] font-black uppercase tracking-widest transition-all ${selectedCollectionsStation === st ? 'bg-white text-slate-900 shadow-md' : 'text-slate-400 hover:text-slate-600'}`}
+                              >
+                                {st === 'COMIDA RAPIDA' ? 'C. RÁPIDA' : st}
+                              </button>
+                           ))}
+                        </div>
+                        <div className="flex gap-2">
+                           {['Todos', 'cash', 'card', 'transfer'].map(m => (
+                              <button 
+                                key={m} 
+                                onClick={() => setSalesFilter(m)} 
+                                className={`px-6 py-3 rounded-2xl text-[9px] font-black uppercase tracking-widest transition-all ${salesFilter === m ? 'bg-white text-slate-900 shadow-lg' : 'text-slate-400'}`}
+                              >
+                                 {m === 'Todos' ? 'Métodos' : m === 'cash' ? 'Efectivo' : m === 'card' ? 'Tarjeta' : 'Transf.'}
+                              </button>
+                           ))}
+                        </div>
                      </div>
                   </div>
 
@@ -755,7 +817,7 @@ const AdminPanel = () => {
                            {orders
                              .filter(o => o.payment_details)
                              .flatMap(o => Object.entries(o.payment_details).map(([station, details]) => ({ ...details, order: o, station })))
-                             .filter(t => salesFilter === 'Todos' || t.method === salesFilter)
+                             .filter(t => (selectedCollectionsStation === 'TODAS' || t.station === selectedCollectionsStation) && (salesFilter === 'Todos' || t.method === salesFilter))
                              .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
                              .map((tx, idx) => (
                                <tr key={idx} className="hover:bg-white transition-colors group">

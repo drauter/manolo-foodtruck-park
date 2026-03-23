@@ -192,7 +192,7 @@ const SellerPOS = () => {
              </div>
              <div>
                 <h1 className="text-lg sm:text-xl font-black italic tracking-tighter uppercase leading-none">MANOLO FOODTRUCK PARK</h1>
-                <p className="text-[8px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Terminal: {currentUser.station}</p>
+                <p className="text-[8px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Terminal: {currentUser.station === 'COMIDA RAPIDA' ? 'COMIDA RÁPIDA' : (currentUser.station === 'COMIDA RÃ PIDA' ? 'COMIDA RÁPIDA' : currentUser.station)}</p>
              </div>
           </div>
 
