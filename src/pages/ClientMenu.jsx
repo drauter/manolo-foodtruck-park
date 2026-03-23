@@ -46,6 +46,8 @@ const ClientMenu = () => {
   const [orderConfirmed, setOrderConfirmed] = useState(null);
   const [customerName, setCustomerName] = useState('');
   const [orderNotes, setOrderNotes] = useState('');
+  const [isPlacingOrder, setIsPlacingOrder] = useState(false);
+  const [nameError, setNameError] = useState(false);
   
   const navigate = useNavigate();
 
@@ -58,8 +60,16 @@ const ClientMenu = () => {
   const [activeStation, setActiveStation] = useState('COMIDA RAPIDA');
 
   const handlePlaceOrder = async () => {
-    if (!customerName.trim()) return alert("Ingresa tu nombre para el ticket");
+    if (!customerName.trim()) {
+      setNameError(true);
+      setTimeout(() => setNameError(false), 2000);
+      return;
+    }
+    
+    setIsPlacingOrder(true);
     const order = await placeOrder(customerName.trim(), 'client', orderNotes);
+    setIsPlacingOrder(false);
+    
     if (order) {
       localStorage.setItem('manolo_active_order', order.id);
       
@@ -77,8 +87,8 @@ const ClientMenu = () => {
       setIsCartOpen(false);
       setCustomerName('');
       setOrderNotes('');
-      // Redirect to tracking for customers
-      setTimeout(() => navigate(`/tracking/${order.id}`), 1000);
+      // Faster redirect to tracking
+      setTimeout(() => navigate(`/tracking/${order.id}`), 400); 
     }
   };
 
@@ -225,7 +235,7 @@ const ClientMenu = () => {
                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-2">
                          <label className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-600 ml-4">Tu Nombre</label>
-                         <input type="text" value={customerName} onChange={e => setCustomerName(e.target.value)} placeholder="..." className="w-full bg-slate-900 p-6 rounded-3xl font-black text-2xl italic text-center text-white border border-white/5 outline-none focus:ring-4 focus:ring-emerald-500/20" />
+                         <input type="text" value={customerName} onChange={e => { setCustomerName(e.target.value); if(nameError) setNameError(false); }} placeholder="..." className={`w-full bg-slate-900 p-6 rounded-3xl font-black text-2xl italic text-center text-white border ${nameError ? 'border-red-500 ring-4 ring-red-500/20' : 'border-white/5'} outline-none focus:ring-4 focus:ring-emerald-500/20 transition-all`} />
                       </div>
                       <div className="space-y-2">
                          <label className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-600 ml-4">Instrucciones Especiales</label>
@@ -239,9 +249,30 @@ const ClientMenu = () => {
                    </div>
                    <div className="flex justify-between items-center pt-4">
                       <span className="text-4xl font-black font-mono tracking-tighter text-white">${total}</span>
-                      <button onClick={handlePlaceOrder} className="px-10 py-5 bg-emerald-600 text-white font-black rounded-3xl uppercase tracking-widest text-sm shadow-xl shadow-emerald-900/40 hover:bg-emerald-500 transition-all flex items-center gap-3 active:scale-95">
-                          Ordenar Ahora <CheckCircle size={20} />
-                      </button>
+                      <motion.button 
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        disabled={isPlacingOrder}
+                        onClick={handlePlaceOrder} 
+                        className={`px-10 py-6 ${nameError ? 'bg-red-500 animate-shake' : 'bg-emerald-600'} text-white font-black rounded-3xl uppercase tracking-[0.2em] text-[10px] shadow-2xl ${nameError ? 'shadow-red-900/40' : 'shadow-emerald-900/40'} hover:bg-emerald-500 transition-all flex items-center gap-4 relative overflow-hidden`}
+                      >
+                          {isPlacingOrder ? (
+                            <>
+                              <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1, ease: "linear" }}>
+                                <ShoppingCart size={18} />
+                              </motion.div>
+                              <span>Enviando...</span>
+                            </>
+                          ) : nameError ? (
+                            <>Falta tu Nombre</>
+                          ) : (
+                            <>
+                              <span className="relative z-10">Ordenar Ahora</span>
+                              <CheckCircle size={20} className="relative z-10" />
+                              <motion.div initial={{ x: '-100%' }} whileHover={{ x: '100%' }} transition={{ duration: 0.6 }} className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+                            </>
+                          )}
+                      </motion.button>
                    </div>
                 </div>
              </motion.div>

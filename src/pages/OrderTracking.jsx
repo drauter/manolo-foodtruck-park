@@ -38,8 +38,8 @@ const OrderTracking = () => {
   // Use activeTabId to find the order to display
   const order = orders.find(o => o.id === activeTabId) || orders.find(o => o.id === currentOrderId);
 
-  // Filter tracked orders to only show those that still exist in Supabase (or at least valid ones)
-  const activeOrders = orders.filter(o => trackedOrderIds.includes(o.id));
+  // Filter tracked orders to only show those that still exist in Supabase and ARE NOT CANCELLED
+  const activeOrders = orders.filter(o => trackedOrderIds.includes(o.id) && o.status !== 'cancelled');
 
   // Show loading state if orders are still fetching
   if (loadingOrders) {
@@ -50,6 +50,23 @@ const OrderTracking = () => {
       </div>
     );
   }
+
+  // Check if current order was cancelled and remove it from tracking
+  useEffect(() => {
+    if (order && order.status === 'cancelled') {
+      setTrackedOrderIds(prev => {
+        const newList = prev.filter(id => id !== order.id);
+        if (newList.length !== prev.length) {
+          localStorage.setItem('manolo_tracked_orders', JSON.stringify(newList));
+        }
+        return newList;
+      });
+      // Switch to another active tab if possible
+      if (activeOrders.length > 0) {
+        setActiveTabId(activeOrders[0].id);
+      }
+    }
+  }, [order?.status, activeOrders.length]);
 
   if (!order && !activeOrders.length) {
     return (
