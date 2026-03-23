@@ -232,6 +232,10 @@ export const OrderProvider = ({ children }) => {
       status: overallStatus,
       is_paid: allStationsPaid
     }).eq('id', orderId);
+
+    setOrders(prev => prev.map(o => 
+      o.id === orderId ? { ...o, station_statuses: newStationStatuses, payment_details: newPaymentDetails, status: overallStatus, is_paid: allStationsPaid } : o
+    ));
   };
 
   const updateOrder = (orderId, updatedOrder) => {
@@ -322,7 +326,7 @@ export const OrderProvider = ({ children }) => {
     setShifts(prev => prev.filter(s => s.id !== shiftId));
   };
 
-  const deletePayment = (orderId, station) => {
+  const deletePayment = async (orderId, station) => {
     setOrders(prev => prev.map(order => {
       if (order.id !== orderId) return order;
       
@@ -331,19 +335,36 @@ export const OrderProvider = ({ children }) => {
       
       const newStationStatuses = { ...order.station_statuses };
       if (newStationStatuses[station] === 'delivered') {
-        newStationStatuses[station] = 'ready'; // Revert to ready if payment is deleted
+        newStationStatuses[station] = 'ready'; 
       }
 
-      // Re-evaluate global status and isPaid
       const statuses = Object.values(newStationStatuses);
-      const anyPaid = Object.keys(newPaymentDetails).length > 0;
+      const allStationsPaid = Object.keys(newStationStatuses).every(st => newPaymentDetails[st]);
+      
+      let overallStatus = 'received';
+      const allReadyOrDone = statuses.every(s => s === 'ready' || s === 'delivered');
+      const allDelivered = statuses.every(s => s === 'delivered');
+      
+      if (allDelivered) overallStatus = 'delivered';
+      else if (allReadyOrDone) overallStatus = 'ready';
+      else if (statuses.some(s => s === 'preparing' || s === 'ready' || s === 'delivered')) overallStatus = 'preparing';
+
+      // Persist to Supabase
+      supabase.from('orders').update({
+        payment_details: newPaymentDetails,
+        station_statuses: newStationStatuses,
+        is_paid: allStationsPaid,
+        status: overallStatus
+      }).eq('id', orderId).then(({ error }) => {
+        if (error) console.error("Error persisting payment deletion:", error);
+      });
       
       return {
         ...order,
         payment_details: newPaymentDetails,
         station_statuses: newStationStatuses,
-        is_paid: anyPaid,
-        status: statuses.every(s => s === 'delivered') ? 'delivered' : (statuses.every(s => s === 'ready' || s === 'delivered') ? 'ready' : 'preparing')
+        is_paid: allStationsPaid,
+        status: overallStatus
       };
     }));
   };

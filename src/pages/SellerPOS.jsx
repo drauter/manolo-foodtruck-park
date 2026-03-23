@@ -72,6 +72,7 @@ const SellerPOS = () => {
   const [paymentStation, setPaymentStation] = useState(null);
   const [paymentMethod, setPaymentMethod] = useState('cash');
   const [amountReceived, setAmountReceived] = useState('');
+  const [paymentSuccess, setPaymentSuccess] = useState(false);
   const [parkedCarts, setParkedCarts] = useState([]);
   const [historyTab, setHistoryTab] = useState('ventas'); // 'ventas' or 'cobros'
 
@@ -130,6 +131,7 @@ const SellerPOS = () => {
       if (directPayment) {
         setPaymentOrder(order);
         setPaymentStation(currentUser.station || Object.keys(order.station_statuses || {})[0]);
+        setPaymentSuccess(false);
       } else {
         setSelectedInvoice(order);
       }
@@ -176,8 +178,7 @@ const SellerPOS = () => {
       change: received - amountToPay,
       timestamp: new Date().toISOString()
     });
-    setPaymentOrder(null);
-    setPaymentStation(null);
+    setPaymentSuccess(true);
     setAmountReceived('');
   };
 
@@ -407,7 +408,11 @@ const SellerPOS = () => {
                               </div>
                             ) : (
                               <button 
-                                 onClick={() => { setPaymentOrder(order); setPaymentStation(currentUser.station || Object.keys(order.station_statuses || {})[0]); }}
+                                 onClick={() => { 
+                                    setPaymentOrder(order); 
+                                    setPaymentStation(currentUser.station || Object.keys(order.station_statuses || {})[0]); 
+                                    setPaymentSuccess(false);
+                                 }}
                                  className="flex-grow py-5 bg-emerald-600 text-white rounded-[2rem] font-black text-xs uppercase tracking-widest shadow-xl shadow-emerald-500/20 hover:bg-emerald-500 transition-all flex items-center justify-center gap-3"
                               >
                                  <Wallet size={20} /> Cobrar Orden
@@ -609,42 +614,69 @@ const SellerPOS = () => {
 
          {paymentOrder && (
            <>
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setPaymentOrder(null)} className="fixed inset-0 bg-slate-950/90 backdrop-blur-md z-[200]" />
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => { setPaymentOrder(null); setPaymentSuccess(false); }} className="fixed inset-0 bg-slate-950/90 backdrop-blur-md z-[200]" />
               <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md bg-slate-900 p-10 rounded-[4rem] shadow-2xl z-[201] border border-white/5">
-                 <div className="flex justify-between items-center mb-10">
-                    <h2 className="text-3xl font-black uppercase italic tracking-tighter text-emerald-500 leading-none">Caja</h2>
-                    <button onClick={() => setPaymentOrder(null)} className="p-3 bg-slate-800 rounded-2xl text-slate-500"><X size={24} /></button>
-                 </div>
-                 <div className="bg-slate-950 p-8 rounded-[3rem] mb-10 shadow-inner border border-white/5 relative overflow-hidden">
-                    <div className="absolute top-0 right-0 w-24 h-24 bg-white/5 rounded-bl-[4rem]" />
-                    <div className="text-[10px] uppercase font-black text-slate-600 mb-2 tracking-widest">Monto a Cobrar ({getStationDisplay(paymentStation)})</div>
-                    <div className="text-5xl font-black font-mono text-white tracking-tighter italic shadow-emerald-500/20 shadow-lg">${amountToPay}</div>
-                 </div>
-                 <div className="grid grid-cols-3 gap-3 mb-10">
-                    {[{ id: 'cash', icon: Banknote, l: 'Efectivo' }, { id: 'card', icon: CreditCard, l: 'Tarjeta' }, { id: 'transfer', icon: Landmark, l: 'Transf.' }].map(m => (
-                       <button key={m.id} onClick={() => setPaymentMethod(m.id)} className={`p-5 rounded-[2rem] border-2 flex flex-col items-center gap-3 transition-all ${paymentMethod === m.id ? 'bg-emerald-600 border-emerald-500 text-white shadow-xl scale-105' : 'bg-slate-800 border-transparent text-slate-600'}`}>
-                          <m.icon size={24} />
-                          <span className="text-[10px] font-black uppercase tracking-widest">{m.l}</span>
-                       </button>
-                    ))}
-                 </div>
-                 {paymentMethod === 'cash' && (
-                     <div className="mb-10 space-y-6">
-                        <div>
-                           <label className="text-[10px] font-black uppercase tracking-widest text-slate-600 ml-4 pb-2 block">Ingreso Efectivo</label>
-                           <input type="number" value={amountReceived} onChange={e => setAmountReceived(e.target.value)} className="w-full bg-slate-950 p-6 rounded-3xl text-center text-4xl font-black font-mono text-white shadow-inner outline-none border border-white/5 focus:border-emerald-500/50 transition-all" placeholder="0.00" autoFocus />
-                        </div>
-                        
-                        {amountReceived && Number(amountReceived) >= amountToPay && (
-                           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bg-emerald-500/10 p-6 rounded-3xl border border-emerald-500/20 text-center">
-                              <p className="text-[10px] font-black text-emerald-500 uppercase tracking-widest mb-1">Cambio (Vuelta)</p>
-                              <p className="text-4xl font-black font-mono text-emerald-400 tracking-tighter">${(Number(amountReceived) - amountToPay).toFixed(2)}</p>
-                           </motion.div>
-                        )}
-                     </div>
+                  <div className="flex justify-between items-center mb-10 leading-none">
+                     <h2 className="text-4xl font-black uppercase italic tracking-tighter text-white">
+                        {paymentSuccess ? 'Cobro Exitoso' : 'Procesar Cobro'}
+                     </h2>
+                     <button onClick={() => { setPaymentOrder(null); setPaymentStation(null); setPaymentSuccess(false); }} className="p-4 bg-slate-800 rounded-[2rem] text-slate-400 hover:text-white transition-all"><X size={24} /></button>
+                  </div>
+
+                  {paymentSuccess ? (
+                    <div className="space-y-8 animate-in fade-in zoom-in-95 duration-500">
+                       <div className="max-h-[60vh] overflow-y-auto rounded-[3rem] no-scrollbar">
+                          <Receipt order={orders.find(o => o.id === paymentOrder.id)} station={paymentStation} />
+                       </div>
+                       <div className="grid grid-cols-2 gap-4">
+                          <button 
+                            onClick={() => window.print()} 
+                            className="flex-grow bg-emerald-600 text-white py-6 rounded-[2.5rem] font-black text-xl hover:bg-emerald-500 transition-all shadow-2xl uppercase tracking-[0.2em] flex items-center justify-center gap-3"
+                          >
+                            <Printer size={24} /> Imprimir
+                          </button>
+                          <button 
+                            onClick={() => { setPaymentOrder(null); setPaymentStation(null); setPaymentSuccess(false); }}
+                            className="flex-grow bg-slate-800 text-slate-400 py-6 rounded-[2.5rem] font-black text-xl hover:bg-slate-700 transition-all uppercase tracking-[0.2em]"
+                          >
+                            Cerrar
+                          </button>
+                       </div>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="bg-emerald-600 p-8 rounded-[3rem] mb-10 relative overflow-hidden shadow-2xl">
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-bl-full pointer-events-none" />
+                        <div className="text-[10px] uppercase font-black text-slate-600 mb-2 tracking-widest">Monto a Cobrar ({getStationDisplay(paymentStation)})</div>
+                        <div className="text-5xl font-black font-mono text-white tracking-tighter italic shadow-emerald-500/20 shadow-lg">${amountToPay}</div>
+                      </div>
+                      <div className="grid grid-cols-3 gap-3 mb-10">
+                        {[{ id: 'cash', icon: Banknote, l: 'Efectivo' }, { id: 'card', icon: CreditCard, l: 'Tarjeta' }, { id: 'transfer', icon: Landmark, l: 'Transf.' }].map(m => (
+                            <button key={m.id} onClick={() => setPaymentMethod(m.id)} className={`p-5 rounded-[2rem] border-2 flex flex-col items-center gap-3 transition-all ${paymentMethod === m.id ? 'bg-emerald-600 border-emerald-500 text-white shadow-xl scale-105' : 'bg-slate-800 border-transparent text-slate-600'}`}>
+                              <m.icon size={24} />
+                              <span className="text-[10px] font-black uppercase tracking-widest">{m.l}</span>
+                            </button>
+                        ))}
+                      </div>
+                      {paymentMethod === 'cash' && (
+                          <div className="mb-10 space-y-6">
+                            <div>
+                                <label className="text-[10px] font-black uppercase tracking-widest text-slate-600 ml-4 pb-2 block">Ingreso Efectivo</label>
+                                <input type="number" value={amountReceived} onChange={e => setAmountReceived(e.target.value)} className="w-full bg-slate-950 p-6 rounded-3xl text-center text-4xl font-black font-mono text-white shadow-inner outline-none border border-white/5 focus:border-emerald-500/50 transition-all" placeholder="0.00" autoFocus />
+                            </div>
+                            
+                            {amountReceived && Number(amountReceived) >= amountToPay && (
+                                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bg-emerald-500/10 p-6 rounded-3xl border border-emerald-500/20 text-center">
+                                  <p className="text-[10px] font-black text-emerald-500 uppercase tracking-widest mb-1">Cambio (Vuelta)</p>
+                                  <p className="text-4xl font-black font-mono text-emerald-400 tracking-tighter">${(Number(amountReceived) - amountToPay).toFixed(2)}</p>
+                                </motion.div>
+                            )}
+                          </div>
+                      )}
+                      <button onClick={handleFinalizePayment} className="w-full bg-emerald-600 text-white py-6 rounded-[2.5rem] font-black text-xl hover:bg-emerald-500 transition-all shadow-2xl uppercase tracking-[0.2em]">Registrar Pago</button>
+                    </>
                   )}
-                 <button onClick={handleFinalizePayment} className="w-full bg-emerald-600 text-white py-6 rounded-[2.5rem] font-black text-xl hover:bg-emerald-500 transition-all shadow-2xl uppercase tracking-[0.2em]">Registrar Pago</button>
-              </motion.div>
+               </motion.div>
            </>
          )}
 
