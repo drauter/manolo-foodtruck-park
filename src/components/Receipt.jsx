@@ -13,73 +13,92 @@ const Receipt = ({ order, station = 'CAJA' }) => {
   const pending = order.is_paid ? 0 : order.total_price;
 
   return (
-    <div className={`bg-white ${is58mm ? 'p-6 max-w-[300px]' : 'p-10 max-w-[440px]'} mx-auto rounded-[3.5rem] shadow-xl font-sans text-slate-600 relative overflow-hidden ring-1 ring-slate-100`} id="printable-invoice">
+    <div className={`bg-white ${is58mm ? 'p-4 max-w-[300px]' : 'p-8 max-w-[440px]'} mx-auto sm:rounded-[2.5rem] shadow-xl font-sans text-slate-600 relative overflow-hidden print:shadow-none print:max-w-none print:w-full`} id="printable-invoice">
        <style>{`
+          @page {
+            size: auto;
+            margin: 0mm;
+          }
           @media print {
+            body { 
+              background: white !important;
+              margin: 0 !important;
+              padding: 0 !important;
+              column-gap: 0 !important;
+            }
             body * { visibility: hidden; }
             #printable-invoice, #printable-invoice * { visibility: visible; }
             #printable-invoice { 
-              position: absolute; 
-              left: 0; 
-              top: 0; 
-              width: 100%; 
-              margin: 0;
-              padding: ${is58mm ? '15px' : '40px'}; 
+              position: absolute !important; 
+              left: 0 !important; 
+              top: 0 !important; 
+              width: ${is58mm ? '58mm' : '80mm'} !important; 
+              min-height: auto !important;
+              margin: 0 !important;
+              padding: ${is58mm ? '4mm' : '8mm'} !important; 
               box-shadow: none !important;
-              font-size: ${is58mm ? '12px' : '16px'};
+              border: none !important;
+              border-radius: 0 !important;
+              font-size: ${is58mm ? '10px' : '12px'} !important;
+              line-height: 1.2 !important;
+              color: black !important;
+              background: white !important;
+              -webkit-print-color-adjust: exact !important;
+              print-color-adjust: exact !important;
             }
+            .no-print { display: none !important; }
           }
        `}</style>
        
         {/* Branded Header */}
-        <div className="flex flex-col items-center mb-10 pb-10 border-b-2 border-slate-900 border-double">
-           <div className="w-16 h-8 bg-slate-950 text-white rounded-xl flex items-center justify-center text-sm font-black mb-4 shadow-lg tracking-widest">
+        <div className="flex flex-col items-center mb-6 pb-6 border-b-2 border-slate-900 border-double print:mb-4 print:pb-4">
+           <div className="w-12 h-6 bg-slate-950 text-white rounded-lg flex items-center justify-center text-[10px] font-black mb-2 shadow-lg tracking-widest print:shadow-none">
               #{order.ticket_number}
            </div>
-           <h1 className="text-3xl font-black italic tracking-tighter text-slate-900 leading-none uppercase">MANOLO</h1>
-           <h2 className="text-xl font-black uppercase tracking-[0.2em] text-slate-400 mt-1">FOODTRUCK PARK</h2>
+           <h1 className="text-2xl font-black italic tracking-tighter text-slate-900 leading-none uppercase">MANOLO</h1>
+           <h2 className="text-lg font-black uppercase tracking-[0.2em] text-slate-400 mt-1">FOODTRUCK PARK</h2>
         </div>
 
         {/* Metadata Header */}
-       <div className="space-y-4 mb-8">
+       <div className="space-y-3 mb-6 print:mb-4">
           <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest">
              <span className="text-slate-400">ESTADO:</span>
-             <span className={`font-black tracking-tighter italic ${is_paid ? "text-emerald-500" : "text-orange-500"}`}>{order.status === 'cancelled' ? 'ANULADO' : (is_paid ? 'PAGADO' : 'PENDIENTE')}</span>
+             <span className={`font-black tracking-tighter italic ${is_paid ? "text-emerald-500" : "text-orange-500"} print:text-black`}>{order.status === 'cancelled' ? 'ANULADO' : (is_paid ? 'PAGADO' : 'PENDIENTE')}</span>
           </div>
-          <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-slate-400">
+          <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-slate-400 print:text-black/60">
              <span>NO. FACTURA:</span>
              <span className="text-slate-900 font-mono">#FAC-{order.ticket_number}-{order.id?.toString().slice(-3) || '000'}</span>
           </div>
-          <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-slate-400">
+          <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-slate-400 print:text-black/60">
              <span>FECHA:</span>
              <span className="text-slate-900">{new Date(order.timestamp).toLocaleString()}</span>
           </div>
-          <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-slate-400">
+          <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-slate-400 print:text-black/60">
              <span>CLIENTE:</span>
              <span className="text-slate-900 font-black italic">{order.customer_name}</span>
           </div>
-          <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-slate-400">
+          <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-slate-400 print:text-black/60">
              <span>ESTACIÓN:</span>
              <span className="text-slate-900 font-black italic">{station}</span>
           </div>
        </div>
 
        {/* Items Table */}
-       <div className="mb-10">
+       <div className="mb-6 print:mb-4">
           <table className="w-full text-left">
              <thead>
-                <tr className="border-b-2 border-slate-900 text-[10px] font-black uppercase tracking-widest text-slate-400">
-                   <th className="py-4">DESCRIPCIÓN</th>
-                   <th className="py-4 text-center">CANT</th>
-                   <th className="py-4 text-right">TOTAL</th>
+                <tr className="border-b-2 border-slate-900 text-[10px] font-black uppercase tracking-widest text-slate-400 print:text-black/60">
+                   <th className="py-2">DESCRIPCIÓN</th>
+                   <th className="py-2 text-center">CANT</th>
+                   <th className="py-2 text-right">TOTAL</th>
                 </tr>
              </thead>
              <tbody className="divide-y divide-slate-100">
                 {order.items?.filter(item => station === 'CAJA' || item.station === station).map((item, i) => (
                    <tr key={i} className="text-xs font-bold text-slate-900">
-                      <td className="py-4 uppercase tracking-tighter italic">{item.products?.name || item.product?.name || 'Producto'}</td>
-                      <td className="py-4 text-center font-mono">x{item.quantity}</td>
-                      <td className="py-4 text-right font-mono">${item.price_at_time * item.quantity}</td>
+                      <td className="py-2 uppercase tracking-tighter italic">{item.products?.name || item.product?.name || 'Producto'}</td>
+                      <td className="py-2 text-center font-mono">x{item.quantity}</td>
+                      <td className="py-2 text-right font-mono">${(item.price_at_time || 0) * (item.quantity || 1)}</td>
                    </tr>
                 ))}
              </tbody>
@@ -87,7 +106,7 @@ const Receipt = ({ order, station = 'CAJA' }) => {
        </div>
 
         {/* Totals Section */}
-        <div className="space-y-3 pt-6 border-t-2 border-slate-900 border-dashed">
+        <div className="space-y-2 pt-4 border-t-2 border-slate-900 border-dashed print:pt-2">
            <div className="flex justify-between items-center text-xs font-black uppercase tracking-widest">
               <span>SUBTOTAL:</span>
               <span className="font-mono text-slate-900">${order.total_price}</span>
@@ -95,17 +114,17 @@ const Receipt = ({ order, station = 'CAJA' }) => {
            
            {order.payment_details?.[station] && (
              <>
-               <div className="flex justify-between items-center text-[10px] font-bold uppercase tracking-widest text-slate-400">
+               <div className="flex justify-between items-center text-[10px] font-bold uppercase tracking-widest text-slate-400 print:text-black/60">
                   <span>MÉTODO:</span>
                   <span className="text-slate-900">{order.payment_details[station].method === 'cash' ? 'EFECTIVO' : 'TARJETA'}</span>
                </div>
                {order.payment_details[station].method === 'cash' && (
                  <>
-                   <div className="flex justify-between items-center text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                   <div className="flex justify-between items-center text-[10px] font-bold uppercase tracking-widest text-slate-400 print:text-black/60">
                       <span>RECIBIDO:</span>
                       <span className="text-slate-900 font-mono">${order.payment_details[station].received}</span>
                    </div>
-                   <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-emerald-600">
+                   <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-emerald-600 print:text-black">
                       <span>CAMBIO:</span>
                       <span className="font-mono">${order.payment_details[station].change}</span>
                    </div>
@@ -114,9 +133,9 @@ const Receipt = ({ order, station = 'CAJA' }) => {
              </>
            )}
 
-           <div className="flex justify-between items-center text-xs font-black uppercase tracking-widest text-emerald-500 border-t border-slate-100 pt-2 mt-2">
+           <div className="flex justify-between items-center text-xs font-black uppercase tracking-widest text-emerald-500 border-t border-slate-100 pt-2 mt-2 print:text-black print:border-black/10">
               <span>TOTAL PAGADO:</span>
-              <span className="font-mono">${totalPaid}</span>
+               <span className="font-mono">${totalPaid}</span>
            </div>
            {pending > 0 && (
              <div className="flex justify-between items-center text-lg font-black uppercase tracking-tighter text-slate-950 pt-2">
@@ -127,11 +146,11 @@ const Receipt = ({ order, station = 'CAJA' }) => {
         </div>
 
        {/* Footer */}
-       <div className="mt-12 text-center">
-          <div className="inline-block px-6 py-2 bg-slate-900 text-white rounded-full text-[8px] font-black uppercase tracking-[0.4em] mb-4 shadow-lg rotate-1">
+       <div className="mt-8 text-center print:mt-4">
+          <div className="inline-block px-4 py-1 bg-slate-900 text-white rounded-full text-[8px] font-black uppercase tracking-[0.4em] mb-2 shadow-lg rotate-1 print:shadow-none print:rotate-0 print:border print:border-black print:text-black print:bg-white">
              ¡GRACIAS POR TU COMPRA!
           </div>
-          <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">VISÍTANOS PRONTO EN MANOLO FOODTRUCK PARK</p>
+          <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest print:text-black/60">VISÍTANOS PRONTO EN MANOLO FOODTRUCK PARK</p>
        </div>
     </div>
   );
