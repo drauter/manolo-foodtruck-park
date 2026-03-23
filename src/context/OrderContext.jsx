@@ -10,11 +10,15 @@ export const OrderProvider = ({ children }) => {
   const [cart, setCart] = useState([]);
   const [orders, setOrders] = useState([]);
   const [loadingOrders, setLoadingOrders] = useState(true);
-  const [users, setUsers] = useState([]);
+  const [users, setUsers] = useState(() => {
+    const savedUsers = typeof window !== 'undefined' ? localStorage.getItem('foodtruck_system_users') : null;
+    return savedUsers ? JSON.parse(savedUsers) : [];
+  });
   const [currentUser, setCurrentUser] = useState(() => {
     const savedUser = typeof window !== 'undefined' ? localStorage.getItem('foodtruck_user') : null;
     return savedUser ? JSON.parse(savedUser) : null;
   });
+  const [connectionError, setConnectionError] = useState(false);
   const [shifts, setShifts] = useState([]);
   const [printerConfig, setPrinterConfig] = useState(() => {
     try {
@@ -38,24 +42,32 @@ export const OrderProvider = ({ children }) => {
   // 1. Initial Data Fetching from Supabase
   useEffect(() => {
     const fetchData = async () => {
-      // Fetch Products
-      const { data: productsData } = await supabase.from('products').select('*');
-      if (productsData) {
-        setProducts(productsData);
-      }
+      try {
+        // Fetch Products
+        const { data: productsData, error: prodError } = await supabase.from('products').select('*');
+        if (productsData) setProducts(productsData);
+        if (prodError) throw prodError;
 
-      // Fetch Users
-      const { data: usersData } = await supabase.from('users').select('*');
-      if (usersData) {
-        setUsers(usersData);
-      }
+        // Fetch Users
+        const { data: usersData, error: userError } = await supabase.from('users').select('*');
+        if (usersData) {
+          setUsers(usersData);
+          localStorage.setItem('foodtruck_system_users', JSON.stringify(usersData));
+        }
+        if (userError) throw userError;
 
-      // Fetch Orders
-      const { data: ordersData } = await supabase.from('orders').select('*, order_items(*, products(name, description))').order('timestamp', { ascending: false });
-      if (ordersData) {
-        setOrders(ordersData.map(o => ({ ...o, items: o.order_items })));
+        // Fetch Orders
+        const { data: ordersData, error: orderError } = await supabase.from('orders').select('*, order_items(*, products(name, description))').order('timestamp', { ascending: false });
+        if (ordersData) setOrders(ordersData.map(o => ({ ...o, items: o.order_items })));
+        if (orderError) throw orderError;
+
+        setConnectionError(false);
+      } catch (err) {
+        console.error('FETCH DATA ERROR:', err);
+        setConnectionError(true);
+      } finally {
+        setLoadingOrders(false);
       }
-      setLoadingOrders(false);
     };
 
     fetchData();
@@ -675,7 +687,32 @@ export const OrderProvider = ({ children }) => {
       shifts, setShifts, closeShift, deleteShift,
       users, setUsers, addUser, deleteUser, updateUser,
       printerConfig, updatePrinterConfig,
-      voices, selectedVoice, setSelectedVoice, announceOrder
+      voices, selectedVoice, setSelectedVoice, announceOrder,
+      connectionError, setConnectionError, refreshData: () => {
+        setLoadingOrders(true);
+        const fetchData = async () => {
+          try {
+            const { data: usersData } = await supabase.from('users').select('*');
+            if (usersData) {
+              setUsers(usersData);
+              localStorage.setItem('foodtruck_system_users', JSON.stringify(usersData));
+            }
+            const { data: productsData } = await supabase.from('products').select('*');
+            if (productsData) setProducts(productsData);
+            
+            const { data: ordersData } = await supabase.from('orders').select('*, order_items(*, products(name, description))').order('timestamp', { ascending: false });
+            if (ordersData) setOrders(ordersData.map(o => ({ ...o, items: o.order_items })));
+            
+            setConnectionError(false);
+          } catch (err) {
+            console.error('RETRY ERROR:', err);
+            setConnectionError(true);
+          } finally {
+            setLoadingOrders(false);
+          }
+        };
+        fetchData();
+      }
     }}>
       {children}
     </OrderContext.Provider>

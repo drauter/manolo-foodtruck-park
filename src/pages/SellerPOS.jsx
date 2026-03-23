@@ -199,7 +199,7 @@ const SellerPOS = () => {
   if (!currentUser) return null;
   
   return (
-    <div className="min-h-screen lg:h-screen bg-slate-50 text-slate-900 flex flex-col lg:flex-row overflow-auto lg:overflow-hidden font-sans">
+    <div className="min-h-screen lg:h-screen bg-slate-50 text-slate-900 flex flex-col lg:flex-row overflow-x-hidden lg:overflow-hidden font-sans">
       
       <div className="flex-grow flex flex-col h-full bg-slate-50 relative overflow-hidden">
         <header className="bg-white border-b border-slate-200 p-4 sm:p-6 flex justify-between items-center shadow-sm z-30 sticky top-0">
@@ -230,7 +230,7 @@ const SellerPOS = () => {
           </div>
         </header>
 
-        <main className="flex-grow overflow-y-auto p-10 custom-scrollbar">
+        <main className="flex-grow overflow-y-auto p-4 sm:p-8 lg:p-10 custom-scrollbar">
            {activeTab === 'ventas' ? (
              <div className="space-y-12">
                 {parkedCarts.length > 0 && (
@@ -451,7 +451,15 @@ const SellerPOS = () => {
            </button>
         </div>
 
-        <div className="flex-grow overflow-y-auto p-8 space-y-6 custom-scrollbar">
+        <div className="lg:hidden flex justify-between p-4 bg-white border-b border-slate-100">
+           <button onClick={() => setIsCartOpen(true)} className="flex-grow flex items-center justify-center gap-3 bg-slate-900 text-white py-4 rounded-2xl font-black uppercase text-[10px] tracking-widest shadow-xl">
+              <ShoppingCart size={18} />
+              Ver Carrito ({cart.length})
+              <span className="ml-2 px-2 py-0.5 bg-emerald-500 rounded-full text-[8px]">${total}</span>
+           </button>
+        </div>
+
+        <div className={`flex-grow overflow-y-auto ${cart.length === 0 ? 'p-4' : 'p-6 sm:p-8'} space-y-6 custom-scrollbar`}>
            {cart.length === 0 ? (
              <div className="py-20 text-center opacity-20 flex flex-col items-center">
                 <ShoppingCart size={64} className="mb-4 text-slate-400" />

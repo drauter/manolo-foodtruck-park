@@ -389,7 +389,7 @@ const AdminPanel = () => {
          </div>
       </div>
 
-      <main className="flex-grow p-8 overflow-y-auto bg-slate-50">
+      <main className="flex-grow p-4 sm:p-8 overflow-y-auto bg-slate-50">
         <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-10">
           <div>
             <h1 className="text-3xl sm:text-4xl font-black tracking-tighter capitalize leading-none">{menuItems.find(m => m.id === activeTab)?.label}</h1>
@@ -413,7 +413,7 @@ const AdminPanel = () => {
         <AnimatePresence mode="wait">
           {activeTab === 'products' && (
             <motion.div key="products" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 sm:gap-6">
                 {products.map(product => (
                   <div key={product.id} className="bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-sm flex flex-col gap-4 group">
                     <div className="flex gap-4 items-start">
@@ -443,7 +443,7 @@ const AdminPanel = () => {
 
           {activeTab === 'dashboard' && (
             <motion.div key="dashboard" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-8">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
                  {[
                    { label: 'Ventas Totales', value: `$${totalSales}`, icon: DollarSign, color: 'text-emerald-500' },
                    { label: 'Costo Insumos', value: `$${totalCost}`, icon: Package, color: 'text-slate-400' },
@@ -1065,7 +1065,7 @@ const AdminPanel = () => {
                      </div>
                   </div>
 
-                  <div className="bg-slate-50 p-12 rounded-[4rem] mb-12 border border-slate-100 flex flex-col items-center">
+                  <div className="bg-slate-50 p-6 sm:p-12 rounded-[2rem] sm:rounded-[4rem] mb-12 border border-slate-100 flex flex-col items-center">
                      <div className="max-w-md w-full space-y-5 text-center sm:text-left">
                         {[
                            { paso: 1, text: "Conecte su impresora vía bluetooth" },
@@ -1145,7 +1145,7 @@ const AdminPanel = () => {
                   <div className="border-t border-dashed border-slate-200 my-12" />
 
                   {/* Reportes Section */}
-                  <div className="bg-white p-10 rounded-[3.5rem] border border-slate-100 shadow-sm space-y-8 mb-12">
+                  <div className="bg-white p-6 sm:p-10 rounded-[2rem] sm:rounded-[3.5rem] border border-slate-100 shadow-sm space-y-8 mb-12">
                      <div className="flex items-center gap-6">
                         <div className="w-16 h-16 bg-blue-50 text-blue-600 rounded-[1.5rem] flex items-center justify-center shadow-inner">
                            <FileText size={32} />

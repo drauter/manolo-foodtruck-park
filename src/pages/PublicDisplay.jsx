@@ -94,7 +94,7 @@ const PublicDisplay = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white font-sans overflow-hidden flex flex-col p-2 sm:p-4 gap-3 sm:gap-4">
+    <div className="min-h-screen bg-slate-950 text-white font-sans overflow-hidden flex flex-col p-2 sm:p-4 lg:p-6 gap-3 sm:gap-4">
       {/* Dynamic Header */}
       <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-2 border-b border-slate-900 gap-2">
         <div>
@@ -126,7 +126,7 @@ const PublicDisplay = () => {
       </header>
 
       {/* Main Grid: 3 Sections */}
-      <div className="flex-grow flex flex-col lg:flex-row gap-3 sm:gap-4 overflow-hidden">
+      <div className="flex-grow flex flex-col lg:flex-row gap-3 sm:gap-4 lg:gap-6 overflow-hidden">
         {stations.map(st => (
           <StationColumn 
             key={st.key}

@@ -5,7 +5,7 @@ import { Shield, Coffee, Utensils, IceCream, Lock, Delete, Wallet, ShoppingCart 
 import { motion, AnimatePresence } from 'framer-motion';
 
 const LoginPage = () => {
-  const { login, users } = useOrder();
+  const { login, users, connectionError, refreshData, loadingOrders } = useOrder();
   const navigate = useNavigate();
   const [pin, setPin] = useState('');
   const [error, setError] = useState('');
@@ -65,16 +65,36 @@ const LoginPage = () => {
   return (
     <div className="min-h-screen bg-slate-950 text-white flex flex-col items-center justify-center p-6 bg-[radial-gradient(circle_at_top,_var(--tw-gradient-stops))] from-slate-900 to-slate-950">
       
-      <div className="text-center mb-12">
+      <div className="text-center mb-8 sm:mb-12">
         <motion.div 
           initial={{ scale: 0.8, opacity: 0 }} 
           animate={{ scale: 1, opacity: 1 }}
-          className="w-20 h-20 bg-emerald-500/10 rounded-3xl flex items-center justify-center mx-auto mb-6 border border-emerald-500/20"
+          className="w-16 h-16 sm:w-20 sm:h-20 bg-emerald-500/10 rounded-2xl sm:rounded-3xl flex items-center justify-center mx-auto mb-4 sm:mb-6 border border-emerald-500/20"
         >
-           <Lock className="text-emerald-500" size={32} />
+           <Lock className="text-emerald-500" size={28} />
         </motion.div>
-        <h1 className="text-3xl sm:text-6xl font-black italic tracking-tighter mb-1 leading-none uppercase">MANOLO <span className="text-emerald-500">FOODTRUCK</span></h1>
-        <h2 className="text-lg sm:text-2xl font-black text-slate-500 uppercase tracking-widest mb-4 italic">PARK</h2>
+        <h1 className="text-2xl sm:text-5xl lg:text-6xl font-black italic tracking-tighter mb-1 leading-none uppercase">MANOLO <span className="text-emerald-500">FOODTRUCK</span></h1>
+        <h2 className="text-base sm:text-xl lg:text-2xl font-black text-slate-500 uppercase tracking-widest mb-4 italic">PARK</h2>
+        
+        {/* Connection Status Indicator */}
+        <div className="flex justify-center mt-4">
+           {connectionError ? (
+             <motion.button 
+               onClick={refreshData}
+               initial={{ opacity: 0 }} 
+               animate={{ opacity: 1 }}
+               className="flex items-center gap-3 px-6 py-3 bg-red-500/10 border border-red-500/20 rounded-2xl text-red-500 hover:bg-red-500/20 transition-all group"
+             >
+                <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
+                <span className="text-[10px] font-black uppercase tracking-widest">Sin Conexión - Reintentar</span>
+             </motion.button>
+           ) : loadingOrders ? (
+             <div className="flex items-center gap-3 px-6 py-3 bg-slate-900 border border-white/5 rounded-2xl text-slate-400">
+                <div className="w-2 h-2 bg-emerald-500 rounded-full animate-ping" />
+                <span className="text-[10px] font-black uppercase tracking-widest text-emerald-500/60">Actualizando Datos...</span>
+             </div>
+           ) : null}
+        </div>
       </div>
 
       <AnimatePresence mode="wait">
@@ -109,13 +129,13 @@ const LoginPage = () => {
 
             {error && <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-red-500 font-black uppercase tracking-widest text-xs mb-8">{error}</motion.p>}
 
-            <div className="grid grid-cols-3 gap-3 sm:gap-4 w-full mb-4 sm:mb-8 scale-90 sm:scale-100">
+            <div className="grid grid-cols-3 gap-2 sm:gap-4 w-full mb-4 sm:mb-8 scale-95 sm:scale-100 max-w-[320px] sm:max-w-none">
               {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
-                <button key={num} onClick={() => handleNumberClick(num.toString())} className="h-16 sm:h-20 bg-slate-900 rounded-2xl sm:rounded-3xl font-black text-2xl sm:text-3xl hover:bg-slate-800 active:scale-90 transition-all border border-slate-800/50 shadow-lg">{num}</button>
+                <button key={num} onClick={() => handleNumberClick(num.toString())} className="h-14 sm:h-20 bg-slate-900 rounded-2xl sm:rounded-3xl font-black text-2xl sm:text-3xl hover:bg-slate-800 active:scale-90 transition-all border border-slate-800/50 shadow-lg">{num}</button>
               ))}
               <div />
-              <button onClick={() => handleNumberClick('0')} className="h-16 sm:h-20 bg-slate-900 rounded-2xl sm:rounded-3xl font-black text-2xl sm:text-3xl hover:bg-slate-800 active:scale-90 transition-all border border-slate-800/50 shadow-lg">0</button>
-              <button onClick={clearLast} className="h-16 sm:h-20 bg-slate-900 rounded-2xl sm:rounded-3xl flex items-center justify-center hover:bg-red-500/20 text-slate-500 hover:text-red-500 transition-all border border-slate-800/50"><Delete size={28} /></button>
+              <button onClick={() => handleNumberClick('0')} className="h-14 sm:h-20 bg-slate-900 rounded-2xl sm:rounded-3xl font-black text-2xl sm:text-3xl hover:bg-slate-800 active:scale-90 transition-all border border-slate-800/50 shadow-lg">0</button>
+              <button onClick={clearLast} className="h-14 sm:h-20 bg-slate-900 rounded-2xl sm:rounded-3xl flex items-center justify-center hover:bg-red-500/20 text-slate-500 hover:text-red-500 transition-all border border-slate-800/50"><Delete size={28} /></button>
             </div>
             
             <p className="text-slate-600 text-[10px] font-black uppercase tracking-widest mb-10">Ingresa tu PIN Personal</p>

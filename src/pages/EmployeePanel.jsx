@@ -42,53 +42,54 @@ const EmployeePanel = () => {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 p-6 font-sans">
+    <div className="min-h-screen bg-slate-950 text-slate-100 p-4 sm:p-6 font-sans">
       <header className="mb-10 flex flex-col md:flex-row md:items-center justify-between gap-6 bg-slate-900 p-8 rounded-[2.5rem] border border-slate-800 shadow-2xl">
         <div className="flex items-center gap-6">
-          <div className={`p-5 rounded-3xl ${currentStation.bg} ${currentStation.color} shadow-lg border border-current/20`}>
-            <Package size={32} />
+          <div className={`p-4 sm:p-5 rounded-2xl sm:rounded-3xl ${currentStation.bg} ${currentStation.color} shadow-lg border border-current/20`}>
+            <Package size={24} className="sm:w-8 sm:h-8" />
           </div>
           <div>
-            <h1 className="text-4xl font-black text-white tracking-tighter uppercase italic leading-none">ESTACIÓN: <span className={currentStation.color}>{currentStation.display}</span></h1>
-            <p className="text-slate-400 mt-1 font-bold uppercase tracking-widest text-xs opacity-60">Gestión de Producción y Despacho</p>
+            <h1 className="text-2xl sm:text-4xl font-black text-white tracking-tighter uppercase italic leading-none">ESTACIÓN: <span className={currentStation.color}>{currentStation.display}</span></h1>
+            <p className="text-slate-400 mt-1 font-bold uppercase tracking-widest text-[9px] sm:text-xs opacity-60">Gestión de Producción y Despacho</p>
           </div>
         </div>
         
-        <div className="flex gap-4 items-center">
-          <div className="flex gap-2 bg-slate-950 p-2 rounded-[2rem] border border-slate-800">
+        <div className="flex gap-4 items-center w-full md:w-auto">
+          <div className="flex gap-1 sm:gap-2 bg-slate-950 p-1.5 sm:p-2 rounded-2xl sm:rounded-[2rem] border border-slate-800 flex-grow sm:flex-grow-0">
             <button 
               onClick={() => setActiveTab('prep')}
-              className={`px-8 py-3 rounded-2xl font-black text-xs uppercase tracking-widest transition-all ${activeTab === 'prep' ? currentStation.bg + ' ' + currentStation.color : 'text-slate-500 hover:text-slate-300'}`}
+              className={`flex-grow sm:flex-grow-0 px-4 sm:px-8 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl font-black text-[10px] sm:text-xs uppercase tracking-widest transition-all ${activeTab === 'prep' ? currentStation.bg + ' ' + currentStation.color : 'text-slate-500 hover:text-slate-300'}`}
             >
-              Producción
+              Prod.
             </button>
             <button 
               onClick={() => setActiveTab('dispatch')}
-              className={`px-8 py-3 rounded-2xl font-black text-xs uppercase tracking-widest transition-all ${activeTab === 'dispatch' ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20' : 'text-slate-500 hover:text-slate-300'}`}
+              className={`flex-grow sm:flex-grow-0 px-4 sm:px-8 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl font-black text-[10px] sm:text-xs uppercase tracking-widest transition-all ${activeTab === 'dispatch' ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20' : 'text-slate-500 hover:text-slate-300'}`}
             >
-              Despacho
+              Desp.
             </button>
             <button 
               onClick={() => setActiveTab('history')}
-              className={`px-8 py-3 rounded-2xl font-black text-xs uppercase tracking-widest transition-all ${activeTab === 'history' ? 'bg-slate-800 text-white border border-white/10' : 'text-slate-500 hover:text-slate-300'}`}
+              className={`flex-grow sm:flex-grow-0 px-4 sm:px-8 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl font-black text-[10px] sm:text-xs uppercase tracking-widest transition-all ${activeTab === 'history' ? 'bg-slate-800 text-white border border-white/10' : 'text-slate-500 hover:text-slate-300'}`}
             >
-              Entregados
+              Listos
             </button>
           </div>
-          <button 
-            onClick={() => window.location.href = '/login'}
-            className="p-4 bg-slate-950 text-slate-500 hover:text-white rounded-2xl border border-slate-800 transition-all hover:scale-105 active:scale-95 flex items-center gap-2 group"
-            title="Cerrar Panel"
-          >
-            <LogOut size={24} className="group-hover:text-red-500" />
-            <span className="text-[10px] font-black uppercase tracking-widest hidden sm:inline">Salir</span>
-          </button>
-          <button 
-            onClick={() => setShowSettings(true)}
-            className="p-4 bg-slate-950 text-slate-500 hover:text-white rounded-2xl border border-slate-800 transition-all hover:scale-105 active:scale-95"
-          >
-            <Settings size={24} />
-          </button>
+          <div className="flex gap-2">
+            <button 
+              onClick={() => window.location.href = '/login'}
+              className="p-3 sm:p-4 bg-slate-950 text-slate-500 hover:text-white rounded-2xl border border-slate-800 transition-all active:scale-95"
+              title="Cerrar Panel"
+            >
+              <LogOut size={20} className="sm:w-6 sm:h-6" />
+            </button>
+            <button 
+              onClick={() => setShowSettings(true)}
+              className="p-3 sm:p-4 bg-slate-950 text-slate-500 hover:text-white rounded-2xl border border-slate-800 transition-all active:scale-95"
+            >
+              <Settings size={20} className="sm:w-6 sm:h-6" />
+            </button>
+          </div>
         </div>
       </header>
 

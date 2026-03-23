@@ -186,10 +186,29 @@ const ClientMenu = () => {
            </button>
         </motion.div>
       )}
-
-      {/* Cart Bottom Bar */}
+      {/* Cart Bottom Bar (Mobile) */}
       {cart.length > 0 && !isCartOpen && !orderConfirmed && (
-        <motion.div initial={{ y: 100 }} animate={{ y: 0 }} className="fixed bottom-10 left-6 right-6 z-50 max-w-lg mx-auto">
+        <motion.div 
+          initial={{ y: 100 }} 
+          animate={{ y: 0 }} 
+          className="fixed bottom-6 left-6 right-6 z-50 sm:hidden"
+        >
+           <button onClick={() => setIsCartOpen(true)} className="w-full bg-emerald-600 p-5 rounded-[2rem] shadow-2xl flex justify-between items-center group active:scale-95 transition-all">
+              <div className="flex items-center gap-3">
+                 <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center border border-white/20"><ShoppingCart size={20} /></div>
+                 <div className="text-left leading-none">
+                    <span className="text-[8px] font-black uppercase tracking-widest opacity-70">Carrito</span>
+                    <h4 className="text-sm font-black italic mt-0.5">{cart.length} ítems</h4>
+                 </div>
+              </div>
+              <div className="text-2xl font-black font-mono tracking-tighter italic shadow-sm">$ {total}</div>
+           </button>
+        </motion.div>
+      )}
+
+      {/* Cart Bottom Bar (Desktop) */}
+      {cart.length > 0 && !isCartOpen && !orderConfirmed && (
+        <motion.div initial={{ y: 100 }} animate={{ y: 0 }} className="fixed bottom-10 left-6 right-6 z-50 max-w-lg mx-auto hidden sm:block">
            <button onClick={() => setIsCartOpen(true)} className="w-full bg-emerald-600 p-6 rounded-[2rem] shadow-2xl flex justify-between items-center group active:scale-95 transition-all">
               <div className="flex items-center gap-4">
                  <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center border border-white/20 shadow-lg"><ShoppingCart size={24} /></div>
@@ -198,86 +217,85 @@ const ClientMenu = () => {
                     <h4 className="text-lg font-black italic tracking-tighter mt-1">{cart.length} Productos</h4>
                  </div>
               </div>
-              <div className="text-3xl font-black font-mono tracking-tighter italic decoration-white/30 underline decoration-2">$ {total}</div>
+              <div className="text-3xl font-black font-mono tracking-tighter italic transition-all">$ {total}</div>
            </button>
         </motion.div>
       )}
+        <AnimatePresence>
+          {isCartOpen && (
+            <div className="fixed inset-0 z-50">
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsCartOpen(false)} className="absolute inset-0 bg-slate-950/80 backdrop-blur-xl" />
+              <motion.div initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }} className="absolute bottom-0 left-0 right-0 h-[92vh] bg-slate-900 rounded-t-[4rem] p-10 flex flex-col border-t border-white/5 shadow-2xl max-w-2xl mx-auto overflow-hidden">
+                 <div className="w-16 h-1.5 bg-slate-800 rounded-full mx-auto mb-10" />
+                 <div className="flex justify-between items-center mb-10">
+                    <h2 className="text-4xl font-black italic tracking-tighter uppercase text-white leading-none underline decoration-emerald-500 decoration-4">Tu Pedido</h2>
+                    <button onClick={() => setIsCartOpen(false)} className="p-4 bg-slate-800 rounded-2xl text-slate-400 hover:text-white"><X size={24} /></button>
+                 </div>
 
-      {/* Cart Side/Modal */}
-      <AnimatePresence>
-         {isCartOpen && (
-           <>
-             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsCartOpen(false)} className="fixed inset-0 bg-slate-950/80 backdrop-blur-xl z-50" />
-             <motion.div initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }} className="fixed bottom-0 left-0 right-0 h-[92vh] bg-slate-900 rounded-t-[4rem] z-[60] p-10 flex flex-col border-t border-white/5 shadow-2xl max-w-2xl mx-auto overflow-hidden">
-                <div className="w-16 h-1.5 bg-slate-800 rounded-full mx-auto mb-10" />
-                <div className="flex justify-between items-center mb-10">
-                   <h2 className="text-4xl font-black italic tracking-tighter uppercase text-white leading-none underline decoration-emerald-500 decoration-4">Tu Pedido</h2>
-                   <button onClick={() => setIsCartOpen(false)} className="p-4 bg-slate-800 rounded-2xl text-slate-400 hover:text-white"><X size={24} /></button>
-                </div>
-
-                <div className="flex-grow overflow-y-auto space-y-4 pr-2 custom-scrollbar pb-8">
-                   {cart.map(item => (
-                     <div key={item.id} className="bg-slate-950/50 p-6 rounded-[2.5rem] border border-white/5 flex gap-6 items-center group">
-                        <img src={item.image} className="w-20 h-20 rounded-3xl object-cover shadow-xl" />
-                        <div className="flex-grow">
-                           <h4 className="font-black text-xl italic uppercase tracking-tighter group-hover:text-emerald-400 transition-colors">{item.name}</h4>
-                           <div className="flex justify-between items-end mt-4">
-                              <div className="px-3 py-1 bg-slate-900 border border-white/5 rounded-xl font-mono text-emerald-500 text-xs">Cant: {item.quantity}</div>
-                              <span className="text-2xl font-black text-white font-mono tracking-tighter">${item.price * item.quantity}</span>
-                           </div>
-                        </div>
-                        <button onClick={() => removeFromCart(item.id)} className="p-3 text-slate-800 hover:text-red-500 transition-colors"><Trash2 size={24} /></button>
-                     </div>
-                   ))}
-                </div>
-
-                <div className="bg-slate-950 p-8 rounded-[3rem] border border-white/5 shadow-inner space-y-6 mt-auto">
-                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div className="space-y-2">
-                         <label className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-600 ml-4">Tu Nombre</label>
-                         <input type="text" value={customerName} onChange={e => { setCustomerName(e.target.value); if(nameError) setNameError(false); }} placeholder="..." className={`w-full bg-slate-900 p-6 rounded-3xl font-black text-2xl italic text-center text-white border ${nameError ? 'border-red-500 ring-4 ring-red-500/20' : 'border-white/5'} outline-none focus:ring-4 focus:ring-emerald-500/20 transition-all`} />
+                 <div className="flex-grow overflow-y-auto space-y-4 pr-2 custom-scrollbar pb-8">
+                    {cart.map(item => (
+                      <div key={item.id} className="bg-slate-950/50 p-6 rounded-[2.5rem] border border-white/5 flex gap-6 items-center group">
+                         <img src={item.image} className="w-20 h-20 rounded-3xl object-cover shadow-xl" />
+                         <div className="flex-grow">
+                            <h4 className="font-black text-xl italic uppercase tracking-tighter group-hover:text-emerald-400 transition-colors">{item.name}</h4>
+                            <div className="flex justify-between items-end mt-4">
+                               <div className="px-3 py-1 bg-slate-900 border border-white/5 rounded-xl font-mono text-emerald-500 text-xs">Cant: {item.quantity}</div>
+                               <span className="text-2xl font-black text-white font-mono tracking-tighter">${item.price * item.quantity}</span>
+                            </div>
+                         </div>
+                         <button onClick={() => removeFromCart(item.id)} className="p-3 text-slate-800 hover:text-red-500 transition-colors"><Trash2 size={24} /></button>
                       </div>
-                      <div className="space-y-2">
-                         <label className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-600 ml-4">Instrucciones Especiales</label>
-                         <textarea 
-                           value={orderNotes} 
-                           onChange={e => setOrderNotes(e.target.value)} 
-                           placeholder="Ej: Sin cebolla, extra salsa..." 
-                           className="w-full bg-slate-900 p-6 rounded-3xl font-bold text-sm italic text-white border border-white/5 outline-none focus:ring-4 focus:ring-emerald-500/20 resize-none h-[88px] placeholder:text-slate-700" 
-                         />
-                      </div>
-                   </div>
-                   <div className="flex justify-between items-center pt-4">
-                      <span className="text-4xl font-black font-mono tracking-tighter text-white">${total}</span>
-                      <motion.button 
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                        disabled={isPlacingOrder}
-                        onClick={handlePlaceOrder} 
-                        className={`px-10 py-6 ${nameError ? 'bg-red-500 animate-shake' : 'bg-emerald-600'} text-white font-black rounded-3xl uppercase tracking-[0.2em] text-[10px] shadow-2xl ${nameError ? 'shadow-red-900/40' : 'shadow-emerald-900/40'} hover:bg-emerald-500 transition-all flex items-center gap-4 relative overflow-hidden`}
-                      >
-                          {isPlacingOrder ? (
-                            <>
-                              <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1, ease: "linear" }}>
-                                <ShoppingCart size={18} />
-                              </motion.div>
-                              <span>Enviando...</span>
-                            </>
-                          ) : nameError ? (
-                            <>Falta tu Nombre</>
-                          ) : (
-                            <>
-                              <span className="relative z-10">Ordenar Ahora</span>
-                              <CheckCircle size={20} className="relative z-10" />
-                              <motion.div initial={{ x: '-100%' }} whileHover={{ x: '100%' }} transition={{ duration: 0.6 }} className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
-                            </>
-                          )}
-                      </motion.button>
-                   </div>
-                </div>
-             </motion.div>
-           </>
-         )}
+                    ))}
+                 </div>
+
+                 <div className="bg-slate-950 p-8 rounded-[3rem] border border-white/5 shadow-inner space-y-6 mt-auto">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                       <div className="space-y-2">
+                          <label className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-600 ml-4">Tu Nombre</label>
+                          <input type="text" value={customerName} onChange={e => { setCustomerName(e.target.value); if(nameError) setNameError(false); }} placeholder="..." className={`w-full bg-slate-900 p-6 rounded-3xl font-black text-2xl italic text-center text-white border ${nameError ? 'border-red-500 ring-4 ring-red-500/20' : 'border-white/5'} outline-none focus:ring-4 focus:ring-emerald-500/20 transition-all`} />
+                       </div>
+                       <div className="space-y-2">
+                          <label className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-600 ml-4">Instrucciones Especiales</label>
+                          <textarea 
+                            value={orderNotes} 
+                            onChange={e => setOrderNotes(e.target.value)} 
+                            placeholder="Ej: Sin cebolla, extra salsa..." 
+                            className="w-full bg-slate-900 p-6 rounded-3xl font-bold text-sm italic text-white border border-white/5 outline-none focus:ring-4 focus:ring-emerald-500/20 resize-none h-[88px] placeholder:text-slate-700" 
+                          />
+                       </div>
+                    </div>
+                    <div className="flex justify-between items-center pt-4">
+                       <span className="text-4xl font-black font-mono tracking-tighter text-white">${total}</span>
+                       <motion.button 
+                         whileHover={{ scale: 1.02 }}
+                         whileTap={{ scale: 0.98 }}
+                         disabled={isPlacingOrder}
+                         onClick={handlePlaceOrder} 
+                         className={`px-10 py-6 ${nameError ? 'bg-red-500 animate-shake' : 'bg-emerald-600'} text-white font-black rounded-3xl uppercase tracking-[0.2em] text-[10px] shadow-2xl ${nameError ? 'shadow-red-900/40' : 'shadow-emerald-900/40'} hover:bg-emerald-500 transition-all flex items-center gap-4 relative overflow-hidden`}
+                       >
+                           {isPlacingOrder ? (
+                             <>
+                               <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1, ease: "linear" }}>
+                                 <ShoppingCart size={18} />
+                               </motion.div>
+                               <span>Enviando...</span>
+                             </>
+                           ) : nameError ? (
+                             <>Falta tu Nombre</>
+                           ) : (
+                             <>
+                               <span className="relative z-10">Ordenar Ahora</span>
+                               <CheckCircle size={20} className="relative z-10" />
+                               <motion.div initial={{ x: '-100%' }} whileHover={{ x: '100%' }} transition={{ duration: 0.6 }} className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+                             </>
+                           )}
+                       </motion.button>
+                    </div>
+                 </div>
+              </motion.div>
+            </div>
+          )}
+
 
          {orderConfirmed && (
            <>
