@@ -9,6 +9,7 @@ export const OrderProvider = ({ children }) => {
   const [products, setProducts] = useState([]);
   const [cart, setCart] = useState([]);
   const [orders, setOrders] = useState([]);
+  const [loadingOrders, setLoadingOrders] = useState(true);
   const [users, setUsers] = useState([]);
   const [currentUser, setCurrentUser] = useState(() => {
     const savedUser = typeof window !== 'undefined' ? localStorage.getItem('foodtruck_user') : null;
@@ -54,6 +55,7 @@ export const OrderProvider = ({ children }) => {
       if (ordersData) {
         setOrders(ordersData.map(o => ({ ...o, items: o.order_items })));
       }
+      setLoadingOrders(false);
     };
 
     fetchData();
@@ -655,7 +657,7 @@ export const OrderProvider = ({ children }) => {
     <OrderContext.Provider value={{ 
       products, setProducts, addProduct, updateProduct, deleteProduct, addStock, uploadProductImage,
       cart, addToCart, removeFromCart, clearCart, placeOrder, 
-      orders, updateOrderStatus, updateStationStatus, updateOrder, cancelOrder, deleteOrder, deletePayment,
+      orders, loadingOrders, updateOrderStatus, updateStationStatus, updateOrder, cancelOrder, deleteOrder, deletePayment,
       markStationReady,
       currentUser, setCurrentUser, login, logout,
       shifts, setShifts, closeShift, deleteShift,

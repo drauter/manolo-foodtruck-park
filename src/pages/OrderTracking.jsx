@@ -9,7 +9,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 const OrderTracking = () => {
   const { orderId: currentOrderId } = useParams();
-  const { orders } = useOrder();
+  const { orders, loadingOrders } = useOrder();
   const navigate = useNavigate();
   
   const [trackedOrderIds, setTrackedOrderIds] = useState(() => {
@@ -41,6 +41,16 @@ const OrderTracking = () => {
   // Filter tracked orders to only show those that still exist in Supabase (or at least valid ones)
   const activeOrders = orders.filter(o => trackedOrderIds.includes(o.id));
 
+  // Show loading state if orders are still fetching
+  if (loadingOrders) {
+    return (
+      <div className="min-h-screen bg-slate-950 text-white flex flex-col items-center justify-center p-6 text-center">
+        <Loader2 className="w-12 h-12 text-emerald-500 animate-spin mb-4" />
+        <h2 className="text-xl font-black uppercase italic tracking-tighter">Cargando tu pedido...</h2>
+      </div>
+    );
+  }
+
   if (!order && !activeOrders.length) {
     return (
       <div className="min-h-screen bg-slate-950 text-white flex flex-col items-center justify-center p-6 text-center">
@@ -54,25 +64,37 @@ const OrderTracking = () => {
     );
   }
 
+  // If we have active orders but the current one isn't found, pick the first active one
+  const displayOrder = order || activeOrders[0];
+
+  if (!displayOrder) {
+     return (
+        <div className="min-h-screen bg-slate-950 text-white flex flex-col items-center justify-center p-6 text-center">
+           <Loader2 className="w-12 h-12 text-emerald-500 animate-spin mb-4" />
+           <p>Buscando orden...</p>
+        </div>
+     );
+  }
+
   const stationIcons = {
     'BAR': Coffee,
     'COMIDA RAPIDA': Utensils,
     'DULCES/POSTRES': IceCream
   };
 
-  const isReadyGlobal = order.status === 'ready' || order.status === 'delivered';
-  const is_paid = order.is_paid;
+  const isReadyGlobal = displayOrder.status === 'ready' || displayOrder.status === 'delivered';
+  const is_paid = displayOrder.is_paid;
 
   const getStatusText = () => {
-    if (order.status === 'cancelled') return 'Pedido Anulado';
-    if (order.status === 'delivered') return '¡Entregado!';
+    if (displayOrder.status === 'cancelled') return 'Pedido Anulado';
+    if (displayOrder.status === 'delivered') return '¡Entregado!';
     if (isReadyGlobal) return is_paid ? '¡Todo Listo!' : '¡Pedido Listo!';
     return is_paid ? 'Preparando Pago' : 'En Producción';
   };
 
   const getStatusIcon = () => {
-    if (order.status === 'cancelled') return <XCircle className="text-red-500" size={48} />;
-    if (order.status === 'delivered') return <PackageCheck className="text-emerald-500" size={48} />;
+    if (displayOrder.status === 'cancelled') return <XCircle className="text-red-500" size={48} />;
+    if (displayOrder.status === 'delivered') return <PackageCheck className="text-emerald-500" size={48} />;
     if (isReadyGlobal) {
       return is_paid 
         ? <CheckCircle2 className="text-emerald-500 shadow-emerald-500/50 shadow-lg" size={48} /> 
@@ -84,8 +106,8 @@ const OrderTracking = () => {
   };
 
   const getInstructions = () => {
-    if (order.status === 'cancelled') return 'Este pedido ha sido anulado por la administración.';
-    if (order.status === 'delivered') return '¡Gracias por tu compra! Esperamos verte pronto.';
+    if (displayOrder.status === 'cancelled') return 'Este pedido ha sido anulado por la administración.';
+    if (displayOrder.status === 'delivered') return '¡Gracias por tu compra! Esperamos verte pronto.';
     if (isReadyGlobal) {
       return is_paid 
         ? 'Tu pedido te espera en la ventana de entrega.' 
@@ -134,7 +156,7 @@ const OrderTracking = () => {
          <motion.div 
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
-            className={`p-10 rounded-[3.5rem] text-center relative overflow-hidden shadow-2xl border ${isReadyGlobal ? 'bg-emerald-600 border-emerald-400 shadow-emerald-900/40' : (order.status === 'delivered' ? 'bg-blue-600 border-blue-400 shadow-blue-900/40' : 'bg-slate-900 border-white/10 shadow-black')}`}
+            className={`p-10 rounded-[3.5rem] text-center relative overflow-hidden shadow-2xl border ${isReadyGlobal ? 'bg-emerald-600 border-emerald-400 shadow-emerald-900/40' : (displayOrder.status === 'delivered' ? 'bg-blue-600 border-blue-400 shadow-blue-900/40' : 'bg-slate-900 border-white/10 shadow-black')}`}
          >
             <div className="absolute -top-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-3xl animate-pulse" />
             <div className="relative z-10 flex flex-col items-center">
@@ -172,7 +194,7 @@ const OrderTracking = () => {
          {/* Station Progress */}
          <div className="space-y-4">
             <h3 className="text-[10px] font-black uppercase tracking-[0.5em] text-slate-500 ml-4 mb-2">Detalle por Estación</h3>
-            {Object.entries(order.station_statuses || {}).map(([station, status], idx) => {
+            {Object.entries(displayOrder.station_statuses || {}).map(([station, status], idx) => {
                const Icon = stationIcons[station] || Package;
                const isDone = status === 'ready' || status === 'delivered';
                
@@ -212,14 +234,14 @@ const OrderTracking = () => {
                     {[...Array(12)].map((_, i) => <div key={i} className="w-2 h-4 bg-slate-950 rounded-full" />)}
                 </div>
 
-                <div className="text-center mb-8 border-b-2 border-slate-100 border-dashed pb-8">
+                 <div className="text-center mb-8 border-b-2 border-slate-100 border-dashed pb-8">
                     <Receipt size={32} className="mx-auto mb-4 text-slate-300" />
                     <h4 className="text-[10px] font-black uppercase tracking-[1em] text-slate-400 mb-2">Resumen</h4>
-                    <p className="text-2xl font-black italic uppercase tracking-tighter text-slate-950">{order.customer_name}</p>
+                    <p className="text-2xl font-black italic uppercase tracking-tighter text-slate-950">{displayOrder.customer_name}</p>
                 </div>
 
                 <div className="space-y-4 mb-10">
-                    {order.items?.map((item, i) => (
+                    {displayOrder.items?.map((item, i) => (
                       <div key={i} className="flex justify-between items-center text-xs font-black uppercase tracking-tight">
                           <div className="flex items-center gap-3 basis-2/3">
                               <span className="text-slate-400 font-mono italic">x{item.quantity}</span>
@@ -229,20 +251,20 @@ const OrderTracking = () => {
                       </div>
                     ))}
                 </div>
-                {order.notes && (
+                {displayOrder.notes && (
                   <div className="mb-8 p-6 bg-slate-50 rounded-[2rem] border border-slate-100">
                     <div className="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-1">Notas:</div>
-                    <div className="text-sm font-bold italic text-slate-900 leading-tight">"{order.notes}"</div>
+                    <div className="text-sm font-bold italic text-slate-900 leading-tight">"{displayOrder.notes}"</div>
                   </div>
                 )}
 
                 <div className="flex justify-between items-end border-t-4 border-slate-950 pt-8 mt-auto">
                     <div>
                         <div className="text-[9px] font-black uppercase tracking-[0.3em] text-slate-400">Total</div>
-                        <div className="text-4xl font-black font-mono italic tracking-tighter leading-none text-slate-900">${order.total_price}</div>
+                        <div className="text-4xl font-black font-mono italic tracking-tighter leading-none text-slate-900">${displayOrder.total_price}</div>
                     </div>
                     <div className="text-right">
-                        <div className="text-[8px] font-black uppercase tracking-tight text-slate-400">{new Date(order.timestamp).toLocaleDateString()}</div>
+                        <div className="text-[8px] font-black uppercase tracking-tight text-slate-400">{new Date(displayOrder.timestamp).toLocaleDateString()}</div>
                         <div className="text-[10px] font-black font-mono text-slate-200 mt-1">S82-921-X</div>
                     </div>
                 </div>
