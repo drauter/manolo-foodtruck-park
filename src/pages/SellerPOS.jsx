@@ -146,8 +146,12 @@ const SellerPOS = () => {
 
   const amountToPay = useMemo(() => {
     if (!paymentOrder || !paymentStation) return 0;
+    const normalizedStation = paymentStation.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase();
     return (paymentOrder.items || [])
-      .filter(i => i.station === paymentStation)
+      .filter(i => {
+        const itemStation = i.station?.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase();
+        return itemStation === normalizedStation;
+      })
       .reduce((sum, i) => sum + ((Number(i.price_at_time) || 0) * (Number(i.quantity) || 0)), 0);
   }, [paymentOrder, paymentStation]);
 
@@ -601,7 +605,7 @@ const SellerPOS = () => {
                  </div>
                  <div className="bg-slate-950 p-8 rounded-[3rem] mb-10 shadow-inner border border-white/5 relative overflow-hidden">
                     <div className="absolute top-0 right-0 w-24 h-24 bg-white/5 rounded-bl-[4rem]" />
-                    <div className="text-[10px] uppercase font-black text-slate-600 mb-2 tracking-widest">Monto a Cobrar ({paymentStation})</div>
+                    <div className="text-[10px] uppercase font-black text-slate-600 mb-2 tracking-widest">Monto a Cobrar ({paymentStation === 'COMIDA RAPIDA' || paymentStation === 'COMIDA RÃ PIDA' ? 'COMIDA RÁPIDA' : paymentStation})</div>
                     <div className="text-5xl font-black font-mono text-white tracking-tighter italic shadow-emerald-500/20 shadow-lg">${amountToPay}</div>
                  </div>
                  <div className="grid grid-cols-3 gap-3 mb-10">
@@ -613,11 +617,20 @@ const SellerPOS = () => {
                     ))}
                  </div>
                  {paymentMethod === 'cash' && (
-                    <div className="mb-10 space-y-4">
-                       <label className="text-[10px] font-black uppercase tracking-widest text-slate-600 ml-4">Ingreso Efectivo</label>
-                       <input type="number" value={amountReceived} onChange={e => setAmountReceived(e.target.value)} className="w-full bg-slate-950 p-6 rounded-3xl text-center text-4xl font-black font-mono text-white shadow-inner outline-none border border-white/5" placeholder="0.00" />
-                    </div>
-                 )}
+                     <div className="mb-10 space-y-6">
+                        <div>
+                           <label className="text-[10px] font-black uppercase tracking-widest text-slate-600 ml-4 pb-2 block">Ingreso Efectivo</label>
+                           <input type="number" value={amountReceived} onChange={e => setAmountReceived(e.target.value)} className="w-full bg-slate-950 p-6 rounded-3xl text-center text-4xl font-black font-mono text-white shadow-inner outline-none border border-white/5 focus:border-emerald-500/50 transition-all" placeholder="0.00" autoFocus />
+                        </div>
+                        
+                        {amountReceived && Number(amountReceived) >= amountToPay && (
+                           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bg-emerald-500/10 p-6 rounded-3xl border border-emerald-500/20 text-center">
+                              <p className="text-[10px] font-black text-emerald-500 uppercase tracking-widest mb-1">Cambio (Vuelta)</p>
+                              <p className="text-4xl font-black font-mono text-emerald-400 tracking-tighter">${(Number(amountReceived) - amountToPay).toFixed(2)}</p>
+                           </motion.div>
+                        )}
+                     </div>
+                  )}
                  <button onClick={handleFinalizePayment} className="w-full bg-emerald-600 text-white py-6 rounded-[2.5rem] font-black text-xl hover:bg-emerald-500 transition-all shadow-2xl uppercase tracking-[0.2em]">Registrar Pago</button>
               </motion.div>
            </>
