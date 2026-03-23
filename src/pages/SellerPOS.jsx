@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useOrder } from '../context/OrderContext';
 import { 
   ShoppingCart, Plus, Minus, X, CheckCircle, Wallet, LogOut, 
-  Banknote, CreditCard, Landmark, Search, Clock, Trash2, Edit2, Printer, FileText, RotateCcw, Utensils, Shield
+  Banknote, CreditCard, Landmark, Search, Clock, Trash2, Edit2, Printer, FileText, RotateCcw, Utensils, Shield, AlertCircle
 } from 'lucide-react';
 const STATION_DISPLAY = {
   'BAR': 'BAR',
@@ -418,7 +418,19 @@ const SellerPOS = () => {
                                  <Wallet size={20} /> Cobrar Orden
                               </button>
                             )}
-                            <button onClick={() => setSelectedInvoice(order)} className="p-5 bg-slate-50 text-slate-400 rounded-[2rem] border border-slate-100 flex items-center justify-center hover:bg-slate-900 hover:text-white transition-all"><FileText size={20} /></button>
+                            <div className="flex gap-3">
+                               <button onClick={() => setSelectedInvoice(order)} className="p-5 bg-slate-50 text-slate-400 rounded-[2rem] border border-slate-100 flex items-center justify-center hover:bg-slate-900 hover:text-white transition-all"><FileText size={20} /></button>
+                               <button 
+                                  onClick={() => {
+                                     if (confirm(`¿ELIMINAR TICKET #${order.ticket_number} DE ${order.customer_name}?`)) {
+                                        requireAdminAuth(() => cancelOrder(order.id));
+                                     }
+                                  }} 
+                                  className="p-5 bg-red-50 text-red-400 rounded-[2rem] border border-red-100 flex items-center justify-center hover:bg-red-500 hover:text-white transition-all"
+                               >
+                                  <Trash2 size={20} />
+                               </button>
+                            </div>
                          </div>
                       </div>
                     ))}
