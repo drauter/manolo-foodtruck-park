@@ -56,7 +56,7 @@ const OrderTracking = () => {
 
   const stationIcons = {
     'BAR': Coffee,
-    'COMIDA RÁPIDA': Utensils,
+    'COMIDA RAPIDA': Utensils,
     'DULCES/POSTRES': IceCream
   };
 
@@ -189,7 +189,9 @@ const OrderTracking = () => {
                            <Icon size={24} />
                         </div>
                         <div>
-                           <div className={`text-lg font-black italic tracking-tight ${isDone ? 'text-white' : 'text-slate-400'}`}>{station}</div>
+                           <div className={`text-lg font-black italic tracking-tight ${isDone ? 'text-white' : 'text-slate-400'}`}>
+                             {station === 'COMIDA RAPIDA' ? 'COMIDA RÁPIDA' : station}
+                           </div>
                            <div className={`text-[9px] font-black uppercase tracking-[0.2em] ${isDone ? 'text-emerald-500' : 'text-slate-600'}`}>
                               {status === 'delivered' ? 'ENTREGADO' : (status === 'ready' ? 'LISTO EN VENTANA' : 'EN PRODUCCIÓN...')}
                            </div>

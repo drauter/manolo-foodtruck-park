@@ -112,7 +112,7 @@ const AdminPanel = () => {
 
   const [newProduct, setNewProduct] = useState({
     name: '', description: '', price: '', cost: '', stock: '', category: 'Burgers',
-    station: 'COMIDA RÁPIDA', image_url: 'https://images.unsplash.com/photo-1550547660-d9450f859349?q=80&w=300'
+    station: 'COMIDA RAPIDA', image_url: 'https://images.unsplash.com/photo-1550547660-d9450f859349?q=80&w=300'
   });
 
   const handleImageUpload = async (e) => {
@@ -178,7 +178,7 @@ const AdminPanel = () => {
     setEditingProduct(null);
     setNewProduct({
       name: '', description: '', price: '', cost: '', stock: '', category: 'Burgers',
-      station: 'COMIDA RÁPIDA', image_url: '/burger.png'
+      station: 'COMIDA RAPIDA', image_url: '/burger.png'
     });
   };
 
@@ -1183,8 +1183,14 @@ const AdminPanel = () => {
                   </div>
                   <div className="bg-slate-950 text-white p-8 rounded-[3rem] mb-8 relative overflow-hidden">
                      <div className="absolute top-0 right-0 w-24 h-24 bg-white/5 rounded-bl-full" />
-                     <p className="text-[10px] uppercase font-black opacity-40 mb-1">Monto a Recaudar ({paymentStation})</p>
-                     <div className="text-5xl font-black font-mono tracking-tighter text-emerald-400 shadow-emerald-500/20 underline underline-offset-8 decoration-4">${paymentOrder.items?.filter(i => i.station === paymentStation).reduce((sum, i) => sum + ((Number(i.price_at_time) || 0) * (Number(i.quantity) || 0)), 0) || 0}</div>
+                     <p className="text-[10px] uppercase font-black opacity-40 mb-1">Monto a Recaudar ({paymentStation === 'COMIDA RAPIDA' ? 'COMIDA RÁPIDA' : paymentStation})</p>
+                     <div className="text-5xl font-black font-mono tracking-tighter text-emerald-400 shadow-emerald-500/20 underline underline-offset-8 decoration-4">
+                        ${paymentOrder.items?.filter(i => {
+                          const s1 = i.station?.toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                          const s2 = paymentStation?.toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                          return s1 === s2;
+                        }).reduce((sum, i) => sum + ((Number(i.price_at_time) || 0) * (Number(i.quantity) || 0)), 0) || 0}
+                     </div>
                   </div>
                   <div className="grid grid-cols-3 gap-4 mb-8">
                      {[
@@ -1215,7 +1221,11 @@ const AdminPanel = () => {
                            <div className="bg-emerald-50 p-6 rounded-3xl border border-emerald-100 flex justify-between items-center">
                               <span className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">Cambio a Devolver:</span>
                               <span className="text-3xl font-black font-mono text-emerald-600">
-                                 ${Math.max(0, Number(amountReceived) - (paymentOrder.items?.filter(i => i.station === paymentStation).reduce((sum, i) => sum + ((Number(i.price_at_time) || 0) * (Number(i.quantity) || 0)), 0) || 0))}
+                                 ${Math.max(0, Number(amountReceived) - (paymentOrder.items?.filter(i => {
+                                      const s1 = i.station?.toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                                      const s2 = paymentStation?.toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                                      return s1 === s2;
+                                 }).reduce((sum, i) => sum + ((Number(i.price_at_time) || 0) * (Number(i.quantity) || 0)), 0) || 0))}
                               </span>
                            </div>
                         )}
@@ -1350,10 +1360,10 @@ const AdminPanel = () => {
                     <div className="space-y-2">
                        <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Estación</label>
                        <select value={isEditingProduct ? editingProduct.station : newProduct.station} onChange={e => isEditingProduct ? setEditingProduct({...editingProduct, station: e.target.value}) : setNewProduct({...newProduct, station: e.target.value})} className="w-full bg-slate-50 p-5 rounded-2xl font-black uppercase text-[10px] border border-slate-100">
-                          <option value="COMIDA RÁPIDA">Comida Rápida</option>
-                          <option value="BAR">Bar / Bebidas</option>
-                          <option value="DULCES/POSTRES">Postres / Dulces</option>
-                       </select>
+                           <option value="COMIDA RAPIDA">Comida Rápida</option>
+                           <option value="BAR">Bar / Bebidas</option>
+                           <option value="DULCES/POSTRES">Postres / Dulces</option>
+                        </select>
                     </div>
                   </div>
 
@@ -1423,7 +1433,7 @@ const AdminPanel = () => {
                       <label className="text-xs font-black uppercase text-slate-400 ml-2 italic">Estación</label>
                       <select value={userData.station} onChange={e => setUserData({...userData, station: e.target.value})} className="w-full bg-slate-50 p-5 rounded-2xl font-black uppercase text-[10px]">
                          <option value="BAR">Bar</option>
-                         <option value="COMIDA RÃPIDA">Comida Rápida</option>
+                         <option value="COMIDA RAPIDA">Comida Rápida</option>
                          <option value="DULCES/POSTRES">Postres / Dulces</option>
                          <option value="CAJA">Caja</option>
                       </select>

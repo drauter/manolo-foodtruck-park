@@ -13,11 +13,11 @@ const EmployeePanel = () => {
 
   // Map URL parameter to display name and icon
   const stationConfig = {
-    'bar': { label: 'BAR', color: 'text-blue-500', bg: 'bg-blue-500/10' },
-    'comida-rapida': { label: 'COMIDA RÁPIDA', color: 'text-amber-500', bg: 'bg-amber-500/10' },
-    'dulces-postres': { label: 'DULCES/POSTRES', color: 'text-pink-500', bg: 'bg-pink-500/10' },
-    'food': { label: 'COMIDA RÁPIDA', color: 'text-amber-500', bg: 'bg-amber-500/10' },
-    'sweets': { label: 'DULCES/POSTRES', color: 'text-pink-500', bg: 'bg-pink-500/10' },
+    'bar': { label: 'BAR', display: 'BAR', color: 'text-blue-500', bg: 'bg-blue-500/10' },
+    'comida-rapida': { label: 'COMIDA RAPIDA', display: 'COMIDA RÁPIDA', color: 'text-amber-500', bg: 'bg-amber-500/10' },
+    'dulces-postres': { label: 'DULCES/POSTRES', display: 'DULCES/POSTRES', color: 'text-pink-500', bg: 'bg-pink-500/10' },
+    'food': { label: 'COMIDA RAPIDA', display: 'COMIDA RÁPIDA', color: 'text-amber-500', bg: 'bg-amber-500/10' },
+    'sweets': { label: 'DULCES/POSTRES', display: 'DULCES/POSTRES', color: 'text-pink-500', bg: 'bg-pink-500/10' },
   };
 
   const currentStation = stationConfig[station.toLowerCase()] || stationConfig['comida-rapida'];
@@ -49,7 +49,7 @@ const EmployeePanel = () => {
             <Package size={32} />
           </div>
           <div>
-            <h1 className="text-4xl font-black text-white tracking-tighter uppercase italic leading-none">ESTACIÓN: <span className={currentStation.color}>{currentStation.label}</span></h1>
+            <h1 className="text-4xl font-black text-white tracking-tighter uppercase italic leading-none">ESTACIÓN: <span className={currentStation.color}>{currentStation.display}</span></h1>
             <p className="text-slate-400 mt-1 font-bold uppercase tracking-widest text-xs opacity-60">Gestión de Producción y Despacho</p>
           </div>
         </div>

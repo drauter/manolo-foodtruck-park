@@ -430,7 +430,8 @@ export const OrderProvider = ({ children }) => {
 
   const login = (role, station = null) => {
     let normalizedStation = station ? station.toUpperCase() : null;
-    if (normalizedStation === 'COMIDA RAPIDA') normalizedStation = 'COMIDA RÁPIDA';
+    if (normalizedStation === 'COMIDA RÁPIDA') normalizedStation = 'COMIDA RAPIDA';
+    if (normalizedStation === 'COMIDA RAPIDA') normalizedStation = 'COMIDA RAPIDA';
     
     const user = { role, station: normalizedStation };
     setCurrentUser(user);
