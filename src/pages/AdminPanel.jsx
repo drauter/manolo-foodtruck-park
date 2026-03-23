@@ -25,7 +25,7 @@ import Receipt from '../components/Receipt';
 
 // Main Admin Panel Component for Foodtruck Management
 const AdminPanel = () => {
-  const { products, addProduct, updateProduct, deleteProduct, uploadProductImage, orders, updateStationStatus, updateOrder, cancelOrder, deleteOrder, deletePayment, currentUser, logout, shifts, deleteShift, users, addUser, deleteUser, updateUser, addToCart, cart, removeFromCart, clearCart, placeOrder, printerConfig, updatePrinterConfig, voices, selectedVoice, setSelectedVoice, announceOrder } = useOrder();
+  const { products, addProduct, updateProduct, deleteProduct, uploadProductImage, orders, updateStationStatus, updateOrder, cancelOrder, deleteOrder, deletePayment, resetSystem, currentUser, logout, shifts, deleteShift, users, addUser, deleteUser, updateUser, addToCart, cart, removeFromCart, clearCart, placeOrder, printerConfig, updatePrinterConfig, voices, selectedVoice, setSelectedVoice, announceOrder } = useOrder();
   const [activeTab, setActiveTab] = useState('dashboard'); 
   const [isModalOpen, setIsModalOpen] = useState(false);
   
@@ -1237,6 +1237,46 @@ const AdminPanel = () => {
                            Debido a restricciones de seguridad del navegador, la impresión física requiere confirmar el diálogo de impresión. 
                            Asegúrate de configurar cada impresora como la predeterminada en su estación de trabajo correspondiente.
                         </p>
+                     </div>
+                  </div>
+
+                  {/* DANGER ZONE - SYSTEM RESET */}
+                  <div className="mt-20 pt-12 border-t-4 border-red-500/10">
+                     <div className="flex items-center gap-4 mb-8">
+                        <div className="w-3 h-12 bg-red-500 rounded-full" />
+                        <h2 className="text-3xl font-black uppercase italic tracking-tighter text-red-600">Zona de Peligro</h2>
+                     </div>
+                     
+                     <div className="bg-red-50 p-10 rounded-[3.5rem] border-2 border-red-100 flex flex-col md:flex-row items-center justify-between gap-8">
+                        <div className="flex items-start gap-6">
+                           <div className="w-16 h-16 bg-white text-red-600 rounded-[1.5rem] flex items-center justify-center shadow-lg shrink-0">
+                              <AlertCircle size={32} />
+                           </div>
+                           <div>
+                              <h3 className="text-xl font-black uppercase text-red-900 leading-none mb-2">Reiniciar Todo el Sistema</h3>
+                              <p className="text-[10px] font-bold text-red-700/60 uppercase tracking-widest max-w-sm">
+                                 Esta acción eliminará de forma permanente todos los pedidos e historial de ventas de la base de datos. No se puede deshacer.
+                              </p>
+                           </div>
+                        </div>
+                        
+                        <button 
+                           onClick={() => {
+                              if (confirm("🚨 ATENCIÓN: Esta acción borrará TODO el historial de ventas y pedidos. ¿Estás absolutamente seguro?")) {
+                                 requireAdminAuth(async () => {
+                                    const success = await resetSystem();
+                                    if (success) {
+                                       alert("Sistema reiniciado con éxito. Todos los datos han sido borrados.");
+                                       window.location.reload();
+                                    }
+                                 });
+                              }
+                           }}
+                           className="w-full md:w-auto px-12 py-6 bg-red-600 text-white rounded-[2rem] font-black uppercase text-xs shadow-2xl shadow-red-500/40 hover:bg-red-700 hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-3 tracking-widest"
+                        >
+                           <RotateCcw size={20} />
+                           <span>REINICIAR A CERO</span>
+                        </button>
                      </div>
                   </div>
                </div>

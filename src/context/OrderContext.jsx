@@ -278,6 +278,17 @@ export const OrderProvider = ({ children }) => {
   const deleteOrder = async (orderId) => {
     await supabase.from('orders').delete().eq('id', orderId);
   };
+  
+  const resetSystem = async () => {
+    const { error } = await supabase.from('orders').delete().filter('id', 'neq', '00000000-0000-0000-0000-000000000000'); // Delete all
+    if (error) {
+      console.error('ERROR RESETTING SYSTEM:', error);
+      alert("Error al reiniciar sistema: " + error.message);
+      return false;
+    }
+    setOrders([]);
+    return true;
+  };
 
   const updateProduct = async (id, updates) => {
     const { data: updatedProd, error } = await supabase
@@ -658,6 +669,7 @@ export const OrderProvider = ({ children }) => {
       products, setProducts, addProduct, updateProduct, deleteProduct, addStock, uploadProductImage,
       cart, addToCart, removeFromCart, clearCart, placeOrder, 
       orders, loadingOrders, updateOrderStatus, updateStationStatus, updateOrder, cancelOrder, deleteOrder, deletePayment,
+      resetSystem,
       markStationReady,
       currentUser, setCurrentUser, login, logout,
       shifts, setShifts, closeShift, deleteShift,
