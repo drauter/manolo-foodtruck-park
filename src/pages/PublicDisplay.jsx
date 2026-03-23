@@ -89,7 +89,7 @@ const PublicDisplay = () => {
 
   const stations = [
     { label: 'BAR / BEBIDAS', icon: Coffee, color: 'blue', key: 'BAR' },
-    { label: 'COMIDA RÁPIDA', icon: Utensils, color: 'amber', key: 'COMIDA RAPIDA' },
+    { label: 'COMIDA RAPIDA', icon: Utensils, color: 'amber', key: 'COMIDA RAPIDA' },
     { label: 'POSTRES / DULCES', icon: IceCream, color: 'pink', key: 'DULCES/POSTRES' },
   ];
 

@@ -6,6 +6,18 @@ import {
   Layers, X, Save, LogOut, Users, FileText, Filter, CheckCircle2, CheckCircle,
   ShoppingCart, Wallet, Banknote, CreditCard, Landmark, Search, ChevronRight, Printer, RotateCcw, Settings, Volume2, Shield, Coffee, Utensils, IceCream
 } from 'lucide-react';
+const STATION_DISPLAY = {
+  'BAR': 'BAR',
+  'COMIDA RAPIDA': 'COMIDA RAPIDA',
+  'DULCES/POSTRES': 'DULCES/POSTRES'
+};
+
+const getStationDisplay = (st) => {
+  if (!st || st === 'TODAS') return st;
+  const normalized = st.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase();
+  return STATION_DISPLAY[normalized] || st;
+};
+
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import * as XLSX from 'xlsx';
@@ -458,11 +470,11 @@ const AdminPanel = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 relative z-10">
                   {['BAR', 'COMIDA RAPIDA', 'DULCES/POSTRES'].map(st => {
                     const pendingAmt = orders.filter(o => !o.is_paid && o.station_statuses?.[st] && o.station_statuses[st] !== 'delivered')
-                      .reduce((sum, o) => sum + (o.items?.filter(i => i.station === st).reduce((s, i) => s + (i.price_at_time * i.quantity), 0) || 0), 0);
+                      .reduce((sum, o) => sum + (o.items?.filter(i => i.station === st).reduce((s, i) => s + ((Number(i.price_at_time) || 0) * (Number(i.quantity) || 0)), 0) || 0), 0);
                     
                     return (
                       <div key={st} className="bg-white/5 backdrop-blur-md p-6 rounded-2xl border border-white/10 group hover:bg-white/10 transition-all">
-                        <div className="text-[9px] font-black text-slate-500 uppercase tracking-[0.2em] mb-2">{st === 'COMIDA RAPIDA' ? 'COMIDA RÁPIDA' : st}</div>
+                        <div className="text-[9px] font-black text-slate-500 uppercase tracking-[0.2em] mb-2">{getStationDisplay(st)}</div>
                         <div className={`text-2xl font-black font-mono tracking-tighter ${pendingAmt > 0 ? 'text-amber-400' : 'text-slate-600'}`}>${pendingAmt}</div>
                         <div className="mt-2 h-1 w-full bg-white/5 rounded-full overflow-hidden">
                            <motion.div initial={{ width: 0 }} animate={{ width: pendingAmt > 0 ? '60%' : '0%' }} className="h-full bg-amber-500/50" />
@@ -704,7 +716,7 @@ const AdminPanel = () => {
                             onClick={() => setSelectedCheckoutStation(st)} 
                             className={`px-6 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${selectedCheckoutStation === st ? 'bg-slate-900 text-white shadow-lg' : 'text-slate-400 hover:text-slate-600'}`}
                           >
-                            {st === 'COMIDA RAPIDA' ? 'COMIDA RÁPIDA' : st}
+                            {getStationDisplay(st)}
                           </button>
                         ))}
                       </div>
@@ -1245,7 +1257,7 @@ const AdminPanel = () => {
                   </div>
                   <div className="bg-slate-950 text-white p-8 rounded-[3rem] mb-8 relative overflow-hidden">
                      <div className="absolute top-0 right-0 w-24 h-24 bg-white/5 rounded-bl-full" />
-                     <p className="text-[10px] uppercase font-black opacity-40 mb-1">Monto a Recaudar ({paymentStation === 'COMIDA RAPIDA' ? 'COMIDA RÁPIDA' : paymentStation})</p>
+                     <p className="text-[10px] uppercase font-black opacity-40 mb-1">Monto a Cobrar ({getStationDisplay(paymentStation)})</p>
                      <div className="text-5xl font-black font-mono tracking-tighter text-emerald-400 shadow-emerald-500/20 underline underline-offset-8 decoration-4">
                         ${paymentOrder.items?.filter(i => {
                           const s1 = i.station?.toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");

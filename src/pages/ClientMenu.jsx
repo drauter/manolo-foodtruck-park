@@ -116,7 +116,7 @@ const ClientMenu = () => {
               onClick={() => setActiveStation(station)}
               className={`flex-grow px-6 py-4 rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest transition-all relative overflow-hidden whitespace-nowrap ${activeStation === station ? 'text-white' : 'text-slate-500 hover:text-slate-300'}`}
             >
-              <span className="relative z-10">{station === 'COMIDA RAPIDA' ? 'COMIDA RÁPIDA' : station}</span>
+              <span className="relative z-10">{station === 'COMIDA RAPIDA' ? 'COMIDA RAPIDA' : station}</span>
               {activeStation === station && (
                 <motion.div 
                   layoutId="activeSheet" 
@@ -147,7 +147,7 @@ const ClientMenu = () => {
               <section className="mb-12">
                 <div className="flex items-center gap-6 mb-10">
                     <div className="w-4 h-4 rounded-full bg-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.5)]" />
-                    <h2 className="text-4xl font-black uppercase italic tracking-tighter text-white">{activeStation === 'COMIDA RAPIDA' ? 'COMIDA RÁPIDA' : activeStation}</h2>
+                    <h2 className="text-4xl font-black uppercase italic tracking-tighter text-white">{activeStation === 'COMIDA RAPIDA' ? 'COMIDA RAPIDA' : activeStation}</h2>
                     <div className="flex-grow h-px bg-gradient-to-r from-slate-800 to-transparent" />
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">

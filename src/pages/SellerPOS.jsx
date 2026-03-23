@@ -4,6 +4,18 @@ import {
   ShoppingCart, Plus, Minus, X, CheckCircle, Wallet, LogOut, 
   Banknote, CreditCard, Landmark, Search, Clock, Trash2, Edit2, Printer, FileText, RotateCcw, Utensils, Shield
 } from 'lucide-react';
+const STATION_DISPLAY = {
+  'BAR': 'BAR',
+  'COMIDA RAPIDA': 'COMIDA RAPIDA',
+  'DULCES/POSTRES': 'DULCES/POSTRES'
+};
+
+const getStationDisplay = (st) => {
+  if (!st || st === 'TODAS') return st;
+  const normalized = st.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase();
+  return STATION_DISPLAY[normalized] || st;
+};
+
 
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -196,7 +208,7 @@ const SellerPOS = () => {
              </div>
              <div>
                 <h1 className="text-lg sm:text-xl font-black italic tracking-tighter uppercase leading-none">MANOLO FOODTRUCK PARK</h1>
-                <p className="text-[8px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Terminal: {currentUser.station === 'COMIDA RAPIDA' ? 'COMIDA RÁPIDA' : (currentUser.station === 'COMIDA RÃ PIDA' ? 'COMIDA RÁPIDA' : currentUser.station)}</p>
+                <p className="text-[8px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Terminal: {currentUser.station === 'COMIDA RAPIDA' ? 'COMIDA RAPIDA' : (currentUser.station === 'COMIDA RAPIDA' ? 'COMIDA RAPIDA' : currentUser.station)}</p>
              </div>
           </div>
 
@@ -605,7 +617,7 @@ const SellerPOS = () => {
                  </div>
                  <div className="bg-slate-950 p-8 rounded-[3rem] mb-10 shadow-inner border border-white/5 relative overflow-hidden">
                     <div className="absolute top-0 right-0 w-24 h-24 bg-white/5 rounded-bl-[4rem]" />
-                    <div className="text-[10px] uppercase font-black text-slate-600 mb-2 tracking-widest">Monto a Cobrar ({paymentStation === 'COMIDA RAPIDA' || paymentStation === 'COMIDA RÃ PIDA' ? 'COMIDA RÁPIDA' : paymentStation})</div>
+                    <div className="text-[10px] uppercase font-black text-slate-600 mb-2 tracking-widest">Monto a Cobrar ({getStationDisplay(paymentStation)})</div>
                     <div className="text-5xl font-black font-mono text-white tracking-tighter italic shadow-emerald-500/20 shadow-lg">${amountToPay}</div>
                  </div>
                  <div className="grid grid-cols-3 gap-3 mb-10">

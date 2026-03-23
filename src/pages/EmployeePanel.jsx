@@ -14,9 +14,9 @@ const EmployeePanel = () => {
   // Map URL parameter to display name and icon
   const stationConfig = {
     'bar': { label: 'BAR', display: 'BAR', color: 'text-blue-500', bg: 'bg-blue-500/10' },
-    'comida-rapida': { label: 'COMIDA RAPIDA', display: 'COMIDA RÁPIDA', color: 'text-amber-500', bg: 'bg-amber-500/10' },
+    'comida-rapida': { label: 'COMIDA RAPIDA', display: 'COMIDA RAPIDA', color: 'text-amber-500', bg: 'bg-amber-500/10' },
     'dulces-postres': { label: 'DULCES/POSTRES', display: 'DULCES/POSTRES', color: 'text-pink-500', bg: 'bg-pink-500/10' },
-    'food': { label: 'COMIDA RAPIDA', display: 'COMIDA RÁPIDA', color: 'text-amber-500', bg: 'bg-amber-500/10' },
+    'food': { label: 'COMIDA RAPIDA', display: 'COMIDA RAPIDA', color: 'text-amber-500', bg: 'bg-amber-500/10' },
     'sweets': { label: 'DULCES/POSTRES', display: 'DULCES/POSTRES', color: 'text-pink-500', bg: 'bg-pink-500/10' },
   };
 

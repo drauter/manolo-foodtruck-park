@@ -20,7 +20,7 @@ export const OrderProvider = ({ children }) => {
       const saved = localStorage.getItem('foodtruck_printer_config');
       return saved ? JSON.parse(saved) : {
         'BAR': { name: 'Páramo Bar', autoPrint: true, paperWidth: '58mm', connection: 'web', autoDownload: false },
-        'COMIDA RÁPIDA': { name: 'Páramo Cocina', autoPrint: true, paperWidth: '58mm', connection: 'web', autoDownload: false },
+        'COMIDA RAPIDA': { name: 'Páramo Cocina', autoPrint: true, paperWidth: '58mm', connection: 'web', autoDownload: false },
         'DULCES/POSTRES': { name: 'Páramo Postres', autoPrint: true, paperWidth: '58mm', connection: 'web', autoDownload: false },
         'CAJA': { name: 'Páramo Caja', autoPrint: true, paperWidth: '80mm', connection: 'web', autoDownload: false },
       };
@@ -430,7 +430,7 @@ export const OrderProvider = ({ children }) => {
 
   const login = (role, station = null) => {
     let normalizedStation = station ? station.toUpperCase() : null;
-    if (normalizedStation === 'COMIDA RÁPIDA') normalizedStation = 'COMIDA RAPIDA';
+    if (normalizedStation === 'COMIDA RAPIDA') normalizedStation = 'COMIDA RAPIDA';
     if (normalizedStation === 'COMIDA RAPIDA') normalizedStation = 'COMIDA RAPIDA';
     
     const user = { role, station: normalizedStation };

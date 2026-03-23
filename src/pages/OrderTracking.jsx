@@ -190,7 +190,7 @@ const OrderTracking = () => {
                         </div>
                         <div>
                            <div className={`text-lg font-black italic tracking-tight ${isDone ? 'text-white' : 'text-slate-400'}`}>
-                             {station === 'COMIDA RAPIDA' ? 'COMIDA RÁPIDA' : station}
+                             {station === 'COMIDA RAPIDA' ? 'COMIDA RAPIDA' : station}
                            </div>
                            <div className={`text-[9px] font-black uppercase tracking-[0.2em] ${isDone ? 'text-emerald-500' : 'text-slate-600'}`}>
                               {status === 'delivered' ? 'ENTREGADO' : (status === 'ready' ? 'LISTO EN VENTANA' : 'EN PRODUCCIÓN...')}
