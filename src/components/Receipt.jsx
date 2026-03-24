@@ -24,26 +24,30 @@ const Receipt = ({ order, station = 'CAJA' }) => {
             size: auto;
           }
           @media print {
-            html, body {
-              height: auto !important;
+            body {
               margin: 0 !important;
               padding: 0 !important;
-              overflow: visible !important;
               background: white !important;
-            }
-            /* Hide all UI elements */
-            body > *:not(#printable-receipt-wrapper),
-            #root > *:not(#printable-receipt-wrapper),
-            .no-print {
-              display: none !important;
             }
             #printable-receipt-wrapper {
-              display: block !important;
+              position: fixed !important;
+              top: 0 !important;
+              left: 0 !important;
               width: 100% !important;
               height: auto !important;
-              padding: 0 !important;
-              margin: 0 !important;
+              z-index: 99999 !important;
               background: white !important;
+              margin: 0 !important;
+              padding: 0 !important;
+              display: flex !important;
+              justify-content: center !important;
+              align-items: flex-start !important;
+            }
+            /* Hide the rest of the application */
+            body > *:not(#printable-receipt-wrapper),
+            .no-print {
+              display: none !important;
+              visibility: hidden !important;
             }
             #printable-invoice {
               width: ${is58mm ? '58mm' : '80mm'} !important;
@@ -51,7 +55,7 @@ const Receipt = ({ order, station = 'CAJA' }) => {
               padding: ${is58mm ? '2mm' : '4mm'} !important;
               box-shadow: none !important;
               border: none !important;
-              position: static !important;
+              background: white !important;
             }
           }
         `}</style>
