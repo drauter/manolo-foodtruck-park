@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useOrder } from '../context/OrderContext';
 import { 
   ShoppingCart, Plus, Minus, X, CheckCircle, Wallet, LogOut, 
-  Banknote, CreditCard, Landmark, Search, Clock, Trash2, Edit2, Printer, FileText, RotateCcw, Utensils, Shield, AlertCircle
+  Banknote, CreditCard, Landmark, Search, Clock, Trash2, Edit2, Printer, FileText, RotateCcw, Utensils, Shield, AlertCircle, Package, Volume2
 } from 'lucide-react';
 const STATION_DISPLAY = {
   'BAR': 'BAR',
@@ -58,9 +58,9 @@ const ProductItem = ({ product, addToCart }) => {
 };
 
 const SellerPOS = () => {
-  const { products, addToCart, cart, removeFromCart, clearCart, placeOrder, currentUser, logout, closeShift, orders, updateStationStatus, cancelOrder, deleteOrder, deletePayment } = useOrder();
+  const { products, addToCart, cart, removeFromCart, clearCart, placeOrder, currentUser, logout, closeShift, orders, updateStationStatus, cancelOrder, deleteOrder, deletePayment, announceOrder } = useOrder();
   const [selectedInvoice, setSelectedInvoice] = useState(null);
-  const [activeTab, setActiveTab] = useState('ventas'); // 'ventas', 'cobros', 'historial'
+  const [activeTab, setActiveTab] = useState('ventas'); // 'ventas', 'cobros', 'despacho', 'historial'
   const [isCartOpen, setIsCartOpen] = useState(false);
   
   const [customerName, setCustomerName] = useState('');
@@ -216,12 +216,14 @@ const SellerPOS = () => {
           <div className="hidden md:flex bg-slate-100 p-1.5 rounded-2xl border border-slate-200">
              <button onClick={() => setActiveTab('ventas')} className={`px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'ventas' ? 'bg-white text-slate-900 shadow-md' : 'text-slate-500'}`}>Ventas</button>
              <button onClick={() => setActiveTab('cobros')} className={`px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'cobros' ? 'bg-white text-slate-900 shadow-md' : 'text-slate-500'}`}>Cobros</button>
+             <button onClick={() => setActiveTab('despacho')} className={`px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'despacho' ? 'bg-white text-slate-900 shadow-md' : 'text-slate-500'}`}>Despacho</button>
              <button onClick={() => setActiveTab('historial')} className={`px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'historial' ? 'bg-white text-slate-900 shadow-md' : 'text-slate-500'}`}>Historial</button>
           </div>
           
           <div className="flex md:hidden bg-slate-100 p-1 rounded-xl border border-slate-200">
              <button onClick={() => setActiveTab('ventas')} className={`p-2 rounded-lg transition-all ${activeTab === 'ventas' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-400'}`}><Utensils size={18} /></button>
              <button onClick={() => setActiveTab('cobros')} className={`p-2 rounded-lg transition-all ${activeTab === 'cobros' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-400'}`}><Wallet size={18} /></button>
+             <button onClick={() => setActiveTab('despacho')} className={`p-2 rounded-lg transition-all ${activeTab === 'despacho' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-400'}`}><Package size={18} /></button>
              <button onClick={() => setActiveTab('historial')} className={`p-2 rounded-lg transition-all ${activeTab === 'historial' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-400'}`}><Clock size={18} /></button>
           </div>
 
@@ -437,6 +439,92 @@ const SellerPOS = () => {
                     ))}
                  </div>
               </div>
+            ) : activeTab === 'despacho' ? (
+               <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                  <div className="flex justify-between items-center border-b border-slate-200 pb-8 mb-8">
+                     <div>
+                        <h2 className="text-4xl font-black uppercase italic tracking-tighter text-slate-900">Despacho de Pedidos</h2>
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-2">Terminal: {currentUser.station}</p>
+                     </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 text-slate-900">
+                     {orders.filter(o => {
+                        if (o.status === 'cancelled') return false;
+                        const statuses = Object.values(o.station_statuses || {});
+                        return statuses.some(s => s === 'ready');
+                     }).reverse().map(order => (
+                       <div key={order.id} className="bg-white p-8 rounded-[3.5rem] border border-slate-100 shadow-lg flex flex-col gap-6 group hover:border-blue-500 transition-all relative overflow-hidden">
+                          <div className="flex justify-between items-start">
+                             <div className="flex items-center gap-4">
+                                <div className="w-16 h-16 bg-blue-600 text-white rounded-3xl flex items-center justify-center text-xl font-black shadow-xl">#{order.ticket_number}</div>
+                                <div>
+                                   <h3 className="font-black text-2xl uppercase italic tracking-tighter text-slate-900 leading-tight">{order.customer_name}</h3>
+                                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mt-1">SITUACIÓN: <span className="text-emerald-500 font-black">LISTO PARA ENTREGA</span></p>
+                                </div>
+                             </div>
+                             {!order.is_paid && <div className="bg-amber-100 text-amber-600 px-3 py-1 rounded-full text-[8px] font-black uppercase">FALTA PAGO</div>}
+                          </div>
+
+                          <div className="bg-slate-50 p-6 rounded-3xl space-y-3">
+                             {Object.entries(order.station_statuses || {}).filter(([_, s]) => s === 'ready').map(([station, _]) => (
+                               <div key={station} className="flex justify-between items-center">
+                                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">{station}</span>
+                                  <span className="text-[10px] font-black text-emerald-500 uppercase italic">¡LISTO!</span>
+                               </div>
+                             ))}
+                          </div>
+
+                          <div className="flex flex-col gap-3 mt-auto">
+                             <button 
+                                onClick={() => {
+                                   Object.entries(order.station_statuses || {}).forEach(([station, status]) => {
+                                      if (status === 'ready') {
+                                         updateStationStatus(order.id, station, 'delivered');
+                                      }
+                                   });
+                                }}
+                                className="w-full py-6 bg-blue-600 text-white rounded-[2.5rem] font-black text-sm uppercase tracking-[0.1em] shadow-xl shadow-blue-500/20 hover:bg-blue-500 active:scale-95 transition-all flex items-center justify-center gap-3"
+                             >
+                                <CheckCircle size={24} /> Marcar Entregado
+                             </button>
+                             <div className="grid grid-cols-2 gap-3">
+                                <button 
+                                   onClick={() => {
+                                      Object.entries(order.station_statuses || {}).forEach(([station, status]) => {
+                                         if (status === 'ready') {
+                                            announceOrder(order, station, true);
+                                         }
+                                      });
+                                   }}
+                                   className="py-5 bg-slate-900 text-white rounded-[2rem] font-black text-[10px] uppercase tracking-widest hover:bg-slate-800 transition-all flex flex-col items-center justify-center gap-1"
+                                >
+                                   <Volume2 size={18} />
+                                   <span>LLAMAR CLIENTE</span>
+                                </button>
+                                <button 
+                                   onClick={() => setSelectedInvoice(order)}
+                                   className="py-5 bg-white text-slate-400 rounded-[2rem] border border-slate-200 font-black text-[10px] uppercase tracking-widest hover:bg-slate-50 transition-all flex flex-col items-center justify-center gap-1"
+                                >
+                                   <FileText size={18} />
+                                   <span>VER TICKET</span>
+                                </button>
+                             </div>
+                          </div>
+                       </div>
+                     ))}
+                     {orders.filter(o => {
+                        if (o.status === 'cancelled') return false;
+                        const statuses = Object.values(o.station_statuses || {});
+                        return statuses.some(s => s === 'ready');
+                     }).length === 0 && (
+                        <div className="col-span-full py-40 text-center opacity-20 flex flex-col items-center border-4 border-dashed border-slate-200 rounded-[5rem]">
+                           <Package size={80} className="mb-6 text-slate-300" />
+                           <h2 className="text-2xl font-black text-slate-400 uppercase tracking-widest">Sin entregas pendientes</h2>
+                        </div>
+                     )}
+                  </div>
+               </div>
             ) : null}
         </main>
       </div>
