@@ -13,42 +13,37 @@ const Receipt = ({ order, station = 'CAJA' }) => {
   const pending = order.is_paid ? 0 : order.total_price;
 
   return (
-    <div className={`bg-white ${is58mm ? 'p-4 max-w-[300px]' : 'p-8 max-w-[440px]'} mx-auto sm:rounded-[2.5rem] shadow-xl font-sans text-slate-600 relative overflow-hidden print:shadow-none print:max-w-none print:w-full`} id="printable-invoice">
-       <style>{`
+    <div id="printable-receipt-wrapper" className="bg-slate-200 p-4 sm:p-10 min-h-full w-full flex justify-center items-start print:bg-white print:p-0">
+      <div 
+        className={`bg-white ${is58mm ? 'p-4 w-[58mm]' : 'p-8 w-[80mm]'} shadow-2xl font-sans text-slate-600 relative overflow-hidden print:shadow-none print:w-full print:p-0`} 
+        id="printable-invoice"
+      >
+        <style>{`
           @page {
+            margin: 0;
             size: auto;
-            margin: 0mm;
           }
           @media print {
-            body { 
-              background: white !important;
+            body {
               margin: 0 !important;
               padding: 0 !important;
-              column-gap: 0 !important;
+              background: white !important;
             }
-            body * { visibility: hidden; }
-            #printable-invoice, #printable-invoice * { visibility: visible; }
-            #printable-invoice { 
-              position: absolute !important; 
-              left: 0 !important; 
-              top: 0 !important; 
-              width: ${is58mm ? '58mm' : '80mm'} !important; 
-              min-height: auto !important;
+            /* Hide all except the receipt */
+            #root > :not(#printable-receipt-wrapper),
+            .no-print {
+              display: none !important;
+            }
+            #printable-invoice {
+              width: 100% !important;
               margin: 0 !important;
-              padding: ${is58mm ? '4mm' : '8mm'} !important; 
+              padding: ${is58mm ? '4mm' : '8mm'} !important;
               box-shadow: none !important;
               border: none !important;
-              border-radius: 0 !important;
-              font-size: ${is58mm ? '10px' : '12px'} !important;
-              line-height: 1.2 !important;
-              color: black !important;
-              background: white !important;
-              -webkit-print-color-adjust: exact !important;
-              print-color-adjust: exact !important;
+              display: block !important;
             }
-            .no-print { display: none !important; }
           }
-       `}</style>
+        `}</style>
        
         {/* Branded Header */}
         <div className="flex flex-col items-center mb-6 pb-6 border-b-2 border-slate-900 border-double print:mb-4 print:pb-4">
@@ -152,6 +147,7 @@ const Receipt = ({ order, station = 'CAJA' }) => {
           </div>
           <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest print:text-black/60">VISÍTANOS PRONTO EN MANOLO FOODTRUCK PARK</p>
        </div>
+      </div>
     </div>
   );
 };
