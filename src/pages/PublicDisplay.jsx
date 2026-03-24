@@ -5,7 +5,7 @@ import { Coffee, Utensils, IceCream, Clock, CheckCircle, LogOut } from 'lucide-r
 
 const StationColumn = ({ label, icon: Icon, color, orders, stationKey }) => {
   // Filter orders that have items for this specific station
-  const stationOrders = orders.filter(o => o.items.some(i => i.station === stationKey));
+  const stationOrders = orders.filter(o => o.status !== 'cancelled' && o.items.some(i => i.station === stationKey));
   
   const preparing = stationOrders.filter(o => o.station_statuses && (o.station_statuses[stationKey] === 'preparing' || o.station_statuses[stationKey] === 'received'));
   const ready = stationOrders.filter(o => o.station_statuses && o.station_statuses[stationKey] === 'ready');

@@ -283,14 +283,14 @@ const SellerPOS = () => {
                  </div>
 
                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {orders.filter(o => o.origin_station === currentUser.station || (isCajeroGeneral && o.items?.some(i => i.station === 'CAJA'))).length === 0 ? (
+                    {orders.filter(o => (o.origin_station === currentUser.station || (isCajeroGeneral && o.items?.some(i => i.station === 'CAJA')))).length === 0 ? (
                       <div className="col-span-full py-40 text-center opacity-20 flex flex-col items-center border border-dashed border-white/10 rounded-[4rem]">
                          <FileText size={64} className="mb-4 text-slate-400" />
                          <p className="font-black uppercase tracking-widest text-sm">No has realizado ventas aún</p>
                       </div>
                     ) : (
-                      orders.filter(o => o.origin_station === currentUser.station || (isCajeroGeneral && o.items?.some(i => i.station === 'CAJA'))).map(order => (
-                        <div key={order.id} className="bg-slate-900/50 p-8 rounded-[3rem] border border-white/5 hover:border-emerald-500/30 transition-all group relative shadow-2xl overflow-hidden">
+                      orders.filter(o => (o.origin_station === currentUser.station || (isCajeroGeneral && o.items?.some(i => i.station === 'CAJA')))).map(order => (
+                        <div key={order.id} className={`bg-slate-900/50 p-8 rounded-[3rem] border border-white/5 hover:border-emerald-500/30 transition-all group relative shadow-2xl overflow-hidden ${order.status === 'cancelled' ? 'opacity-50 grayscale' : ''}`}>
                            <div className="absolute top-0 right-0 w-20 h-20 bg-white/5 rounded-bl-[3rem]" />
                            <div className="flex justify-between items-start mb-2 leading-none">
                               <div className="text-[10px] font-black text-emerald-500 uppercase tracking-[0.3em]">#{order.ticket_number}</div>
@@ -301,6 +301,7 @@ const SellerPOS = () => {
                            <div className="flex items-center gap-2 mb-8">
                               <Clock size={12} className="text-slate-500" />
                               <span className="text-[10px] font-bold text-slate-500 uppercase">{new Date(order.timestamp).toLocaleString()}</span>
+                              {order.status === 'cancelled' && <span className="text-[8px] font-black bg-red-500 text-white px-2 py-0.5 rounded-full uppercase">ANULADO</span>}
                            </div>
 
                            <div className="grid grid-cols-2 gap-3 pt-6 border-t border-white/5">

@@ -151,7 +151,7 @@ const AdminPanel = () => {
   const [userData, setUserData] = useState({ name: '', role: 'vendedor', station: 'BAR', pin: '' });
 
   // Stats calculation
-  const deliveredOrders = orders.filter(o => o.status === 'delivered' || (o.station_statuses && Object.values(o.station_statuses).some(s => s === 'delivered')));
+  const deliveredOrders = orders.filter(o => o.status !== 'cancelled' && (o.status === 'delivered' || (o.station_statuses && Object.values(o.station_statuses).some(s => s === 'delivered'))));
   const filteredSalesOrders = deliveredOrders.filter(o => salesFilter === 'Todas' || o.items?.some(i => i.station === salesFilter));
   
   const totalSales = filteredSalesOrders.reduce((acc, o) => {
@@ -171,7 +171,7 @@ const AdminPanel = () => {
 
   const stationPending = ['BAR', 'COMIDA RAPIDA', 'DULCES/POSTRES'].map(st => ({
     name: st,
-    amount: orders.filter(o => !o.is_paid && o.station_statuses?.[st] && o.station_statuses[st] !== 'delivered')
+    amount: orders.filter(o => o.status !== 'cancelled' && !o.is_paid && o.station_statuses?.[st] && o.station_statuses[st] !== 'delivered')
       .reduce((sum, o) => sum + (o.items?.filter(i => i.station === st).reduce((s, i) => s + ((Number(i.price_at_time) || 0) * (Number(i.quantity) || 0)), 0) || 0), 0)
   }));
 
@@ -498,7 +498,7 @@ const AdminPanel = () => {
                     {orders.filter(o => o.station_statuses && Object.values(o.station_statuses).some(s => s !== 'delivered')).length === 0 ? (
                       <div className="col-span-full py-10 text-center opacity-20 italic">No hay pedidos por cobrar</div>
                     ) : (
-                      orders.filter(o => o.station_statuses && Object.values(o.station_statuses).some(s => s !== 'delivered')).slice(0, 3).map(order => (
+                      orders.filter(o => o.status !== 'cancelled' && o.station_statuses && Object.values(o.station_statuses).some(s => s !== 'delivered')).slice(0, 3).map(order => (
                          <div key={order.id} className="bg-slate-50 p-6 rounded-3xl border border-slate-100">
                             <div className="text-[10px] font-black text-slate-400 mb-1 flex justify-between">
                                <span>TKT #{order.ticket_number}</span>
@@ -603,15 +603,18 @@ const AdminPanel = () => {
                   </div>
 
                   <div className="space-y-4">
-                     {orders.filter(o => o.status !== 'cancelled' && (salesFilter === 'Todas' || o.items?.some(i => i.station === salesFilter))).map(order => (
-                       <div key={order.id} className="bg-slate-50 border border-slate-100 p-6 rounded-[2.5rem] flex flex-col md:flex-row items-center justify-between gap-6 hover:border-emerald-500/20 transition-all group">
+                     {orders.filter(o => (salesFilter === 'Todas' || o.items?.some(i => i.station === salesFilter))).map(order => (
+                       <div key={order.id} className={`bg-slate-50 border border-slate-100 p-6 rounded-[2.5rem] flex flex-col md:flex-row items-center justify-between gap-6 hover:border-emerald-500/20 transition-all group ${order.status === 'cancelled' ? 'opacity-50 bg-slate-100' : ''}`}>
                           <div className="flex items-center gap-6 w-full md:w-auto">
                              <div className="w-16 h-16 bg-white rounded-3xl flex items-center justify-center font-black text-slate-400 border border-slate-100 shadow-sm">
                                 #{order.ticket_number}
                              </div>
                              <div>
                                 <h4 className="text-xl font-black uppercase italic tracking-tighter leading-none">{order.customer_name}</h4>
-                                <p className="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-widest">{new Date(order.timestamp).toLocaleString()}</p>
+                                <div className="flex items-center gap-2 mt-1">
+                                   <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{new Date(order.timestamp).toLocaleString()}</p>
+                                   {order.status === 'cancelled' && <span className="text-[8px] font-black bg-red-500 text-white px-2 py-0.5 rounded-full uppercase">ANULADO</span>}
+                                </div>
                              </div>
                           </div>
 
@@ -628,7 +631,7 @@ const AdminPanel = () => {
                           <div className="flex items-center gap-6 w-full md:w-auto justify-between md:justify-end">
                              <div className="text-right">
                                 <span className="text-[10px] font-black text-slate-400 uppercase">Subtotal</span>
-                                <div className="text-2xl font-black font-mono tracking-tighter text-slate-900">${order.total_price}</div>
+                                <div className={`text-2xl font-black font-mono tracking-tighter ${order.status === 'cancelled' ? 'text-slate-400 line-through' : 'text-slate-900'}`}>${order.status === 'cancelled' ? '0' : order.total_price}</div>
                              </div>
                              <div className="flex gap-2">
                                 <button onClick={() => setSelectedInvoice(order)} title="Imprimir" className="p-3 bg-white text-slate-500 rounded-2xl hover:bg-slate-900 hover:text-white transition-all shadow-sm"><Printer size={20} /></button>

@@ -25,6 +25,7 @@ const EmployeePanel = () => {
   const [activeTab, setActiveTab] = React.useState('prep'); // 'prep', 'dispatch', or 'history'
 
   const stationOrders = orders.filter(order => {
+    if (order.status === 'cancelled') return false;
     const isOurOrder = order.items?.some(item => item.station === stationKey);
     const stationStatus = order.station_statuses?.[stationKey];
     
