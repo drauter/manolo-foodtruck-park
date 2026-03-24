@@ -63,7 +63,7 @@ const Receipt = ({ order, station = 'CAJA' }) => {
        
         {/* Branded Header */}
         <div className="flex flex-col items-center mb-6 pb-6 border-b-2 border-slate-900 border-double print:mb-4 print:pb-4">
-           <div className="w-12 h-6 bg-slate-950 text-white rounded-lg flex items-center justify-center text-[10px] font-black mb-2 shadow-lg tracking-widest print:shadow-none">
+           <div className="w-16 h-8 bg-slate-950 text-white rounded-lg flex items-center justify-center text-sm font-black mb-2 shadow-lg tracking-widest border-2 border-white/20 print:shadow-none print:border-none">
               #{order.ticket_number}
            </div>
            <h1 className="text-2xl font-black italic tracking-tighter text-slate-900 leading-none uppercase text-center">MANOLO</h1>
