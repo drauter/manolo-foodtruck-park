@@ -9,7 +9,8 @@ export default defineConfig({
     react(),
     tailwindcss(),
     legacy({
-      targets: ['defaults', 'not IE 11'],
+      targets: ['> 0.5%', 'last 2 versions', 'Firefox ESR', 'not dead', 'chrome 49', 'android 4.4'],
+      additionalLegacyPolyfills: ['regenerator-runtime/runtime'],
     }),
     VitePWA({
       registerType: 'autoUpdate',
@@ -45,5 +46,6 @@ export default defineConfig({
   ],
   build: {
     target: 'es2015',
+    minify: 'terser', // Terser is sometimes safer for very old browsers than esbuild
   }
 })
