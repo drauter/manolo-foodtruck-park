@@ -67,8 +67,8 @@ const Receipt = ({ order, station = 'CAJA' }) => {
            <div className="w-12 h-6 bg-slate-950 text-white rounded-lg flex items-center justify-center text-[10px] font-black mb-2 shadow-lg tracking-widest print:shadow-none">
               #{order.ticket_number}
            </div>
-           <h1 className="text-2xl font-black italic tracking-tighter text-slate-900 leading-none uppercase">MANOLO</h1>
-           <h2 className="text-lg font-black uppercase tracking-[0.2em] text-slate-400 mt-1">FOODTRUCK PARK</h2>
+           <h1 className="text-2xl font-black italic tracking-tighter text-slate-900 leading-none uppercase text-center">MANOLO</h1>
+           <h2 className="text-lg font-black uppercase tracking-[0.2em] text-slate-400 mt-1 text-center">FOODTRUCK PARK</h2>
         </div>
 
         {/* Metadata Header */}
