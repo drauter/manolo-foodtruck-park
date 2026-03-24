@@ -24,22 +24,36 @@ const Receipt = ({ order, station = 'CAJA' }) => {
             size: auto;
           }
           @media print {
-            body {
-              visibility: hidden !important;
+            html, body {
               margin: 0 !important;
               padding: 0 !important;
               background: white !important;
+              height: auto !important;
             }
-            #printable-invoice, #printable-invoice * {
+            /* Collapse the main app to prevents Page 1 being blank */
+            #root {
+              height: 0 !important;
+              overflow: hidden !important;
+            }
+            #printable-receipt-wrapper {
+              position: absolute !important;
+              top: 0 !important;
+              left: 0 !important;
+              width: 100% !important;
+              height: auto !important;
+              background: white !important;
+              z-index: 99999 !important;
+              display: flex !important;
+              justify-content: center !important;
+              visibility: visible !important;
+            }
+            #printable-receipt-wrapper * {
               visibility: visible !important;
             }
             #printable-invoice {
-              position: absolute !important;
-              left: 0 !important;
-              top: 0 !important;
               width: ${is58mm ? '58mm' : '80mm'} !important;
               margin: 0 !important;
-              padding: ${is58mm ? '2mm' : '4mm'} !important;
+              padding: ${is58mm ? '1mm' : '3mm'} !important;
               box-shadow: none !important;
               border: none !important;
               background: white !important;
