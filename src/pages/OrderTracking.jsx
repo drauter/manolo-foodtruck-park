@@ -132,7 +132,7 @@ const OrderTracking = () => {
     }
     return is_paid 
       ? 'Tu pago fue confirmado. Estamos terminando tu pedido.' 
-      : 'Puedes ir adelantando el pago en caja si lo deseas.';
+      : 'Puedes pasar por caja para realizar tu pago';
   };
 
   return (
