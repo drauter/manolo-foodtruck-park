@@ -78,7 +78,7 @@ const Receipt = ({ order, station = 'CAJA' }) => {
           </div>
           <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-slate-400 print:text-black/60">
              <span>NO. FACTURA:</span>
-             <span className="text-slate-900 font-mono">#FAC-{order.ticket_number}-{order.id?.toString().slice(-3) || '000'}</span>
+             <span className="text-slate-900 font-mono font-black border-b border-slate-900/10">#FAC-{order.ticket_number}-{order.id?.toString().slice(-3) || '000'}</span>
           </div>
           <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-slate-400 print:text-black/60">
              <span>FECHA:</span>
