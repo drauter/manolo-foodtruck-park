@@ -25,31 +25,18 @@ const Receipt = ({ order, station = 'CAJA' }) => {
           }
           @media print {
             body {
-              margin: 0 !important;
-              padding: 0 !important;
-              background: white !important;
-            }
-            #printable-receipt-wrapper {
-              position: fixed !important;
-              top: 0 !important;
-              left: 0 !important;
-              width: 100% !important;
-              height: auto !important;
-              z-index: 99999 !important;
-              background: white !important;
-              margin: 0 !important;
-              padding: 0 !important;
-              display: flex !important;
-              justify-content: center !important;
-              align-items: flex-start !important;
-            }
-            /* Hide the rest of the application */
-            body > *:not(#printable-receipt-wrapper),
-            .no-print {
-              display: none !important;
               visibility: hidden !important;
+              margin: 0 !important;
+              padding: 0 !important;
+              background: white !important;
+            }
+            #printable-invoice, #printable-invoice * {
+              visibility: visible !important;
             }
             #printable-invoice {
+              position: absolute !important;
+              left: 0 !important;
+              top: 0 !important;
               width: ${is58mm ? '58mm' : '80mm'} !important;
               margin: 0 !important;
               padding: ${is58mm ? '2mm' : '4mm'} !important;
@@ -57,6 +44,7 @@ const Receipt = ({ order, station = 'CAJA' }) => {
               border: none !important;
               background: white !important;
             }
+            .no-print { display: none !important; }
           }
         `}</style>
        
