@@ -1,10 +1,11 @@
 import React from 'react';
 import { useOrder } from '../context/OrderContext';
+import { STATIONS, getStationDisplay } from '../utils/constants';
 
-const Receipt = ({ order, station = 'CAJA' }) => {
+const Receipt = ({ order, station = STATIONS.CAJA }) => {
   const { printerConfig } = useOrder();
   if (!order) return null;
-  const config = printerConfig[station] || printerConfig['CAJA'];
+  const config = printerConfig[station] || printerConfig[STATIONS.CAJA];
   const is58mm = config.paperWidth === '58mm';
 
   const is_paid = order.is_paid;
@@ -91,11 +92,7 @@ const Receipt = ({ order, station = 'CAJA' }) => {
           <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-slate-400 print:text-black/60">
              <span>ESTACIÓN:</span>
              <span className="text-slate-900 font-black italic">
-               {(() => {
-                  if (station !== 'CAJA') return station;
-                  const stations = [...new Set((order.items || []).map(i => i.station).filter(Boolean))];
-                  return stations.length > 0 ? stations.join(' / ') : 'CAJA';
-               })()}
+               {getStationDisplay(station, order)}
              </span>
           </div>
        </div>

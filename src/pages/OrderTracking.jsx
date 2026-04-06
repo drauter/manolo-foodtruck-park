@@ -3,15 +3,12 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useOrder } from '../context/OrderContext';
 import { 
   Clock, CheckCircle2, Package, ChevronLeft, Coffee, Utensils, 
-  IceCream, Wallet, Loader2, Sparkles, CreditCard, Receipt, XCircle, PackageCheck
+  IceCream, Wallet, Loader2, CreditCard, XCircle, PackageCheck
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { STATIONS } from '../utils/constants';
 
 const OrderTracking = () => {
-  const { orderId: currentOrderId } = useParams();
-  const { orders, loadingOrders } = useOrder();
-  const navigate = useNavigate();
-  
   const [trackedOrderIds, setTrackedOrderIds] = useState(() => {
     const saved = localStorage.getItem('manolo_tracked_orders');
     return saved ? JSON.parse(saved) : [];
@@ -19,27 +16,45 @@ const OrderTracking = () => {
 
   const [activeTabId, setActiveTabId] = useState(currentOrderId);
 
+  // Use activeTabId to find the order to display
+  const order = orders.find(o => o.id === activeTabId) || orders.find(o => o.id === (currentOrderId || ''));
+
+  // Filter tracked orders to only show those that still exist in Supabase and ARE NOT CANCELLED
+  const activeOrders = orders.filter(o => trackedOrderIds.includes(o.id) && o.status !== 'cancelled');
+
   // Sync current URL ID with tracked list and state
   useEffect(() => {
     if (currentOrderId) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setTrackedOrderIds(prev => {
-        if (!prev.includes(currentOrderId)) {
-          const newList = [...prev, currentOrderId];
-          localStorage.setItem('manolo_tracked_orders', JSON.stringify(newList));
-          return newList;
-        }
-        return prev;
-      });
+      const saved = localStorage.getItem('manolo_tracked_orders');
+      const prev = saved ? JSON.parse(saved) : [];
+      if (!prev.includes(currentOrderId)) {
+        const newList = [...prev, currentOrderId];
+        localStorage.setItem('manolo_tracked_orders', JSON.stringify(newList));
+        setTrackedOrderIds(newList);
+      }
       setActiveTabId(currentOrderId);
     }
   }, [currentOrderId]);
 
-  // Use activeTabId to find the order to display
-  const order = orders.find(o => o.id === activeTabId) || orders.find(o => o.id === currentOrderId);
-
-  // Filter tracked orders to only show those that still exist in Supabase and ARE NOT CANCELLED
-  const activeOrders = orders.filter(o => trackedOrderIds.includes(o.id) && o.status !== 'cancelled');
+  // Check if current order was cancelled and remove it from tracking
+  useEffect(() => {
+    if (order && order.status === 'cancelled') {
+        const newList = trackedOrderIds.filter(id => id !== order.id);
+        if (newList.length !== trackedOrderIds.length) {
+          localStorage.setItem('manolo_tracked_orders', JSON.stringify(newList));
+          setTrackedOrderIds(newList);
+        }
+        
+        // Switch to another active tab if possible
+        if (activeOrders.length > 0) {
+            const nextOrder = activeOrders.find(o => o.id !== order.id) || activeOrders[0];
+            if (nextOrder) {
+                setActiveTabId(nextOrder.id);
+                navigate(`/tracking/${nextOrder.id}`, { replace: true });
+            }
+        }
+    }
+  }, [order?.status]);
 
   // Show loading state if orders are still fetching
   if (loadingOrders) {
@@ -50,23 +65,6 @@ const OrderTracking = () => {
       </div>
     );
   }
-
-  // Check if current order was cancelled and remove it from tracking
-  useEffect(() => {
-    if (order && order.status === 'cancelled') {
-      setTrackedOrderIds(prev => {
-        const newList = prev.filter(id => id !== order.id);
-        if (newList.length !== prev.length) {
-          localStorage.setItem('manolo_tracked_orders', JSON.stringify(newList));
-        }
-        return newList;
-      });
-      // Switch to another active tab if possible
-      if (activeOrders.length > 0) {
-        setActiveTabId(activeOrders[0].id);
-      }
-    }
-  }, [order?.status, activeOrders.length]);
 
   if (!order && !activeOrders.length) {
     return (
@@ -94,9 +92,9 @@ const OrderTracking = () => {
   }
 
   const stationIcons = {
-    'BAR': Coffee,
-    'COMIDA RAPIDA': Utensils,
-    'DULCES/POSTRES': IceCream
+    [STATIONS.BAR]: Coffee,
+    [STATIONS.COMIDA_RAPIDA]: Utensils,
+    [STATIONS.DULCES_POSTRES]: IceCream
   };
 
   const isReadyGlobal = displayOrder.status === 'ready' || displayOrder.status === 'delivered';

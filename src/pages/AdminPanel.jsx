@@ -6,18 +6,7 @@ import {
   Layers, X, Save, LogOut, Users, FileText, Filter, CheckCircle2, CheckCircle,
   ShoppingCart, Wallet, Banknote, CreditCard, Landmark, Search, ChevronRight, Printer, RotateCcw, Settings, Volume2, Shield, Coffee, Utensils, IceCream
 } from 'lucide-react';
-const STATION_DISPLAY = {
-  'BAR': 'BAR',
-  'COMIDA RAPIDA': 'COMIDA RAPIDA',
-  'DULCES/POSTRES': 'DULCES/POSTRES'
-};
-
-const getStationDisplay = (st) => {
-  if (!st || st === 'TODAS') return st;
-  const normalized = st.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase();
-  return STATION_DISPLAY[normalized] || st;
-};
-
+import { STATIONS, STATION_LABELS, STATION_COLORS, getStationDisplay } from '../utils/constants';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import * as XLSX from 'xlsx';
@@ -25,7 +14,7 @@ import Receipt from '../components/Receipt';
 
 // Main Admin Panel Component for Foodtruck Management
 const AdminPanel = () => {
-  const { products, addProduct, updateProduct, deleteProduct, uploadProductImage, orders, updateStationStatus, updateOrder, cancelOrder, deleteOrder, deletePayment, resetSystem, currentUser, logout, shifts, deleteShift, users, addUser, deleteUser, updateUser, addToCart, cart, removeFromCart, clearCart, placeOrder, printerConfig, updatePrinterConfig, voices, selectedVoice, setSelectedVoice, announceOrder } = useOrder();
+  const { products, addProduct, updateProduct, deleteProduct, uploadProductImage, orders, updateStationStatus, updateOrder, cancelOrder, deleteOrder, deletePayment, resetSystem, currentUser, logout, shifts, deleteShift, users, addUser, deleteUser, updateUser, addToCart, cart, removeFromCart, clearCart, placeOrder, printerConfig, updatePrinterConfig, voices, selectedVoice, setSelectedVoice, announceOrder, verifyAdminPin } = useOrder();
   const [activeTab, setActiveTab] = useState('dashboard'); 
   const [isModalOpen, setIsModalOpen] = useState(false);
   
@@ -87,10 +76,10 @@ const AdminPanel = () => {
   const [authAction, setAuthAction] = useState(null);
   const [authError, setAuthError] = useState('');
 
-  const handleAuthSubmit = (e) => {
+  const handleAuthSubmit = async (e) => {
     if (e) e.preventDefault();
-    const adminUser = users.find(u => u.role === 'admin' && u.pin === authPin);
-    if (adminUser) {
+    const isValid = await verifyAdminPin(authPin);
+    if (isValid) {
       if (authAction) authAction();
       setIsAuthModalOpen(false);
       setAuthPin('');
@@ -963,7 +952,7 @@ const AdminPanel = () => {
                      </div>
                      <div className="bg-slate-50 p-6 rounded-3xl border border-slate-100 flex justify-between items-center">
                         <span className="text-[10px] font-black text-slate-400 uppercase">PIN</span>
-                        <span className="font-mono text-2xl font-black text-emerald-600 tracking-[0.3em]">{user.pin}</span>
+                        <span className="font-mono text-2xl font-black text-emerald-600 tracking-[0.3em]">****</span>
                      </div>
                   </div>
                ))}

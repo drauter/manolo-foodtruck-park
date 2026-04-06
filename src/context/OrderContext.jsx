@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
+import { STATIONS } from '../utils/constants';
 
 const OrderContext = createContext();
 
@@ -24,10 +25,10 @@ export const OrderProvider = ({ children }) => {
     try {
       const saved = localStorage.getItem('foodtruck_printer_config');
       return saved ? JSON.parse(saved) : {
-        'BAR': { name: 'Páramo Bar', autoPrint: true, paperWidth: '58mm', connection: 'web', autoDownload: false },
-        'COMIDA RAPIDA': { name: 'Páramo Cocina', autoPrint: true, paperWidth: '58mm', connection: 'web', autoDownload: false },
-        'DULCES/POSTRES': { name: 'Páramo Postres', autoPrint: true, paperWidth: '58mm', connection: 'web', autoDownload: false },
-        'CAJA': { name: 'Páramo Caja', autoPrint: true, paperWidth: '80mm', connection: 'web', autoDownload: false },
+        [STATIONS.BAR]: { name: 'Páramo Bar', autoPrint: true, paperWidth: '58mm', connection: 'web', autoDownload: false },
+        [STATIONS.COMIDA_RAPIDA]: { name: 'Páramo Cocina', autoPrint: true, paperWidth: '58mm', connection: 'web', autoDownload: false },
+        [STATIONS.DULCES_POSTRES]: { name: 'Páramo Postres', autoPrint: true, paperWidth: '58mm', connection: 'web', autoDownload: false },
+        [STATIONS.CAJA]: { name: 'Páramo Caja', autoPrint: true, paperWidth: '80mm', connection: 'web', autoDownload: false },
       };
     } catch { return {}; }
   });
@@ -48,8 +49,8 @@ export const OrderProvider = ({ children }) => {
         if (productsData) setProducts(productsData);
         if (prodError) throw prodError;
 
-        // Fetch Users
-        const { data: usersData, error: userError } = await supabase.from('users').select('*');
+        // Fetch Users (Safe columns only)
+        const { data: usersData, error: userError } = await supabase.from('users').select('id, name, role, station');
         if (usersData) {
           setUsers(usersData);
           localStorage.setItem('foodtruck_system_users', JSON.stringify(usersData));
@@ -701,6 +702,38 @@ export const OrderProvider = ({ children }) => {
     });
   }, [orders, announceOrder]);
 
+  const verifyPin = async (pin) => {
+    try {
+      const { data, error } = await supabase
+        .from('users')
+        .select('id, name, role, station')
+        .eq('pin', pin)
+        .single();
+      
+      if (error || !data) return null;
+      return data;
+    } catch (err) {
+      console.error('PIN Verification error:', err);
+      return null;
+    }
+  };
+
+  const verifyAdminPin = async (pin) => {
+    try {
+      const { data, error } = await supabase
+        .from('users')
+        .select('id, name, role')
+        .eq('pin', pin)
+        .eq('role', 'admin')
+        .single();
+      
+      if (error || !data) return false;
+      return true;
+    } catch (err) {
+      return false;
+    }
+  };
+
   return (
     <OrderContext.Provider value={{ 
       products, setProducts, addProduct, updateProduct, deleteProduct, addStock, uploadProductImage,
@@ -713,11 +746,13 @@ export const OrderProvider = ({ children }) => {
       users, setUsers, addUser, deleteUser, updateUser,
       printerConfig, updatePrinterConfig,
       voices, selectedVoice, setSelectedVoice, announceOrder,
-      connectionError, setConnectionError, refreshData: () => {
+      connectionError, setConnectionError, 
+      verifyPin, verifyAdminPin,
+      refreshData: () => {
         setLoadingOrders(true);
         const fetchData = async () => {
           try {
-            const { data: usersData } = await supabase.from('users').select('*');
+            const { data: usersData } = await supabase.from('users').select('id, name, role, station');
             if (usersData) {
               setUsers(usersData);
               localStorage.setItem('foodtruck_system_users', JSON.stringify(usersData));

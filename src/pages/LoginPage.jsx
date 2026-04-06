@@ -5,17 +5,22 @@ import { Shield, Coffee, Utensils, IceCream, Lock, Delete, Wallet, ShoppingCart 
 import { motion, AnimatePresence } from 'framer-motion';
 
 const LoginPage = () => {
-  const { login, users, connectionError, refreshData, loadingOrders } = useOrder();
+  const { login, connectionError, refreshData, loadingOrders, verifyPin } = useOrder();
   const navigate = useNavigate();
   const [pin, setPin] = useState('');
   const [error, setError] = useState('');
   const [identifiedUser, setIdentifiedUser] = useState(null);
+  const [isVerifying, setIsVerifying] = useState(false);
 
   const stationIcons = {
     'Bar': Coffee,
     'Comida Rápida': Utensils,
     'Dulces / Postres': IceCream,
     'Caja': Wallet,
+    'BAR': Coffee,
+    'COMIDA RAPIDA': Utensils,
+    'DULCES/POSTRES': IceCream,
+    'CAJA': Wallet,
     'default': Shield
   };
 
@@ -24,20 +29,25 @@ const LoginPage = () => {
     'Comida Rápida': 'from-amber-600 to-orange-500',
     'Dulces / Postres': 'from-pink-600 to-rose-500',
     'Caja': 'from-emerald-600 to-teal-500',
+    'BAR': 'from-blue-600 to-cyan-500',
+    'COMIDA RAPIDA': 'from-amber-600 to-orange-500',
+    'DULCES/POSTRES': 'from-pink-600 to-rose-500',
+    'CAJA': 'from-emerald-600 to-teal-500',
     'default': 'from-slate-600 to-slate-400'
   };
 
   const handleNumberClick = (num) => {
-    if (pin.length < 4) {
+    if (pin.length < 4 && !isVerifying) {
       const newPin = pin + num;
       setPin(newPin);
       if (newPin.length === 4) verifyGlobalPin(newPin);
     }
   };
 
-  const verifyGlobalPin = (inputPin) => {
-    // Search for user with this PIN
-    const user = users.find(u => u.pin === inputPin);
+  const verifyGlobalPin = async (inputPin) => {
+    setIsVerifying(true);
+    // Secure verification via Supabase RPC/Select
+    const user = await verifyPin(inputPin);
     
     if (user) {
       setIdentifiedUser(user);
@@ -56,7 +66,11 @@ const LoginPage = () => {
       }, 800);
     } else {
       setError('PIN Incorrecto');
-      setTimeout(() => { setPin(''); setError(''); }, 1000);
+      setTimeout(() => { 
+        setPin(''); 
+        setError(''); 
+        setIsVerifying(false);
+      }, 1000);
     }
   };
 

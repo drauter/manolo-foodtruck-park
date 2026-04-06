@@ -4,6 +4,7 @@ import { useOrder } from '../context/OrderContext';
 import { Clock, CheckCircle, Package, Printer, X, Settings, AlertCircle, LogOut, Volume2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Receipt from '../components/Receipt';
+import { STATIONS } from '../utils/constants';
 
 const EmployeePanel = () => {
   const { station } = useParams();
@@ -13,14 +14,14 @@ const EmployeePanel = () => {
 
   // Map URL parameter to display name and icon
   const stationConfig = {
-    'bar': { label: 'BAR', display: 'BAR', color: 'text-blue-500', bg: 'bg-blue-500/10' },
-    'comida-rapida': { label: 'COMIDA RAPIDA', display: 'COMIDA RAPIDA', color: 'text-amber-500', bg: 'bg-amber-500/10' },
-    'dulces-postres': { label: 'DULCES/POSTRES', display: 'DULCES/POSTRES', color: 'text-pink-500', bg: 'bg-pink-500/10' },
-    'food': { label: 'COMIDA RAPIDA', display: 'COMIDA RAPIDA', color: 'text-amber-500', bg: 'bg-amber-500/10' },
-    'sweets': { label: 'DULCES/POSTRES', display: 'DULCES/POSTRES', color: 'text-pink-500', bg: 'bg-pink-500/10' },
+    'bar': { label: STATIONS.BAR, display: 'BAR', color: 'text-blue-500', bg: 'bg-blue-500/10' },
+    'comida-rapida': { label: STATIONS.COMIDA_RAPIDA, display: 'COMIDA RAPIDA', color: 'text-amber-500', bg: 'bg-amber-500/10' },
+    'dulces-postres': { label: STATIONS.DULCES_POSTRES, display: 'DULCES/POSTRES', color: 'text-pink-500', bg: 'bg-pink-500/10' },
+    'food': { label: STATIONS.COMIDA_RAPIDA, display: 'COMIDA RAPIDA', color: 'text-amber-500', bg: 'bg-amber-500/10' },
+    'sweets': { label: STATIONS.DULCES_POSTRES, display: 'DULCES/POSTRES', color: 'text-pink-500', bg: 'bg-pink-500/10' },
   };
 
-  const currentStation = stationConfig[station.toLowerCase()] || stationConfig['comida-rapida'];
+  const currentStation = stationConfig[station?.toLowerCase()] || stationConfig['comida-rapida'];
   const stationKey = currentStation.label;
   const [activeTab, setActiveTab] = React.useState('prep'); // 'prep', 'dispatch', or 'history'
 

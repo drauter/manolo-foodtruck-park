@@ -1,11 +1,12 @@
 import React from 'react';
 import { useOrder } from '../context/OrderContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Coffee, Utensils, IceCream, Clock, CheckCircle, LogOut } from 'lucide-react';
+import { Coffee, Utensils, IceCream, Clock, CheckCircle } from 'lucide-react';
+import { STATIONS, STATION_LABELS } from '../utils/constants';
 
 const StationColumn = ({ label, icon: Icon, color, orders, stationKey }) => {
   // Filter orders that have items for this specific station
-  const stationOrders = orders.filter(o => o.status !== 'cancelled' && o.items.some(i => i.station === stationKey));
+  const stationOrders = (orders || []).filter(o => o.status !== 'cancelled' && (o.items || []).some(i => i.station === stationKey));
   
   const preparing = stationOrders.filter(o => o.station_statuses && (o.station_statuses[stationKey] === 'preparing' || o.station_statuses[stationKey] === 'received'));
   const ready = stationOrders.filter(o => o.station_statuses && o.station_statuses[stationKey] === 'ready');
@@ -88,9 +89,9 @@ const PublicDisplay = () => {
   const { orders } = useOrder();
 
   const stations = [
-    { label: 'BAR / BEBIDAS', icon: Coffee, color: 'blue', key: 'BAR' },
-    { label: 'COMIDA RAPIDA', icon: Utensils, color: 'amber', key: 'COMIDA RAPIDA' },
-    { label: 'POSTRES / DULCES', icon: IceCream, color: 'pink', key: 'DULCES/POSTRES' },
+    { label: STATION_LABELS[STATIONS.BAR], icon: Coffee, color: 'blue', key: STATIONS.BAR },
+    { label: STATION_LABELS[STATIONS.COMIDA_RAPIDA], icon: Utensils, color: 'amber', key: STATIONS.COMIDA_RAPIDA },
+    { label: STATION_LABELS[STATIONS.DULCES_POSTRES], icon: IceCream, color: 'pink', key: STATIONS.DULCES_POSTRES },
   ];
 
   return (

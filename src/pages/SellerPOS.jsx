@@ -1,34 +1,14 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useOrder } from '../context/OrderContext';
 import { 
-  ShoppingCart, Plus, Minus, X, CheckCircle, Wallet, LogOut, 
+  ShoppingCart, X, CheckCircle, Wallet, LogOut, 
   Banknote, CreditCard, Landmark, Search, Clock, Trash2, Edit2, Printer, FileText, RotateCcw, Utensils, Shield, AlertCircle, Package, Volume2
 } from 'lucide-react';
-const STATION_DISPLAY = {
-  'BAR': 'BAR',
-  'COMIDA RAPIDA': 'COMIDA RAPIDA',
-  'DULCES/POSTRES': 'DULCES/POSTRES'
-};
-
-const getStationDisplay = (st, order = null) => {
-  if (!st || st === 'TODAS') return st;
-  
-  if (st === 'CAJA' && order) {
-    const stations = [...new Set((order.items || []).map(i => i.station).filter(Boolean))];
-    if (stations.length === 0) return 'CAJA';
-    if (stations.length === 1) return stations[0];
-    const last = stations.pop();
-    return `${stations.join(', ')} y ${last}`;
-  }
-
-  const normalized = st.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase();
-  return STATION_DISPLAY[normalized] || st;
-};
-
-
+import { STATIONS, STATION_LABELS, STATION_COLORS, getStationDisplay } from '../utils/constants';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import Receipt from '../components/Receipt';
+import { Plus, Minus } from 'lucide-react';
 
 const ProductItem = ({ product, addToCart }) => {
   const [qty, setQty] = useState(1);
@@ -67,7 +47,7 @@ const ProductItem = ({ product, addToCart }) => {
 };
 
 const SellerPOS = () => {
-  const { products, addToCart, cart, removeFromCart, clearCart, placeOrder, currentUser, logout, closeShift, orders, updateStationStatus, cancelOrder, deleteOrder, deletePayment, announceOrder } = useOrder();
+  const { products, addToCart, cart, removeFromCart, clearCart, placeOrder, currentUser, logout, closeShift, orders, updateStationStatus, cancelOrder, deleteOrder, deletePayment, announceOrder, verifyAdminPin } = useOrder();
   const [selectedInvoice, setSelectedInvoice] = useState(null);
   const [activeTab, setActiveTab] = useState('ventas'); // 'ventas', 'cobros', 'despacho', 'historial'
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -90,12 +70,11 @@ const SellerPOS = () => {
   const [authPin, setAuthPin] = useState('');
   const [authAction, setAuthAction] = useState(null);
   const [authError, setAuthError] = useState('');
-  const { users } = useOrder(); // Ensure we have users list for verification
 
-  const handleAuthSubmit = (e) => {
+  const handleAuthSubmit = async (e) => {
     if (e) e.preventDefault();
-    const adminUser = users.find(u => u.role === 'admin' && u.pin === authPin);
-    if (adminUser) {
+    const isValid = await verifyAdminPin(authPin);
+    if (isValid) {
       if (authAction) authAction();
       setIsAuthModalOpen(false);
       setAuthPin('');
