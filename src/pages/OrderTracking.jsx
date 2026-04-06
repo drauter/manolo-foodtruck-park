@@ -9,6 +9,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { STATIONS } from '../utils/constants';
 
 const OrderTracking = () => {
+  const { orderId: currentOrderId } = useParams();
+  const { orders, loadingOrders } = useOrder();
+  const navigate = useNavigate();
+  
   const [trackedOrderIds, setTrackedOrderIds] = useState(() => {
     const saved = localStorage.getItem('manolo_tracked_orders');
     return saved ? JSON.parse(saved) : [];
@@ -24,17 +28,17 @@ const OrderTracking = () => {
 
   // Sync current URL ID with tracked list and state
   useEffect(() => {
-    if (currentOrderId) {
+    if (currentOrderId && activeTabId !== currentOrderId) {
       const saved = localStorage.getItem('manolo_tracked_orders');
       const prev = saved ? JSON.parse(saved) : [];
       if (!prev.includes(currentOrderId)) {
         const newList = [...prev, currentOrderId];
         localStorage.setItem('manolo_tracked_orders', JSON.stringify(newList));
-        setTrackedOrderIds(newList);
+        setTimeout(() => setTrackedOrderIds(newList), 0);
       }
-      setActiveTabId(currentOrderId);
+      setTimeout(() => setActiveTabId(currentOrderId), 0);
     }
-  }, [currentOrderId]);
+  }, [currentOrderId, activeTabId]);
 
   // Check if current order was cancelled and remove it from tracking
   useEffect(() => {
@@ -42,19 +46,21 @@ const OrderTracking = () => {
         const newList = trackedOrderIds.filter(id => id !== order.id);
         if (newList.length !== trackedOrderIds.length) {
           localStorage.setItem('manolo_tracked_orders', JSON.stringify(newList));
-          setTrackedOrderIds(newList);
+          setTimeout(() => setTrackedOrderIds(newList), 0);
         }
         
         // Switch to another active tab if possible
         if (activeOrders.length > 0) {
             const nextOrder = activeOrders.find(o => o.id !== order.id) || activeOrders[0];
-            if (nextOrder) {
-                setActiveTabId(nextOrder.id);
-                navigate(`/tracking/${nextOrder.id}`, { replace: true });
+            if (nextOrder && activeTabId !== nextOrder.id) {
+               setTimeout(() => {
+                 setActiveTabId(nextOrder.id);
+                 navigate(`/tracking/${nextOrder.id}`, { replace: true });
+               }, 0);
             }
         }
     }
-  }, [order?.status]);
+  }, [order?.status, activeOrders, trackedOrderIds, navigate, order?.id, activeTabId]);
 
   // Show loading state if orders are still fetching
   if (loadingOrders) {
