@@ -276,7 +276,7 @@ const AdminPanel = () => {
       invData.push({ Nombre: 'TOTAL ESTACION', Precio: '', Costo: '', Stock: '', Valor: totalValue, Ganancia: totalProfit, Estado: '' });
 
       const wsInv = XLSX.utils.json_to_sheet(invData);
-      const sanitizedName = station.replace(/[:\\/?*\[\]]/g, '_').substring(0, 31);
+      const sanitizedName = station.replace(/[:\\/?*[\]]/g, '_').substring(0, 31);
       XLSX.utils.book_append_sheet(wb, wsInv, sanitizedName);
     });
 
@@ -856,7 +856,7 @@ const AdminPanel = () => {
                                   </td>
                                   <td className="p-8 text-[10px] font-bold text-slate-400 uppercase tracking-widest">{new Date(tx.timestamp).toLocaleString()}</td>
                                   <td className="p-8 text-right border-r border-slate-100">
-                                     <div className="text-2xl font-black font-mono tracking-tighter text-slate-900 underline decoration-slate-200 decoration-2">${tx.order.items?.filter(i => tx.station === 'CAJA' || i.station === tx.station).reduce((s, i) => s + ((Number(i.price_at_time) || 0) * (Number(i.quantity) || 0)), 0) || 0}</div>
+                                     <div className="text-2xl font-black font-mono tracking-tighter text-slate-900 underline decoration-slate-200 decoration-2">${tx.order.items?.filter(i => tx.station === 'CAJA' || i.station === tx.station).reduce((s, i) => s + ((Number(i.price_at_time) || Number(i.price) || 0) * (Number(i.quantity) || 0)), 0) || 0}</div>
                                   </td>
                                   <td className="p-8 text-right">
                                      <button onClick={() => { 
@@ -882,7 +882,7 @@ const AdminPanel = () => {
                              .filter(o => o.payment_details)
                              .flatMap(o => Object.entries(o.payment_details).map(([station, details]) => ({ ...details, order: o, station })))
                              .filter(t => salesFilter === 'Todos' || t.method === salesFilter)
-                             .reduce((sum, t) => sum + (t.order.items?.filter(i => t.station === 'CAJA' || i.station === t.station).reduce((s, i) => s + ((Number(i.price_at_time) || 0) * (Number(i.quantity) || 0)), 0) || 0), 0)
+                             .reduce((sum, t) => sum + (t.order.items?.filter(i => t.station === 'CAJA' || i.station === t.station).reduce((s, i) => s + ((Number(i.price_at_time) || Number(i.price) || 0) * (Number(i.quantity) || 0)), 0) || 0), 0)
                            }.00
                         </p>
                      </div>

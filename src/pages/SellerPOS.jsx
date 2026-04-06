@@ -169,7 +169,7 @@ const SellerPOS = () => {
 
   const amountToPay = useMemo(() => {
     if (!paymentOrder || !paymentStation) return 0;
-    if (paymentStation === 'CAJA') return Number(paymentOrder.total_price) || 0;
+    if (paymentStation === 'CAJA') return Number(paymentOrder.total_price || (paymentOrder.items || []).reduce((sum, i) => sum + ((Number(i.price) || Number(i.price_at_time) || 0) * (Number(i.quantity) || 0)), 0)) || 0;
     
     const normalizedStation = paymentStation.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase();
     return (paymentOrder.items || [])
