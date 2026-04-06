@@ -856,7 +856,7 @@ const AdminPanel = () => {
                                   </td>
                                   <td className="p-8 text-[10px] font-bold text-slate-400 uppercase tracking-widest">{new Date(tx.timestamp).toLocaleString()}</td>
                                   <td className="p-8 text-right border-r border-slate-100">
-                                     <div className="text-2xl font-black font-mono tracking-tighter text-slate-900 underline decoration-slate-200 decoration-2">${tx.order.items?.filter(i => i.station === tx.station).reduce((s, i) => s + ((Number(i.price_at_time) || 0) * (Number(i.quantity) || 0)), 0) || 0}</div>
+                                     <div className="text-2xl font-black font-mono tracking-tighter text-slate-900 underline decoration-slate-200 decoration-2">${tx.order.items?.filter(i => tx.station === 'CAJA' || i.station === tx.station).reduce((s, i) => s + ((Number(i.price_at_time) || 0) * (Number(i.quantity) || 0)), 0) || 0}</div>
                                   </td>
                                   <td className="p-8 text-right">
                                      <button onClick={() => { 
@@ -882,7 +882,7 @@ const AdminPanel = () => {
                              .filter(o => o.payment_details)
                              .flatMap(o => Object.entries(o.payment_details).map(([station, details]) => ({ ...details, order: o, station })))
                              .filter(t => salesFilter === 'Todos' || t.method === salesFilter)
-                             .reduce((sum, t) => sum + (t.order.items?.filter(i => i.station === t.station).reduce((s, i) => s + ((Number(i.price_at_time) || 0) * (Number(i.quantity) || 0)), 0) || 0), 0)
+                             .reduce((sum, t) => sum + (t.order.items?.filter(i => t.station === 'CAJA' || i.station === t.station).reduce((s, i) => s + ((Number(i.price_at_time) || 0) * (Number(i.quantity) || 0)), 0) || 0), 0)
                            }.00
                         </p>
                      </div>
@@ -1303,6 +1303,7 @@ const AdminPanel = () => {
                      <p className="text-[10px] uppercase font-black opacity-40 mb-1">Monto a Cobrar ({getStationDisplay(paymentStation)})</p>
                      <div className="text-5xl font-black font-mono tracking-tighter text-emerald-400 shadow-emerald-500/20 underline underline-offset-8 decoration-4">
                         ${paymentOrder.items?.filter(i => {
+                          if (paymentStation === 'CAJA') return true;
                           const s1 = i.station?.toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
                           const s2 = paymentStation?.toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
                           return s1 === s2;
@@ -1339,6 +1340,7 @@ const AdminPanel = () => {
                               <span className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">Cambio a Devolver:</span>
                               <span className="text-3xl font-black font-mono text-emerald-600">
                                  ${Math.max(0, Number(amountReceived) - (paymentOrder.items?.filter(i => {
+                                      if (paymentStation === 'CAJA') return true;
                                       const s1 = i.station?.toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
                                       const s2 = paymentStation?.toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
                                       return s1 === s2;

@@ -90,7 +90,13 @@ const Receipt = ({ order, station = 'CAJA' }) => {
           </div>
           <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-slate-400 print:text-black/60">
              <span>ESTACIÓN:</span>
-             <span className="text-slate-900 font-black italic">{station}</span>
+             <span className="text-slate-900 font-black italic">
+               {(() => {
+                  if (station !== 'CAJA') return station;
+                  const stations = [...new Set((order.items || []).map(i => i.station).filter(Boolean))];
+                  return stations.length > 0 ? stations.join(' / ') : 'CAJA';
+               })()}
+             </span>
           </div>
        </div>
 

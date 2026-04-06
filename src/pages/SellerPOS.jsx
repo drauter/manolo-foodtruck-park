@@ -10,8 +10,17 @@ const STATION_DISPLAY = {
   'DULCES/POSTRES': 'DULCES/POSTRES'
 };
 
-const getStationDisplay = (st) => {
+const getStationDisplay = (st, order = null) => {
   if (!st || st === 'TODAS') return st;
+  
+  if (st === 'CAJA' && order) {
+    const stations = [...new Set((order.items || []).map(i => i.station).filter(Boolean))];
+    if (stations.length === 0) return 'CAJA';
+    if (stations.length === 1) return stations[0];
+    const last = stations.pop();
+    return `${stations.join(', ')} y ${last}`;
+  }
+
   const normalized = st.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase();
   return STATION_DISPLAY[normalized] || st;
 };
@@ -160,6 +169,8 @@ const SellerPOS = () => {
 
   const amountToPay = useMemo(() => {
     if (!paymentOrder || !paymentStation) return 0;
+    if (paymentStation === 'CAJA') return Number(paymentOrder.total_price) || 0;
+    
     const normalizedStation = paymentStation.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase();
     return (paymentOrder.items || [])
       .filter(i => {
@@ -285,13 +296,13 @@ const SellerPOS = () => {
                  </div>
 
                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {orders.filter(o => (o.origin_station === currentUser.station || (isCajeroGeneral && o.items?.some(i => i.station === 'CAJA')))).length === 0 ? (
+                    {orders.filter(o => (isCajeroGeneral || o.origin_station === currentUser.station || (o.items || []).some(i => i.station === currentUser.station))).length === 0 ? (
                       <div className="col-span-full py-40 text-center opacity-20 flex flex-col items-center border border-dashed border-white/10 rounded-[4rem]">
                          <FileText size={64} className="mb-4 text-slate-400" />
                          <p className="font-black uppercase tracking-widest text-sm">No has realizado ventas aún</p>
                       </div>
                     ) : (
-                      orders.filter(o => (o.origin_station === currentUser.station || (isCajeroGeneral && o.items?.some(i => i.station === 'CAJA')))).map(order => (
+                      orders.filter(o => (isCajeroGeneral || o.origin_station === currentUser.station || (o.items || []).some(i => i.station === currentUser.station))).map(order => (
                         <div key={order.id} className={`bg-slate-900/50 p-8 rounded-[3rem] border border-white/5 hover:border-emerald-500/30 transition-all group relative shadow-2xl overflow-hidden ${order.status === 'cancelled' ? 'opacity-50 grayscale' : ''}`}>
                            <div className="absolute top-0 right-0 w-20 h-20 bg-white/5 rounded-bl-[3rem]" />
                            <div className="flex justify-between items-start mb-2 leading-none">
@@ -348,7 +359,7 @@ const SellerPOS = () => {
                          const tx = order.payment_details[currentUser.station];
                          if (!tx) return null;
                          const stationAmt = (order.items || [])
-                           .filter(i => i.station === currentUser.station)
+                           .filter(i => currentUser.station === 'CAJA' || i.station === currentUser.station)
                            .reduce((s, i) => s + ((Number(i.price_at_time) || 0) * (Number(i.quantity) || 0)), 0) || 0;
                          return (
                            <div key={`${order.id}-${idx}`} className="bg-slate-900/50 p-8 rounded-[3rem] border border-white/5 hover:border-emerald-500/30 transition-all group relative shadow-2xl overflow-hidden">
@@ -756,7 +767,7 @@ const SellerPOS = () => {
                     <>
                       <div className="bg-emerald-600 p-8 rounded-[3rem] mb-10 relative overflow-hidden shadow-2xl">
                         <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-bl-full pointer-events-none" />
-                        <div className="text-[10px] uppercase font-black text-slate-600 mb-2 tracking-widest">Monto a Cobrar ({getStationDisplay(paymentStation)})</div>
+                        <div className="text-[10px] uppercase font-black text-slate-600 mb-2 tracking-widest">Monto a Cobrar ({getStationDisplay(paymentStation, paymentOrder)})</div>
                         <div className="text-5xl font-black font-mono text-white tracking-tighter italic shadow-emerald-500/20 shadow-lg">${amountToPay}</div>
                       </div>
                       <div className="grid grid-cols-3 gap-3 mb-10">

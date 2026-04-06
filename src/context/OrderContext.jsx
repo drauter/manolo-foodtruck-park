@@ -180,6 +180,7 @@ export const OrderProvider = ({ children }) => {
     const newOrder = {
       customer_name: customerName,
       source,
+      origin_station: currentUser?.station || source,
       total_price: totalPrice,
       status: 'received',
       station_statuses: stationStatuses,
@@ -223,7 +224,13 @@ export const OrderProvider = ({ children }) => {
     const order = orders.find(o => o.id === orderId);
     if (!order) return;
 
-    const newStationStatuses = { ...order.station_statuses, [station]: newStatus };
+    // Use original station statuses. Only add 'CAJA' to statuses if it was already there (production station)
+    const newStationStatuses = { ...order.station_statuses };
+    if (order.station_statuses[station] !== undefined) {
+      newStationStatuses[station] = newStatus;
+    }
+
+    // Update payment details
     const newPaymentDetails = paymentData 
       ? { ...order.payment_details, [station]: paymentData }
       : order.payment_details;
@@ -238,17 +245,20 @@ export const OrderProvider = ({ children }) => {
     else if (allReadyOrDone) overallStatus = 'ready';
     else if (statuses.some(s => s === 'preparing' || s === 'ready' || s === 'delivered')) overallStatus = 'preparing';
 
-    const allStationsPaid = Object.keys(newStationStatuses).every(st => newPaymentDetails[st]);
+    // PAYMENT LOGIC: If 'CAJA' has paid, or if all individual stations have paid
+    const isCajaPaid = newPaymentDetails['CAJA'];
+    const allIndividualPaid = Object.keys(newStationStatuses).every(st => newPaymentDetails[st]);
+    const allStationsPaid = isCajaPaid || allIndividualPaid;
 
     await supabase.from('orders').update({
       station_statuses: newStationStatuses,
       payment_details: newPaymentDetails,
       status: overallStatus,
-      is_paid: allStationsPaid
+      is_paid: !!allStationsPaid
     }).eq('id', orderId);
 
     setOrders(prev => prev.map(o => 
-      o.id === orderId ? { ...o, station_statuses: newStationStatuses, payment_details: newPaymentDetails, status: overallStatus, is_paid: allStationsPaid } : o
+      o.id === orderId ? { ...o, station_statuses: newStationStatuses, payment_details: newPaymentDetails, status: overallStatus, is_paid: !!allStationsPaid } : o
     ));
   };
 
@@ -648,11 +658,26 @@ export const OrderProvider = ({ children }) => {
     const ticket = order.ticket_number || '';
     const name = order.customer_name || 'Cliente';
     
+    // Get unique ready stations if stationKey is not fixed
+    const stations = [...new Set(Object.entries(order.station_statuses || {})
+      .filter(([_, s]) => s === 'ready')
+      .map(([st, _]) => st))];
+      
+    let stationText = stationKey;
+    if (stations.length > 0) {
+      if (stations.length === 1) {
+        stationText = stations[0];
+      } else {
+        const lastStation = stations.pop();
+        stationText = `${stations.join(', ')} y ${lastStation}`;
+      }
+    }
+
     let message = '';
     if (order.is_paid) {
-      message = `Orden número ${ticket}, cliente ${name}, su pedido en la estación de ${stationKey} está listo. Por favor pasar a retirar.`;
+      message = `Orden número ${ticket}, cliente ${name}, su pedido de ${stationText} está listo. Por favor pasar a retirar.`;
     } else {
-      message = `Orden número ${ticket}, cliente ${name}, su pedido en la estación de ${stationKey} está listo. Por favor pasar por caja para pagar y retirar su pedido.`;
+      message = `Orden número ${ticket}, cliente ${name}, su pedido de ${stationText} está listo. Por favor pasar por caja para pagar y retirar su pedido.`;
     }
 
     if (!manual) announcedOrdersRef.current.add(announcementKey);
