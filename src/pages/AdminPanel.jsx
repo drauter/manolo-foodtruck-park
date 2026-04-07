@@ -132,7 +132,7 @@ const AdminPanel = () => {
           setNewProduct(prev => ({ ...prev, image_url: publicUrl }));
         }
       } else {
-        alert("Error al subir la imagen. Por favor, intente de nuevo o verifique su conexiÃƒÆ’Ã‚Â³n.");
+        alert("Error al subir la imagen. Por favor, intente de nuevo o verifique su conexión.");
       }
     }
   };
@@ -273,7 +273,7 @@ const AdminPanel = () => {
 
   const handleFinalizePayment = () => {
     if (paymentMethod === 'cash' && (!amountReceived || Number(amountReceived) <= 0)) {
-      return alert("El campo de dinero estÃƒÂ¡ vacÃƒÂ­o o es invÃƒÂ¡lido.");
+      return alert("El campo de dinero está vacío o es inválido.");
     }
 
     const amountToPay = paymentOrder.items?.filter(i => i.station === paymentStation).reduce((sum, i) => sum + ((Number(i.price_at_time) || 0) * (Number(i.quantity) || 0)), 0) || 0;
@@ -301,7 +301,7 @@ const AdminPanel = () => {
   const handleWhatsAppShare = (order) => {
     if (!order) return;
     const itemsText = (order.items || []).map(i => `${i.quantity} x ${i.products?.name || i.product?.name || 'Producto'}`).join('\n');
-    const text = `Ã°Å¸Å’Â­ *MANOLO FOODTRUCK PARK* Ã°Å¸Å’Â­\n---------------------------\n*Ticket:* #${order.ticket_number}\n*Cliente:* ${order.customer_name?.toUpperCase()}\n---------------------------\n${itemsText}\n---------------------------\n*TOTAL: RD$ ${order.total_price}.00*\n\nÃ‚Â¡Gracias por preferirnos!`;
+    const text = `🌭 *MANOLO FOODTRUCK PARK* 🌭\n---------------------------\n*Ticket:* #${order.ticket_number}\n*Cliente:* ${order.customer_name?.toUpperCase()}\n---------------------------\n${itemsText}\n---------------------------\n*TOTAL: RD$ ${order.total_price}.00*\n\n¡Gracias por preferirnos!`;
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
   };
 
@@ -318,7 +318,7 @@ const AdminPanel = () => {
     { id: 'inventory', label: 'Inventario', icon: Layers, roles: ['admin', 'catalogo', 'contador'] },
     { id: 'shifts', label: 'Turnos', icon: Filter, roles: ['admin'] },
     { id: 'users', label: 'Usuarios', icon: Users, roles: ['admin'] },
-    { id: 'settings', label: 'ConfiguraciÃƒÂ³n', icon: Settings, roles: ['admin'] },
+    { id: 'settings', label: 'ConfiguraciÃÂ³n', icon: Settings, roles: ['admin'] },
   ].filter(item => !item.roles || item.roles.includes(currentUser?.role));
    // Local Receipt component removed - using shared one from components/Receipt
  
@@ -349,10 +349,10 @@ const AdminPanel = () => {
         <div className="border-t border-white/10 pt-6 space-y-2 mt-auto">
           <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest ml-4 mb-2">Vistas Externas</p>
           <button onClick={() => window.open('/display', '_blank')} className="w-full text-left p-4 rounded-2xl flex items-center gap-3 hover:bg-slate-800 text-slate-400 transition-all">
-            <TrendingUp size={18} /> <span className="font-bold text-sm tracking-tight text-white/50">Pantalla PÃƒÂºblica</span>
+            <TrendingUp size={18} /> <span className="font-bold text-sm tracking-tight text-white/50">Pantalla PÃÂºblica</span>
           </button>
           <button onClick={() => window.open('/menu', '_blank')} className="w-full text-left p-4 rounded-2xl flex items-center gap-3 hover:bg-slate-800 text-slate-400 transition-all">
-            <Coffee size={18} /> <span className="font-bold text-sm tracking-tight text-white/50">MenÃƒÂº Digital</span>
+            <Coffee size={18} /> <span className="font-bold text-sm tracking-tight text-white/50">MenÃÂº Digital</span>
           </button>
         </div>
         <button onClick={() => { logout(); navigate('/login'); }} className="p-4 bg-slate-800 rounded-2xl flex items-center gap-3 text-red-400 font-bold hover:bg-red-500/10 transition-all text-sm">
@@ -377,7 +377,7 @@ const AdminPanel = () => {
         <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-10">
           <div>
             <h1 className="text-3xl sm:text-4xl font-black tracking-tighter capitalize leading-none">{menuItems.find(m => m.id === activeTab)?.label}</h1>
-            <p className="text-slate-400 font-bold text-xs mt-2 uppercase tracking-widest italic">GestiÃƒÂ³n Administrativa</p>
+            <p className="text-slate-400 font-bold text-xs mt-2 uppercase tracking-widest italic">GestiÃÂ³n Administrativa</p>
           </div>
           <div className="flex flex-wrap gap-4 w-full sm:w-auto">
             {currentUser?.role === 'admin' && (
@@ -415,7 +415,7 @@ const AdminPanel = () => {
                        }} className="bg-slate-50 text-slate-900 p-3 rounded-xl font-black uppercase text-[9px] hover:bg-slate-900 hover:text-white transition-all border border-slate-100">Editar</button>
                        <button onClick={() => { 
                           requireAdminAuth(() => {
-                            if(confirm("Ãƒâ€šÃ‚Â¿Eliminar producto?")) deleteProduct(product.id); 
+                            if(confirm("ÃÂÃÂÃÂ¢Ã¢ÂÂ¬Ã¡Ã¿Eliminar producto?")) deleteProduct(product.id); 
                           });
                         }} className="bg-red-50 text-red-500 p-3 rounded-xl font-black uppercase text-[9px] hover:bg-red-500 hover:text-white transition-all border border-red-100">Eliminar</button>
                     </div>
@@ -449,7 +449,7 @@ const AdminPanel = () => {
                 <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/5 rounded-full blur-3xl -mr-32 -mt-32" />
                 <div className="flex items-center gap-4 mb-8 relative z-10">
                   <div className="w-10 h-1bg-emerald-500 rounded-full" />
-                  <h3 className="text-xl font-black uppercase italic tracking-tighter text-white">Pendientes por EstaciÃƒÂ³n</h3>
+                  <h3 className="text-xl font-black uppercase italic tracking-tighter text-white">Pendientes por EstaciÃÂ³n</h3>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 relative z-10">
                   {['BAR', 'COMIDA RAPIDA', 'DULCES/POSTRES'].map(st => {
@@ -580,7 +580,7 @@ const AdminPanel = () => {
                   <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-10">
                      <h2 className="text-2xl font-black uppercase italic tracking-tighter">Historial de Transacciones</h2>
                      <div className="flex bg-slate-100 p-1.5 rounded-2xl gap-2 w-full md:w-auto overflow-x-auto">
-                        {['Todas', 'BAR', 'COMIDA RÃƒÆ’Ã‚ÂPIDA', 'DULCES/POSTRES'].map(f => (
+                        {['Todas', 'BAR', 'COMIDA RÃÂÃÂÃÂÃ¢ÂÂÃÂÃ¢ÂÂÃÂÃÂPIDA', 'DULCES/POSTRES'].map(f => (
                           <button key={f} onClick={() => setSalesFilter(f)} className={`px-5 py-2.5 rounded-xl text-[10px] font-black whitespace-nowrap transition-all ${salesFilter === f ? 'bg-white text-slate-900 shadow-md' : 'text-slate-400'}`}>{f}</button>
                         ))}
                      </div>
@@ -622,12 +622,12 @@ const AdminPanel = () => {
                                 <button onClick={() => setIsEditingOrder(order)} title="Editar" className="p-3 bg-white text-slate-500 rounded-2xl hover:bg-blue-600 hover:text-white transition-all shadow-sm"><Edit2 size={20} /></button>
                                 <button onClick={() => { 
                                    requireAdminAuth(() => {
-                                     if(confirm("Ãƒâ€šÃ‚Â¿Anular venta? Se devolverÃƒÆ’Ã‚Â¡ el stock.")) cancelOrder(order.id); 
+                                     if(confirm("ÃÂÃÂÃÂ¢Ã¢ÂÂ¬Ã¡Ã¿Anular venta? Se devolverÃÂÃÂÃÂÃ¢ÂÂÃ¡ el stock.")) cancelOrder(order.id); 
                                    });
                                  }} title="Anular" className="p-3 bg-white text-slate-500 rounded-2xl hover:bg-amber-500 hover:text-white transition-all shadow-sm"><RotateCcw size={20} /></button>
                                  <button onClick={() => { 
                                    requireAdminAuth(() => {
-                                     if(confirm("Ãƒâ€šÃ‚Â¿ELIMINAR DEFINITIVAMENTE? No se puede deshacer.")) deleteOrder(order.id); 
+                                     if(confirm("ÃÂÃÂÃÂ¢Ã¢ÂÂ¬Ã¡Ã¿ELIMINAR DEFINITIVAMENTE? No se puede deshacer.")) deleteOrder(order.id); 
                                    });
                                  }} title="Eliminar" className="p-3 bg-white text-slate-500 rounded-2xl hover:bg-red-500 hover:text-white transition-all shadow-sm"><Trash2 size={20} /></button>
                              </div>
@@ -641,7 +641,7 @@ const AdminPanel = () => {
 
           {activeTab === 'checkout' && (
             <motion.div key="checkout" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-12 pb-20">
-               {/* SECCIÃƒÆ’Ã¢â‚¬Å“N 1: LISTOS PARA ENTREGA (PRIORIDAD ALTA) */}
+               {/* SECCIÃÂN 1: LISTOS PARA ENTREGA (PRIORIDAD ALTA) */}
                <div>
                   <div className="flex items-center gap-4 mb-8">
                      <div className="w-3 h-12 bg-emerald-500 rounded-full" />
@@ -687,7 +687,7 @@ const AdminPanel = () => {
                   </div>
                </div>
 
-               {/* SECCIÃƒÆ’Ã¢â‚¬Å“N 2: PENDIENTES DE PAGO */}
+               {/* SECCIÃÂN 2: PENDIENTES DE PAGO */}
                <div className="pt-12 border-t border-slate-200/60">
                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8">
                       <div className="flex items-center gap-4">
@@ -724,7 +724,7 @@ const AdminPanel = () => {
                                     <div key={st} className="flex items-center gap-3">
                                        <button onClick={() => { setPaymentOrder(order); setPaymentStation(st); }} className={`flex-grow ${s === 'ready' ? 'bg-emerald-600' : 'bg-slate-900'} text-white p-5 rounded-[1.5rem] flex items-center justify-between hover:scale-105 active:scale-95 transition-all font-black text-xs uppercase shadow-lg`}>
                                           <div className="flex items-center gap-2">
-                                             <span>{st === 'COMIDA RAPIDA' ? 'C. RÃƒÂPIDA' : st}</span>
+                                             <span>{st === 'COMIDA RAPIDA' ? 'C. RÃÂÃÂÃÂÃÂPIDA' : st}</span>
                                              {s === 'ready' && <div className="w-2 h-2 bg-white rounded-full animate-ping" />}
                                           </div>
                                           <div className="text-xl font-mono tracking-tighter">${stAmt}</div>
@@ -738,7 +738,7 @@ const AdminPanel = () => {
                   </div>
                </div>
 
-               {/* SECCIÃƒÆ’Ã¢â‚¬Å“N 3: ENTREGADOS RECIENTEMENTE */}
+               {/* SECCIÃÂN 3: ENTREGADOS RECIENTEMENTE */}
                <div className="pt-12 border-t border-slate-200/60">
                   <div className="flex items-center gap-4 mb-8">
                      <div className="w-3 h-12 bg-slate-300 rounded-full" />
@@ -771,7 +771,7 @@ const AdminPanel = () => {
                   <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8 mb-12">
                      <div>
                         <h2 className="text-4xl font-black uppercase italic tracking-tighter">Historial de Cobros</h2>
-                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-2">Registro de recaudaciÃƒÂ³n por cajero y estaciÃƒÂ³n</p>
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-2">Registro de recaudaciÃÂ³n por cajero y estaciÃÂ³n</p>
                      </div>
                      <div className="flex flex-wrap gap-4 bg-slate-100 p-2 rounded-3xl">
                         <div className="flex gap-2 border-r border-slate-200 pr-4 mr-2">
@@ -781,7 +781,7 @@ const AdminPanel = () => {
                                  onClick={() => setSelectedCollectionsStation(st)} 
                                  className={`px-4 py-2 rounded-xl text-[8px] font-black uppercase tracking-widest transition-all ${selectedCollectionsStation === st ? 'bg-white text-slate-900 shadow-md' : 'text-slate-400 hover:text-slate-600'}`}
                               >
-                                {st === 'COMIDA RAPIDA' ? 'C. RÃƒÂPIDA' : st}
+                                {st === 'COMIDA RAPIDA' ? 'C. RÃÂÃÂÃÂÃÂPIDA' : st}
                               </button>
                            ))}
                         </div>
@@ -792,7 +792,7 @@ const AdminPanel = () => {
                                 onClick={() => setSalesFilter(m)} 
                                 className={`px-6 py-3 rounded-2xl text-[9px] font-black uppercase tracking-widest transition-all ${salesFilter === m ? 'bg-white text-slate-900 shadow-lg' : 'text-slate-400'}`}
                               >
-                                 {m === 'Todos' ? 'MÃƒÂ©todos' : m === 'cash' ? 'Efectivo' : m === 'card' ? 'Tarjeta' : 'Transf.'}
+                                 {m === 'Todos' ? 'MÃÂ©todos' : m === 'cash' ? 'Efectivo' : m === 'card' ? 'Tarjeta' : 'Transf.'}
                               </button>
                            ))}
                         </div>
@@ -805,11 +805,11 @@ const AdminPanel = () => {
                            <tr className="bg-slate-950 text-white text-[10px] uppercase font-black tracking-widest">
                               <th className="p-8 border-r border-white/5">Ticket</th>
                               <th className="p-8 border-r border-white/5">Cliente</th>
-                              <th className="p-8 border-r border-white/5">EstaciÃƒÂ³n</th>
-                              <th className="p-8 border-r border-white/5">MÃƒÂ©todo</th>
+                              <th className="p-8 border-r border-white/5">EstaciÃÂ³n</th>
+                              <th className="p-8 border-r border-white/5">MÃÂ©todo</th>
                               <th className="p-8 border-r border-white/5">Fecha/Hora</th>
                               <th className="p-8 border-r border-white/5 text-right">Monto</th>
-                              <th className="p-8 text-right">AcciÃƒÂ³n</th>
+                              <th className="p-8 text-right">AcciÃÂ³n</th>
                            </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-200">
@@ -845,7 +845,7 @@ const AdminPanel = () => {
                                   <td className="p-8 text-right">
                                      <button onClick={() => { 
                                         requireAdminAuth(() => {
-                                          if(currentUser?.role === 'admin' || confirm("Ã‚Â¿Eliminar registro de cobro?")) deletePayment(tx.order.id, tx.station); 
+                                          if(currentUser?.role === 'admin' || confirm("Ã¿Eliminar registro de cobro?")) deletePayment(tx.order.id, tx.station); 
                                         });
                                       }} className="p-3 text-slate-300 hover:text-red-500 transition-all opacity-0 group-hover:opacity-100"><Trash2 size={20} /></button>
                                   </td>
@@ -854,13 +854,13 @@ const AdminPanel = () => {
                         </tbody>
                      </table>
                      {orders.filter(o => o.paymentDetails).length === 0 && (
-                        <div className="p-20 text-center opacity-20 italic font-black uppercase tracking-widest">No hay registros de cobros aÃƒÂºn</div>
+                        <div className="p-20 text-center opacity-20 italic font-black uppercase tracking-widest">No hay registros de cobros aÃÂºn</div>
                      )}
                   </div>
                   
                   <div className="mt-12 flex justify-end gap-12 items-center bg-slate-900 p-8 rounded-[3rem] text-white">
                      <div className="text-right">
-                        <p className="text-[10px] font-black uppercase opacity-40">RecaudaciÃƒÂ³n Total</p>
+                        <p className="text-[10px] font-black uppercase opacity-40">RecaudaciÃÂ³n Total</p>
                         <p className="text-4xl font-black font-mono tracking-tighter text-emerald-400 shadow-emerald-500/20 shadow-lg">
                            ${orders
                              .filter(o => o.payment_details)
@@ -888,12 +888,12 @@ const AdminPanel = () => {
                   <table className="w-full text-left">
                      <thead>
                         <tr className="border-b border-slate-100 text-[10px] font-black uppercase tracking-widest text-slate-400">
-                           <th className="pb-6 px-4">EstaciÃƒÂ³n</th>
+                           <th className="pb-6 px-4">EstaciÃÂ³n</th>
                            <th className="pb-6 px-4">Fecha/Hora Cerrado</th>
                            <th className="pb-6 px-4">Esperado (Cash)</th>
                            <th className="pb-6 px-4">Reportado</th>
                            <th className="pb-6 px-4 text-center">Diferencia</th>
-                           <th className="pb-6 px-4 text-right">AcciÃƒÂ³n</th>
+                           <th className="pb-6 px-4 text-right">AcciÃÂ³n</th>
                         </tr>
                      </thead>
                      <tbody className="divide-y divide-slate-50 font-bold text-sm">
@@ -911,7 +911,7 @@ const AdminPanel = () => {
                               <td className="py-6 px-4 text-right">
                                  <button onClick={() => { 
                                     requireAdminAuth(() => {
-                                      if(currentUser?.role === 'admin' || confirm("Ã‚Â¿Eliminar registro de cuadre?")) deleteShift(shift.id); 
+                                      if(currentUser?.role === 'admin' || confirm("Ã¿Eliminar registro de cuadre?")) deleteShift(shift.id); 
                                     });
                                   }} className="p-3 text-slate-300 hover:text-red-500 transition-all opacity-0 group-hover:opacity-100"><Trash2 size={20} /></button>
                               </td>
@@ -942,7 +942,7 @@ const AdminPanel = () => {
                         <div className="w-16 h-16 bg-slate-900 text-white rounded-3xl flex items-center justify-center"><Users size={32} /></div>
                         <div>
                            <h3 className="text-xl font-black uppercase italic tracking-tighter">{user.name}</h3>
-                           <p className="text-[10px] font-black text-slate-400 uppercase">{user.role} {user.station && `Ã¢â‚¬Â¢ ${user.station}`}</p>
+                           <p className="text-[10px] font-black text-slate-400 uppercase">{user.role} {user.station && `Ã¢ÂÂ¢ ${user.station}`}</p>
                         </div>
                      </div>
                      <div className="bg-slate-50 p-6 rounded-3xl border border-slate-100 flex justify-between items-center">
@@ -960,7 +960,7 @@ const AdminPanel = () => {
                   <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-10">
                      <div>
                         <h2 className="text-2xl font-black uppercase italic tracking-tighter text-emerald-600">Control de Inventario</h2>
-                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">GestiÃƒÂ³n de existencias y costos</p>
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">GestiÃÂ³n de existencias y costos</p>
                      </div>
                      <div className="bg-amber-50 text-amber-600 px-6 py-3 rounded-2xl text-[10px] font-black uppercase border border-amber-100 italic">
                         {lowStockProducts.length} Alertas de Stock Bajo
@@ -970,7 +970,7 @@ const AdminPanel = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                      <button onClick={() => { setIsEditingProduct(false); setEditingProduct(null); setIsModalOpen(true); }} className="p-6 rounded-[2.5rem] border-2 border-dashed border-slate-200 hover:border-emerald-500 hover:bg-emerald-50 transition-all flex flex-col items-center justify-center gap-4 text-slate-400 hover:text-emerald-600 group">
                         <div className="w-16 h-16 rounded-2xl bg-slate-50 flex items-center justify-center group-hover:bg-white transition-colors"><Plus size={32} /></div>
-                        <span className="font-black uppercase italic tracking-tighter">AÃƒÂ±adir Producto</span>
+                        <span className="font-black uppercase italic tracking-tighter">AÃÂ±adir Producto</span>
                      </button>
                      {products.map(product => (
                         <div key={product.id} className={`p-6 rounded-[2.5rem] border transition-all relative group-inventory ${product.stock < 10 ? 'bg-amber-50 border-amber-200' : 'bg-slate-50 border-slate-100'}`}>
@@ -984,7 +984,7 @@ const AdminPanel = () => {
                                }} className="p-2 bg-white rounded-xl shadow-sm text-slate-400 hover:text-blue-500 transition-colors"><Edit2 size={16} /></button>
                                <button onClick={() => { 
                                   requireAdminAuth(() => {
-                                    if(currentUser?.role === 'admin' || confirm("Ã‚Â¿Eliminar producto?")) deleteProduct(product.id); 
+                                    if(currentUser?.role === 'admin' || confirm("Ã¿Eliminar producto?")) deleteProduct(product.id); 
                                   });
                                }} className="p-2 bg-white rounded-xl shadow-sm text-slate-400 hover:text-red-500 transition-colors"><Trash2 size={16} /></button>
                             </div>
@@ -1033,11 +1033,11 @@ const AdminPanel = () => {
                <div className="bg-white p-12 rounded-[4rem] border border-slate-100 shadow-sm">
                   <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8 mb-12">
                      <div>
-                        <h2 className="text-3xl font-black uppercase italic tracking-tighter">ConfiguraciÃƒÂ³n de Impresoras</h2>
-                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">VÃƒÂ­nculo independiente para estaciones de trabajo</p>
+                        <h2 className="text-3xl font-black uppercase italic tracking-tighter">ConfiguraciÃÂ³n de Impresoras</h2>
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">VÃÂ­nculo independiente para estaciones de trabajo</p>
                      </div>
                      <div className="flex gap-4">
-                        <button onClick={() => alert("FunciÃƒÂ³n: Buscar impresoras Bluetooth/Red...")} className="flex items-center gap-3 px-8 py-5 bg-[#C29F5C] text-white rounded-[2rem] font-black uppercase text-[10px] shadow-lg hover:opacity-90 transition-all tracking-widest">
+                        <button onClick={() => alert("FunciÃÂ³n: Buscar impresoras Bluetooth/Red...")} className="flex items-center gap-3 px-8 py-5 bg-[#C29F5C] text-white rounded-[2rem] font-black uppercase text-[10px] shadow-lg hover:opacity-90 transition-all tracking-widest">
                            <Printer size={20} />
                            <span>VER IMPRESORAS</span>
                         </button>
@@ -1055,11 +1055,11 @@ const AdminPanel = () => {
                   <div className="bg-slate-50 p-6 sm:p-12 rounded-[2rem] sm:rounded-[4rem] mb-12 border border-slate-100 flex flex-col items-center">
                      <div className="max-w-md w-full space-y-5 text-center sm:text-left">
                         {[
-                           { paso: 1, text: "Conecte su impresora vÃƒÂ­a bluetooth" },
+                           { paso: 1, text: "Conecte su impresora vÃÂ­a bluetooth" },
                            { paso: 2, text: "Dele a ver impresoras" },
                            { paso: 3, text: "Busque el nombre de su impresora" },
                            { paso: 4, text: "Toque nombre de su impresora" },
-                           { paso: 5, text: "Imprima un recibo de prueba en el botÃƒÂ³n azul" }
+                           { paso: 5, text: "Imprima un recibo de prueba en el botÃÂ³n azul" }
                         ].map(step => (
                            <div key={step.paso} className="flex items-center gap-6 group">
                               <span className="text-[#C29F5C] font-black uppercase text-[11px] w-20 text-right whitespace-nowrap">Paso {step.paso} -</span>
@@ -1082,11 +1082,11 @@ const AdminPanel = () => {
                                <h3 className="text-2xl font-black uppercase italic tracking-tighter text-slate-900">Voz de Anuncios</h3>
                                {saveSuccess && (
                                  <motion.span initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} className="px-3 py-1 bg-emerald-500 text-white text-[8px] font-black uppercase rounded-full tracking-widest border border-emerald-600">
-                                   Ã‚Â¡Cambios Guardados!
+                                   Ã¡Cambios Guardados!
                                  </motion.span>
                                )}
                             </div>
-                           <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-0.5">Personaliza el llamado a clientes (SegÃƒÂºn tu navegador)</p>
+                           <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-0.5">Personaliza el llamado a clientes (SegÃÂºn tu navegador)</p>
                         </div>
                      </div>
 
@@ -1177,8 +1177,8 @@ const AdminPanel = () => {
                         <Printer size={32} />
                      </div>
                      <div>
-                        <h3 className="text-2xl font-black uppercase italic tracking-tighter text-slate-900">ConfiguraciÃƒÂ³n de Impresoras</h3>
-                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-0.5">GestiÃƒÂ³n de dispositivos por estaciÃƒÂ³n de trabajo</p>
+                        <h3 className="text-2xl font-black uppercase italic tracking-tighter text-slate-900">ConfiguraciÃÂ³n de Impresoras</h3>
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-0.5">GestiÃÂ³n de dispositivos por estaciÃÂ³n de trabajo</p>
                      </div>
                   </div>
 
@@ -1219,10 +1219,10 @@ const AdminPanel = () => {
                   <div className="mt-12 p-8 bg-amber-50 rounded-[3rem] border border-amber-100 flex items-start gap-6">
                      <AlertCircle className="text-amber-500 shrink-0" size={24} />
                      <div>
-                        <p className="font-black text-sm uppercase text-amber-900 tracking-tight">Nota sobre ImpresiÃƒÂ³n Web</p>
+                        <p className="font-black text-sm uppercase text-amber-900 tracking-tight">Nota sobre ImpresiÃÂ³n Web</p>
                         <p className="text-[10px] font-bold text-amber-700 uppercase tracking-wide mt-1 leading-relaxed">
-                           Debido a restricciones de seguridad del navegador, la impresiÃƒÂ³n fÃƒÂ­sica requiere confirmar el diÃƒÂ¡logo de impresiÃƒÂ³n. 
-                           AsegÃƒÂºrate de configurar cada impresora como la predeterminada en su estaciÃƒÂ³n de trabajo correspondiente.
+                           Debido a restricciones de seguridad del navegador, la impresiÃÂ³n fÃÂ­sica requiere confirmar el diÃ¡logo de impresiÃÂ³n. 
+                           AsegÃÂºrate de configurar cada impresora como la predeterminada en su estaciÃÂ³n de trabajo correspondiente.
                         </p>
                      </div>
                   </div>
@@ -1242,18 +1242,18 @@ const AdminPanel = () => {
                            <div>
                               <h3 className="text-xl font-black uppercase text-red-900 leading-none mb-2">Reiniciar Todo el Sistema</h3>
                               <p className="text-[10px] font-bold text-red-700/60 uppercase tracking-widest max-w-sm">
-                                 Esta acciÃƒÂ³n eliminarÃƒÂ¡ de forma permanente todos los pedidos e historial de ventas de la base de datos. No se puede deshacer.
+                                 Esta acciÃÂ³n eliminarÃ¡ de forma permanente todos los pedidos e historial de ventas de la base de datos. No se puede deshacer.
                               </p>
                            </div>
                         </div>
                         
                         <button 
                            onClick={() => {
-                              if (confirm("Ã°Å¸Å¡Â¨ ATENCIÃƒâ€œN: Esta acciÃƒÂ³n borrarÃƒÂ¡ TODO el historial de ventas y pedidos. Ã‚Â¿EstÃƒÂ¡s absolutamente seguro?")) {
+                              if (confirm("Ã°ÂÂÂ¨ ATENCIÃÂN: Esta acciÃÂ³n borrarÃ¡ TODO el historial de ventas y pedidos. Ã¿EstÃ¡s absolutamente seguro?")) {
                                  requireAdminAuth(async () => {
                                     const success = await resetSystem();
                                     if (success) {
-                                       alert("Sistema reiniciado con ÃƒÂ©xito. Todos los datos han sido borrados.");
+                                       alert("Sistema reiniciado con ÃÂ©xito. Todos los datos han sido borrados.");
                                        window.location.reload();
                                     }
                                  });
@@ -1438,8 +1438,8 @@ const AdminPanel = () => {
                   </div>
                   
                   <div className="space-y-2">
-                     <label className="text-[10px] font-black uppercase text-slate-400 ml-2">DescripciÃƒÂ³n</label>
-                     <textarea placeholder="DescripciÃƒÂ³n..." value={isEditingProduct ? editingProduct.description : newProduct.description} onChange={e => isEditingProduct ? setEditingProduct({...editingProduct, description: e.target.value}) : setNewProduct({...newProduct, description: e.target.value})} className="w-full bg-slate-50 p-5 rounded-2xl font-bold h-24 border border-slate-100" />
+                     <label className="text-[10px] font-black uppercase text-slate-400 ml-2">DescripciÃÂ³n</label>
+                     <textarea placeholder="DescripciÃÂ³n..." value={isEditingProduct ? editingProduct.description : newProduct.description} onChange={e => isEditingProduct ? setEditingProduct({...editingProduct, description: e.target.value}) : setNewProduct({...newProduct, description: e.target.value})} className="w-full bg-slate-50 p-5 rounded-2xl font-bold h-24 border border-slate-100" />
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
@@ -1455,15 +1455,15 @@ const AdminPanel = () => {
 
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                       <label className="text-[10px] font-black uppercase text-slate-400 ml-2">CategorÃƒÂ­a</label>
+                       <label className="text-[10px] font-black uppercase text-slate-400 ml-2">CategorÃÂ­a</label>
                        <select value={isEditingProduct ? editingProduct.category : newProduct.category} onChange={e => isEditingProduct ? setEditingProduct({...editingProduct, category: e.target.value}) : setNewProduct({...newProduct, category: e.target.value})} className="w-full bg-slate-50 p-5 rounded-2xl font-bold border border-slate-100">
                           <option>Burgers</option><option>Complementos</option><option>Bebidas</option><option>Postres</option>
                        </select>
                     </div>
                     <div className="space-y-2">
-                       <label className="text-[10px] font-black uppercase text-slate-400 ml-2">EstaciÃƒÂ³n</label>
+                       <label className="text-[10px] font-black uppercase text-slate-400 ml-2">EstaciÃÂ³n</label>
                        <select value={isEditingProduct ? editingProduct.station : newProduct.station} onChange={e => isEditingProduct ? setEditingProduct({...editingProduct, station: e.target.value}) : setNewProduct({...newProduct, station: e.target.value})} className="w-full bg-slate-50 p-5 rounded-2xl font-black uppercase text-[10px] border border-slate-100">
-                           <option value="COMIDA RAPIDA">Comida RÃƒÂ¡pida</option>
+                           <option value="COMIDA RAPIDA">Comida RÃ¡pida</option>
                            <option value="BAR">Bar / Bebidas</option>
                            <option value="DULCES/POSTRES">Postres / Dulces</option>
                         </select>
@@ -1533,10 +1533,10 @@ const AdminPanel = () => {
                   </div>
                   {userData.role === 'vendedor' && (
                     <div className="space-y-2">
-                      <label className="text-xs font-black uppercase text-slate-400 ml-2 italic">EstaciÃƒÂ³n</label>
+                      <label className="text-xs font-black uppercase text-slate-400 ml-2 italic">EstaciÃÂ³n</label>
                       <select value={userData.station} onChange={e => setUserData({...userData, station: e.target.value})} className="w-full bg-slate-50 p-5 rounded-2xl font-black uppercase text-[10px]">
                          <option value="BAR">Bar</option>
-                         <option value="COMIDA RAPIDA">Comida RÃƒÂ¡pida</option>
+                         <option value="COMIDA RAPIDA">Comida RÃ¡pida</option>
                          <option value="DULCES/POSTRES">Postres / Dulces</option>
                          <option value="CAJA">Caja</option>
                       </select>
@@ -1557,8 +1557,8 @@ const AdminPanel = () => {
               <div className="w-16 h-16 bg-slate-100 rounded-3xl flex items-center justify-center mx-auto mb-6 text-slate-400">
                 <Shield size={32} />
               </div>
-              <h2 className="text-2xl font-black uppercase italic tracking-tighter mb-2">AutorizaciÃƒÂ³n Admin</h2>
-              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-8">Esta acciÃƒÂ³n requiere la clave del administrador</p>
+              <h2 className="text-2xl font-black uppercase italic tracking-tighter mb-2">AutorizaciÃÂ³n Admin</h2>
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-8">Esta acciÃÂ³n requiere la clave del administrador</p>
               
               <form onSubmit={handleAuthSubmit} className="space-y-6">
                 <input 
