@@ -175,12 +175,19 @@ const SellerPOS = () => {
   }, [paymentOrder, paymentStation]);
 
   const handleFinalizePayment = () => {
-    const received = Number(amountReceived) || amountToPay;
+    const received = Number(amountReceived) || 0;
+    const isInsufficient = paymentMethod === 'cash' && received < amountToPay;
+
+    if (isInsufficient) {
+      alert(`¡Casi listo! El monto es insuficiente. Faltan $${(amountToPay - received).toFixed(2)}.`);
+      return;
+    }
+
     const currentStatus = paymentOrder.station_statuses?.[paymentStation] || 'received';
     updateStationStatus(paymentOrder.id, paymentStation, currentStatus, {
       method: paymentMethod,
-      received: received,
-      change: received - amountToPay,
+      received: received || amountToPay,
+      change: (received || amountToPay) - amountToPay,
       timestamp: new Date().toISOString()
     });
     setPaymentSuccess(true);
@@ -780,15 +787,20 @@ const SellerPOS = () => {
                                 <input type="number" value={amountReceived} onChange={e => setAmountReceived(e.target.value)} className="w-full bg-slate-950 p-6 rounded-3xl text-center text-4xl font-black font-mono text-white shadow-inner outline-none border border-white/5 focus:border-emerald-500/50 transition-all" placeholder="0.00" autoFocus />
                             </div>
                             
-                            {amountReceived && Number(amountReceived) >= amountToPay && (
-                                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bg-emerald-500/10 p-6 rounded-3xl border border-emerald-500/20 text-center">
-                                  <p className="text-[10px] font-black text-emerald-500 uppercase tracking-widest mb-1">Cambio (Vuelta)</p>
-                                  <p className="text-4xl font-black font-mono text-emerald-400 tracking-tighter">${(Number(amountReceived) - amountToPay).toFixed(2)}</p>
+                             {amountReceived && Number(amountReceived) < amountToPay && (
+                                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bg-red-500/10 p-6 rounded-3xl border border-red-500/20 text-center">
+                                  <p className="text-[10px] font-black text-red-500 uppercase tracking-widest mb-1">Monto Insuficiente</p>
+                                  <p className="text-xl font-bold text-red-600 tracking-tighter">Faltan RD$ {(amountToPay - Number(amountReceived)).toFixed(2)}</p>
                                 </motion.div>
-                            )}
-                          </div>
-                      )}
-                      <button onClick={handleFinalizePayment} className="w-full bg-emerald-600 text-white py-6 rounded-[2.5rem] font-black text-xl hover:bg-emerald-500 transition-all shadow-2xl uppercase tracking-[0.2em]">Registrar Pago</button>
+                             )}
+                           </div>
+                       )}
+                       <button 
+                         onClick={handleFinalizePayment} 
+                         className={`w-full py-6 rounded-[2.5rem] font-black text-xl transition-all shadow-2xl uppercase tracking-[0.2em] ${amountReceived && Number(amountReceived) < amountToPay && paymentMethod === 'cash' ? 'bg-slate-400 cursor-not-allowed opacity-50' : 'bg-emerald-600 hover:bg-emerald-500 text-white'}`}
+                       >
+                         {amountReceived && Number(amountReceived) < amountToPay && paymentMethod === 'cash' ? 'Monto Insuficiente' : 'Registrar Pago'}
+                       </button>
                     </>
                   )}
                </motion.div>
