@@ -192,7 +192,7 @@ export const OrderProvider = ({ children }) => {
       customer_name: customerName,
       source,
       origin_station: currentUser?.station || source,
-      total_price: totalPrice,
+      total_price: Number(totalPrice),
       status: 'received',
       station_statuses: stationStatuses,
       is_paid: false,

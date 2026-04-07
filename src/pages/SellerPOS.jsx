@@ -57,7 +57,7 @@ const SellerPOS = () => {
   const [actualCash, setActualCash] = useState('');
   
   // Payment Modal States
-  const [paymentOrder, setPaymentOrder] = useState(null);
+  const [paymentOrderId, setPaymentOrderId] = useState(null);
   const [paymentStation, setPaymentStation] = useState(null);
   const [paymentMethod, setPaymentMethod] = useState('cash');
   const [amountReceived, setAmountReceived] = useState('');
@@ -117,7 +117,7 @@ const SellerPOS = () => {
     const order = await placeOrder(customerName.trim());
     if (order) {
       if (directPayment) {
-        setPaymentOrder(order);
+        setPaymentOrderId(order.id);
         setPaymentStation(currentUser.station || Object.keys(order.station_statuses || {})[0]);
         setPaymentSuccess(false);
       } else {
@@ -146,17 +146,22 @@ const SellerPOS = () => {
     setParkedCarts(prev => prev.filter(c => c.id !== parked.id));
   };
 
+  // Memoized current payment order from the active orders list
+  const paymentOrder = useMemo(() => {
+    if (!paymentOrderId) return null;
+    return orders.find(o => o.id === paymentOrderId);
+  }, [orders, paymentOrderId]);
+
   const amountToPay = useMemo(() => {
     if (!paymentOrder || !paymentStation) return 0;
     
-    const isCaja = paymentStation.toUpperCase() === 'CAJA';
+    const isCaja = paymentStation.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase() === 'CAJA';
     const items = paymentOrder.items || paymentOrder.order_items || [];
 
     if (isCaja) {
-      // If CAJA, always prioritize the order's total_price if it's > 0
-      if (Number(paymentOrder.total_price) > 0) return Number(paymentOrder.total_price);
-      // Fallback to summing items if total_price is missing/0
-      return items.reduce((sum, i) => sum + ((Number(i.price_at_time) || Number(i.price) || 0) * (Number(i.quantity) || 0)), 0);
+      // Prioritize calculating from items to ensure accuracy, then fallback to total_price
+      const itemsSum = items.reduce((sum, i) => sum + ((Number(i.price_at_time) || Number(i.price) || 0) * (Number(i.quantity) || 0)), 0);
+      return itemsSum > 0 ? itemsSum : (Number(paymentOrder.total_price) || 0);
     }
     
     // For specific stations, filter items
@@ -412,7 +417,7 @@ const SellerPOS = () => {
                             ) : (
                               <button 
                                  onClick={() => { 
-                                    setPaymentOrder(order); 
+                                    setPaymentOrderId(order.id); 
                                     const initialStation = currentUser.station || Object.keys(order.station_statuses || {})[0] || 'CAJA';
                                     setPaymentStation(initialStation.toUpperCase()); 
                                     setPaymentSuccess(false);
@@ -722,21 +727,21 @@ const SellerPOS = () => {
            </>
          )}
 
-         {paymentOrder && (
+         {paymentOrderId && (
            <>
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => { setPaymentOrder(null); setPaymentSuccess(false); }} className="fixed inset-0 bg-slate-950/90 backdrop-blur-md z-[200]" />
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => { setPaymentOrderId(null); setPaymentSuccess(false); }} className="fixed inset-0 bg-slate-950/90 backdrop-blur-md z-[200]" />
               <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md bg-slate-900 p-10 rounded-[4rem] shadow-2xl z-[201] border border-white/5">
                   <div className="flex justify-between items-center mb-10 leading-none">
                      <h2 className="text-4xl font-black uppercase italic tracking-tighter text-white">
                         {paymentSuccess ? 'Cobro Exitoso' : 'Procesar Cobro'}
                      </h2>
-                     <button onClick={() => { setPaymentOrder(null); setPaymentStation(null); setPaymentSuccess(false); }} className="p-4 bg-slate-800 rounded-[2rem] text-slate-400 hover:text-white transition-all"><X size={24} /></button>
+                     <button onClick={() => { setPaymentOrderId(null); setPaymentStation(null); setPaymentSuccess(false); }} className="p-4 bg-slate-800 rounded-[2rem] text-slate-400 hover:text-white transition-all"><X size={24} /></button>
                   </div>
 
                   {paymentSuccess ? (
                     <div className="space-y-8 animate-in fade-in zoom-in-95 duration-500">
                        <div className="max-h-[60vh] overflow-y-auto rounded-[3rem] no-scrollbar">
-                          <Receipt order={orders.find(o => o.id === paymentOrder.id)} station={paymentStation} />
+                          <Receipt order={orders.find(o => o.id === paymentOrderId)} station={paymentStation} />
                        </div>
                        <div className="grid grid-cols-2 gap-4">
                           <button 
@@ -746,7 +751,7 @@ const SellerPOS = () => {
                             <Printer size={24} /> Imprimir
                           </button>
                           <button 
-                            onClick={() => { setPaymentOrder(null); setPaymentStation(null); setPaymentSuccess(false); }}
+                            onClick={() => { setPaymentOrderId(null); setPaymentStation(null); setPaymentSuccess(false); }}
                             className="flex-grow bg-slate-800 text-slate-400 py-6 rounded-[2.5rem] font-black text-xl hover:bg-slate-700 transition-all uppercase tracking-[0.2em]"
                           >
                             Cerrar
