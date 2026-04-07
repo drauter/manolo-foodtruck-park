@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useOrder } from '../context/OrderContext';
 import { useNavigate } from 'react-router-dom';
-import { Shield, Coffee, Utensils, IceCream, Wallet } from 'lucide-react';
+import { Shield, Coffee, Utensils, IceCream, Wallet, Lock, Delete, ShoppingCart } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const LoginPage = () => {
