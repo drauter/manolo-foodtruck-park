@@ -103,8 +103,13 @@ export const OrderProvider = ({ children }) => {
     const ordersSubscription = supabase
       .channel('public:orders')
       .on('postgres_changes', { event: '*', table: 'orders' }, async () => {
-        const { data } = await supabase.from('orders').select('*, order_items(*, products(name, description))').order('timestamp', { ascending: false });
-        if (data) setOrders(data.map(o => ({ ...o, items: o.order_items })));
+        try {
+          const { data, error } = await supabase.from('orders').select('*, order_items(*, products(name, description))').order('timestamp', { ascending: false });
+          if (error) throw error;
+          if (data) setOrders(data.map(o => ({ ...o, items: o.order_items })));
+        } catch (err) {
+          console.error("SCHEMATA ERROR (ORDERS):", err.message);
+        }
       })
       .subscribe();
 
@@ -112,8 +117,13 @@ export const OrderProvider = ({ children }) => {
     const orderItemsSubscription = supabase
       .channel('public:order_items')
       .on('postgres_changes', { event: '*', table: 'order_items' }, async () => {
-        const { data } = await supabase.from('orders').select('*, order_items(*, products(name, description))').order('timestamp', { ascending: false });
-        if (data) setOrders(data.map(o => ({ ...o, items: o.order_items })));
+        try {
+          const { data, error } = await supabase.from('orders').select('*, order_items(*, products(name, description))').order('timestamp', { ascending: false });
+          if (error) throw error;
+          if (data) setOrders(data.map(o => ({ ...o, items: o.order_items })));
+        } catch (err) {
+          console.error("SCHEMATA ERROR (ITEMS):", err.message);
+        }
       })
       .subscribe();
 
