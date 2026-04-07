@@ -58,6 +58,7 @@ const ClientMenu = () => {
   const total = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
   const menuStations = ['COMIDA RAPIDA', 'BAR', 'DULCES/POSTRES'];
   const [activeStation, setActiveStation] = useState('COMIDA RAPIDA');
+  const [activeCategory, setActiveCategory] = useState('Todos');
 
   const handlePlaceOrder = async () => {
     if (!customerName.trim()) {
@@ -110,33 +111,36 @@ const ClientMenu = () => {
              </div>
           </div>
           
-          <div className="flex gap-3">
-              <button onClick={() => setIsCartOpen(true)} className="relative p-4 bg-slate-900 rounded-2xl border border-white/5 hover:bg-slate-800 transition-all shadow-lg">
-                <ShoppingCart size={20} className="text-slate-300" />
-                {cart.length > 0 && <span className="absolute -top-1 -right-1 bg-emerald-500 text-white text-[10px] font-black w-6 h-6 flex items-center justify-center rounded-full border-4 border-slate-950 shadow-lg">{cart.length}</span>}
+          <nav className="flex gap-4 overflow-x-auto pb-4 custom-scrollbar w-full md:w-auto mt-6 md:mt-0">
+            {menuStations.map(station => (
+              <button 
+                key={station} 
+                onClick={() => {
+                  setActiveStation(station);
+                  setActiveCategory('Todos');
+                }} 
+                className={`px-8 py-5 rounded-[2rem] font-black uppercase text-[10px] tracking-widest transition-all whitespace-nowrap border-2 ${activeStation === station ? 'bg-emerald-600 border-emerald-500 text-white shadow-[0_0_20px_rgba(16,185,129,0.3)] scale-105' : 'bg-slate-900 border-slate-800 text-slate-400 hover:border-slate-700'}`}
+              >
+                {station === 'COMIDA RAPIDA' ? 'COCINA' : station}
               </button>
-          </div>
+            ))}
+          </nav>
         </div>
 
-        {/* Tab Navigation - Separate Sheets */}
-        <div className="max-w-5xl mx-auto mt-8 flex bg-slate-900/50 p-1.5 rounded-[2rem] border border-white/5 overflow-x-auto no-scrollbar">
-          {menuStations.map(station => (
-            <button
-              key={station}
-              onClick={() => setActiveStation(station)}
-              className={`flex-grow px-6 py-4 rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest transition-all relative overflow-hidden whitespace-nowrap ${activeStation === station ? 'text-white' : 'text-slate-500 hover:text-slate-300'}`}
-            >
-              <span className="relative z-10">{station === 'COMIDA RAPIDA' ? 'COMIDA RAPIDA' : station}</span>
-              {activeStation === station && (
-                <motion.div 
-                  layoutId="activeSheet" 
-                  className="absolute inset-0 bg-emerald-600 shadow-lg shadow-emerald-900/20"
-                  transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-                />
-              )}
-            </button>
-          ))}
-        </div>
+        {/* Sub-Tabs for BAR */}
+        {activeStation === 'BAR' && (
+          <div className="max-w-5xl mx-auto mt-8 flex gap-3 overflow-x-auto pb-2 scrollbar-hide px-6">
+            {['Todos', 'Botellas', 'Tragos'].map(cat => (
+              <button
+                key={cat}
+                onClick={() => setActiveCategory(cat)}
+                className={`px-8 py-3 rounded-full font-black uppercase text-[8px] tracking-[0.2em] transition-all border-2 ${activeCategory === cat ? 'bg-white text-slate-950 border-white shadow-xl' : 'bg-slate-900/50 text-slate-500 border-white/5 hover:border-white/20'}`}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+        )}
       </header>
 
       <main className="p-6 max-w-5xl mx-auto pt-10">
@@ -161,9 +165,17 @@ const ClientMenu = () => {
                     <div className="flex-grow h-px bg-gradient-to-r from-slate-800 to-transparent" />
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  {products.filter(p => p.station === activeStation).map(product => (
-                    <ProductItem key={product.id} product={product} addToCart={addToCart} />
-                  ))}
+                  {products
+                    .filter(p => {
+                      if (p.station !== activeStation) return false;
+                      if (activeStation === 'BAR' && activeCategory !== 'Todos') {
+                        return p.category === activeCategory;
+                      }
+                      return true;
+                    })
+                    .map(product => (
+                      <ProductItem key={product.id} product={product} addToCart={addToCart} />
+                    ))}
                 </div>
               </section>
             )}

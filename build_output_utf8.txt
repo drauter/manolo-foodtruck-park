@@ -1,0 +1,96 @@
+﻿
+> proyecto-foodtruck@0.0.0 build
+> vite build
+
+node.exe : [33mplugin-legacy 
+overrode 'build.target'. You should 
+pass 'targets' as an option to this 
+plugin with the list of legacy 
+browsers to support instead.[39m
+En C:\Program Files\nodejs\npm.ps1: 
+29 Carácter: 3
++   & $NODE_EXE $NPM_CLI_JS $args
++   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpe 
+   cified: ([33mplugin-leg...t ins  
+  tead.[39m:String) [], RemoteExc   
+ eption
+    + FullyQualifiedErrorId : Native 
+   CommandError
+ 
+[36mvite v6.0.11 [32mbuilding for production...[36m[39m
+transforming...
+[32mÔ£ô[39m 2204 modules transformed.
+Unknown output options: minify. 
+Allowed options: amd, 
+assetFileNames, banner, 
+chunkFileNames, compact, dir, 
+dynamicImportInCjs, entryFileNames, 
+esModule, experimentalMinChunkSize, 
+exports, extend, 
+externalImportAssertions, 
+externalImportAttributes, 
+externalLiveBindings, file, footer, 
+format, freeze, generatedCode, 
+globals, hashCharacters, 
+hoistTransitiveImports, 
+importAttributesKey, indent, 
+inlineDynamicImports, interop, 
+intro, manualChunks, 
+minifyInternalExports, name, 
+noConflict, 
+onlyExplicitManualChunks, outro, 
+paths, plugins, preserveModules, 
+preserveModulesRoot, 
+reexportProtoFromExternal, 
+sanitizeFileName, sourcemap, 
+sourcemapBaseUrl, sourcemapDebugIds, 
+sourcemapExcludeSources, 
+sourcemapFile, sourcemapFileNames, 
+sourcemapIgnoreList, 
+sourcemapPathTransform, strict, 
+systemNullSetters, validate, 
+virtualDirname
+rendering chunks...
+computing gzip size...
+[2mdist/[22m[32mregisterSW.js                        [39m[1m[2m    0.13 kB[22m[1m[22m
+[2mdist/[22m[32mmanifest.webmanifest                 [39m[1m[2m    0.47 kB[22m[1m[22m
+[2mdist/[22m[36massets/polyfills-legacy-qzYw76d9.js  [39m[1m[2m  180.37 kB[22m[1m[22m[2m Ôöé gzip:  66.15 kB[22m
+[2mdist/[22m[36massets/index-legacy-XCpQV1ol.js      [39m[1m[33m1,176.66 kB[39m[22m[2m Ôöé gzip: 322.23 kB[22m
+[33m
+(!) Some chunks are larger than 500 
+kB after minification. Consider:
+- Using dynamic import() to 
+code-split the application
+- Use build.rollupOptions.output.manu
+alChunks to improve chunking: https:/
+/rollupjs.org/configuration-options/#
+output-manualchunks
+- Adjust chunk size limit for this 
+warning via 
+build.chunkSizeWarningLimit.[39m
+[2mdist/[22m[32mregisterSW.js              [39m[1m[2m    0.13 kB[22m[1m[22m
+[33m
+(!) Some chunks are larger than 500 
+kB after minification. Consider:
+- Using dynamic import() to 
+code-split the application
+- Use build.rollupOptions.output.manu
+alChunks to improve chunking: https:/
+/rollupjs.org/configuration-options/#
+output-manualchunks
+- Adjust chunk size limit for this 
+warning via 
+build.chunkSizeWarningLimit.[39m
+[2mdist/[22m[32mmanifest.webmanifest       [39m[1m[2m    0.47 kB[22m[1m[22m
+[2mdist/[22m[32mindex.html                 [39m[1m[2m    2.29 kB[22m[1m[22m[2m Ôöé gzip:   1.03 kB[22m
+[2mdist/[22m[35massets/index-7IaFY7qY.css  [39m[1m[2m   78.74 kB[22m[1m[22m[2m Ôöé gzip:  12.16 kB[22m
+[2mdist/[22m[36massets/index-u338RN80.js   [39m[1m[33m1,025.36 kB[39m[22m[2m Ôöé gzip: 296.96 kB[22m
+[32mÔ£ô built in 43.94s[39m
+
+PWA v0.21.2
+mode      generateSW
+precache  7 entries (2406.78 KiB)
+files generated
+  dist/sw.js
+  dist/workbox-8c29f6e4.js

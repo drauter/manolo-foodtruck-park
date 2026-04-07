@@ -1,0 +1,55 @@
+﻿node.exe : npm error code ERESOLVE
+En C:\Program Files\nodejs\npm.ps1: 
+29 Carácter: 3
++   & $NODE_EXE $NPM_CLI_JS $args
++   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpe 
+   cified: (npm error code ERESOLVE  
+  :String) [], RemoteException
+    + FullyQualifiedErrorId : Native 
+   CommandError
+ 
+npm error ERESOLVE unable to resolve 
+dependency tree
+npm error
+npm error While resolving: 
+proyecto-foodtruck@0.0.0
+npm error Found: vite@8.0.7
+npm error node_modules/vite
+npm error   dev vite@"8.0.7" from 
+the root project
+npm error   peer vite@"*" from 
+@vitejs/devtools@0.1.13
+npm error   
+node_modules/@vitejs/devtools
+npm error     peerOptional 
+@vitejs/devtools@"^0.1.0" from 
+vite@8.0.7
+npm error
+npm error Could not resolve 
+dependency:
+npm error peer vite@"^6.0.0" from 
+@vitejs/plugin-legacy@6.1.1
+npm error 
+node_modules/@vitejs/plugin-legacy
+npm error   dev 
+@vitejs/plugin-legacy@"^6.0.1" from 
+the root project
+npm error
+npm error Fix the upstream 
+dependency conflict, or retry
+npm error this command with --force 
+or --legacy-peer-deps
+npm error to accept an incorrect 
+(and potentially broken) dependency 
+resolution.
+npm error
+npm error
+npm error For a full report see:
+npm error C:\Users\depor\AppData\Loca
+l\npm-cache\_logs\2026-04-07T22_21_34
+_661Z-eresolve-report.txt
+npm error A complete log of this run 
+can be found in: C:\Users\depor\AppDa
+ta\Local\npm-cache\_logs\2026-04-07T2
+2_21_34_661Z-debug-0.log

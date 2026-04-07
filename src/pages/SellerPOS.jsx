@@ -793,6 +793,13 @@ const SellerPOS = () => {
                                   <p className="text-xl font-bold text-red-600 tracking-tighter">Faltan RD$ {(amountToPay - Number(amountReceived)).toFixed(2)}</p>
                                 </motion.div>
                              )}
+
+                             {amountReceived && Number(amountReceived) >= amountToPay && paymentMethod === 'cash' && (
+                                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bg-emerald-500/10 p-6 rounded-3xl border border-emerald-500/20 text-center">
+                                  <p className="text-[10px] font-black text-emerald-500 uppercase tracking-widest mb-1">Cambio a Devolver</p>
+                                  <p className="text-3xl font-black text-emerald-400 font-mono tracking-tighter">RD$ {(Number(amountReceived) - amountToPay).toFixed(2)}</p>
+                                </motion.div>
+                             )}
                            </div>
                        )}
                        <button 
