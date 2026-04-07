@@ -60,9 +60,8 @@ const OrderTracking = () => {
             }
         }
     }
-  }, [order?.status, activeOrders, trackedOrderIds, navigate, order?.id, activeTabId]);
+  }, [order?.status, activeOrders, trackedOrderIds, navigate, order?.id, activeTabId, order]);
 
-  // Show loading state if orders are still fetching
   if (loadingOrders) {
     return (
       <div className="min-h-screen bg-slate-950 text-white flex flex-col items-center justify-center p-6 text-center">
@@ -100,7 +99,7 @@ const OrderTracking = () => {
   const stationIcons = {
     [STATIONS.BAR]: Coffee,
     [STATIONS.COMIDA_RAPIDA]: Utensils,
-    [STATIONS.DULCES_POSTRES]: IceCream
+    [STATIONS.POSTRES]: IceCream
   };
 
   const isReadyGlobal = displayOrder.status === 'ready' || displayOrder.status === 'delivered';

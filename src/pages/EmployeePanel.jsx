@@ -16,9 +16,9 @@ const EmployeePanel = () => {
   const stationConfig = {
     'bar': { label: STATIONS.BAR, display: 'BAR', color: 'text-blue-500', bg: 'bg-blue-500/10' },
     'comida-rapida': { label: STATIONS.COMIDA_RAPIDA, display: 'COMIDA RAPIDA', color: 'text-amber-500', bg: 'bg-amber-500/10' },
-    'dulces-postres': { label: STATIONS.DULCES_POSTRES, display: 'DULCES/POSTRES', color: 'text-pink-500', bg: 'bg-pink-500/10' },
+    'dulces-postres': { label: STATIONS.POSTRES, display: 'POSTRES', color: 'text-pink-500', bg: 'bg-pink-500/10' },
     'food': { label: STATIONS.COMIDA_RAPIDA, display: 'COMIDA RAPIDA', color: 'text-amber-500', bg: 'bg-amber-500/10' },
-    'sweets': { label: STATIONS.DULCES_POSTRES, display: 'DULCES/POSTRES', color: 'text-pink-500', bg: 'bg-pink-500/10' },
+    'sweets': { label: STATIONS.POSTRES, display: 'POSTRES', color: 'text-pink-500', bg: 'bg-pink-500/10' },
   };
 
   const currentStation = stationConfig[station?.toLowerCase()] || stationConfig['comida-rapida'];

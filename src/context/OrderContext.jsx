@@ -27,7 +27,7 @@ export const OrderProvider = ({ children }) => {
       return saved ? JSON.parse(saved) : {
         [STATIONS.BAR]: { name: 'Páramo Bar', autoPrint: true, paperWidth: '58mm', connection: 'web', autoDownload: false },
         [STATIONS.COMIDA_RAPIDA]: { name: 'Páramo Cocina', autoPrint: true, paperWidth: '58mm', connection: 'web', autoDownload: false },
-        [STATIONS.DULCES_POSTRES]: { name: 'Páramo Postres', autoPrint: true, paperWidth: '58mm', connection: 'web', autoDownload: false },
+        [STATIONS.POSTRES]: { name: 'Páramo Postres', autoPrint: true, paperWidth: '58mm', connection: 'web', autoDownload: false },
         [STATIONS.CAJA]: { name: 'Páramo Caja', autoPrint: true, paperWidth: '80mm', connection: 'web', autoDownload: false },
       };
     } catch { return {}; }

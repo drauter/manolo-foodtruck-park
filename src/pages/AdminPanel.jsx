@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useOrder } from '../context/OrderContext';
 import { 
   Plus, Edit2, Trash2, DollarSign, Package, TrendingUp, 
@@ -158,11 +158,6 @@ const AdminPanel = () => {
   }, 0);
   const totalProfit = totalSales - totalCost;
 
-  const stationPending = ['BAR', 'COMIDA RAPIDA', 'DULCES/POSTRES'].map(st => ({
-    name: st,
-    amount: orders.filter(o => o.status !== 'cancelled' && !o.is_paid && o.station_statuses?.[st] && o.station_statuses[st] !== 'delivered')
-      .reduce((sum, o) => sum + (o.items?.filter(i => i.station === st).reduce((s, i) => s + ((Number(i.price_at_time) || 0) * (Number(i.quantity) || 0)), 0) || 0), 0)
-  }));
 
   const lowStockProducts = products.filter(p => p.stock < 10);
 
@@ -495,7 +490,7 @@ const AdminPanel = () => {
                             </div>
                             <div className="font-black text-xl italic uppercase mb-4">{order.customer_name}</div>
                             <div className="space-y-2">
-                               {Object.entries(order.station_statuses).filter(([_unused_st, s]) => s !== 'delivered').map(([st, s]) => (
+                               {Object.entries(order.station_statuses).filter(([, s]) => s !== 'delivered').map(([st, s]) => (
                                  <button key={st} onClick={() => { setPaymentOrder(order); setPaymentStation(st); }} className={`w-full p-4 ${s === 'ready' ? 'bg-emerald-600' : 'bg-slate-900'} text-white rounded-2xl text-[10px] font-black uppercase hover:opacity-80 transition-all flex items-center justify-between`}>
                                     <div className="flex items-center gap-2">
                                        <span>Pagar {st}</span>
