@@ -162,11 +162,13 @@ const Receipt = ({ order, station = STATIONS.CAJA }) => {
         {/* QR Tracking Section */}
         <div className="mt-8 mb-4 flex flex-col items-center">
             <div className="p-2 bg-white border-2 border-slate-900 rounded-2xl mb-2">
-               <img 
-                 src={`https://chart.googleapis.com/chart?chs=150x150&cht=qr&chl=${encodeURIComponent(`https://manolofoodtruckpark.pages.dev/tracking/${order.id}`)}&choe=UTF-8`} 
-                 alt="QR Seguimiento"
-                 className="w-24 h-24 print:w-20 print:h-20"
-               />
+                <img 
+                  src={`https://quickchart.io/qr?text=${encodeURIComponent(`https://manolofoodtruckpark.pages.dev/tracking/${order.id}`)}&size=200&margin=1&ecLevel=M`} 
+                  alt="Seguimiento"
+                  decoding="async"
+                  loading="eager"
+                  className="w-24 h-24 print:w-20 print:h-20"
+                />
             </div>
             <p className="text-[10px] font-black uppercase tracking-tighter text-slate-900 text-center leading-tight max-w-[120px]">
                Escaneame para ver el estado de tu pedido
