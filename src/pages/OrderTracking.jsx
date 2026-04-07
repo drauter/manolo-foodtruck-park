@@ -3,7 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useOrder } from '../context/OrderContext';
 import { 
   Clock, CheckCircle2, Package, ChevronLeft, Coffee, Utensils, 
-  IceCream, Wallet, Loader2, CreditCard, XCircle, PackageCheck
+  IceCream, Wallet, Loader2, CreditCard, XCircle, PackageCheck, Receipt
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { STATIONS } from '../utils/constants';
