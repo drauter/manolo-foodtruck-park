@@ -14,7 +14,7 @@ export default defineConfig({
     }),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg'],
+      includeAssets: ['favicon.svg'],
       manifest: {
         name: 'Manolo Foodtruck Park',
         short_name: 'ManoloPark',
@@ -45,7 +45,7 @@ export default defineConfig({
     })
   ],
   build: {
-    target: 'es2015',
-    minify: 'terser', // Terser is sometimes safer for very old browsers than esbuild
+    target: 'esnext',
+    minify: 'esbuild',
   }
 })
