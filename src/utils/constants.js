@@ -22,10 +22,15 @@ export const STATION_COLORS = {
 export const getStationDisplay = (st, order = null) => {
   if (!st || st === 'TODAS') return st;
   
-  if (st === STATIONS.CAJA && order) {
-    const stations = [...new Set((order.items || []).map(i => i.station).filter(Boolean))];
-    if (stations.length === 0) return 'CAJA';
+  const isCaja = st.toUpperCase() === 'CAJA';
+
+  if (isCaja && order) {
+    const items = order.items || order.order_items || [];
+    const stations = [...new Set(items.map(i => i.station).filter(Boolean))];
+    
+    if (stations.length === 0) return order.origin_station || 'CAJA';
     if (stations.length === 1) return stations[0];
+    
     const last = stations.pop();
     return `${stations.join(', ')} y ${last}`;
   }

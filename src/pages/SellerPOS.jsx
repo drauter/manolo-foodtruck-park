@@ -148,15 +148,25 @@ const SellerPOS = () => {
 
   const amountToPay = useMemo(() => {
     if (!paymentOrder || !paymentStation) return 0;
-    if (paymentStation === 'CAJA') return Number(paymentOrder.total_price || (paymentOrder.items || []).reduce((sum, i) => sum + ((Number(i.price) || Number(i.price_at_time) || 0) * (Number(i.quantity) || 0)), 0)) || 0;
     
+    const isCaja = paymentStation.toUpperCase() === 'CAJA';
+    const items = paymentOrder.items || paymentOrder.order_items || [];
+
+    if (isCaja) {
+      // If CAJA, always prioritize the order's total_price if it's > 0
+      if (Number(paymentOrder.total_price) > 0) return Number(paymentOrder.total_price);
+      // Fallback to summing items if total_price is missing/0
+      return items.reduce((sum, i) => sum + ((Number(i.price_at_time) || Number(i.price) || 0) * (Number(i.quantity) || 0)), 0);
+    }
+    
+    // For specific stations, filter items
     const normalizedStation = paymentStation.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase();
-    return (paymentOrder.items || [])
+    return items
       .filter(i => {
         const itemStation = i.station?.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase();
         return itemStation === normalizedStation;
       })
-      .reduce((sum, i) => sum + ((Number(i.price_at_time) || 0) * (Number(i.quantity) || 0)), 0);
+      .reduce((sum, i) => sum + ((Number(i.price_at_time) || Number(i.price) || 0) * (Number(i.quantity) || 0)), 0);
   }, [paymentOrder, paymentStation]);
 
   const handleFinalizePayment = () => {
@@ -403,7 +413,8 @@ const SellerPOS = () => {
                               <button 
                                  onClick={() => { 
                                     setPaymentOrder(order); 
-                                    setPaymentStation(currentUser.station || Object.keys(order.station_statuses || {})[0]); 
+                                    const initialStation = currentUser.station || Object.keys(order.station_statuses || {})[0] || 'CAJA';
+                                    setPaymentStation(initialStation.toUpperCase()); 
                                     setPaymentSuccess(false);
                                  }}
                                  className="flex-grow py-5 bg-emerald-600 text-white rounded-[2rem] font-black text-xs uppercase tracking-widest shadow-xl shadow-emerald-500/20 hover:bg-emerald-500 transition-all flex items-center justify-center gap-3"
@@ -457,7 +468,7 @@ const SellerPOS = () => {
                           </div>
 
                           <div className="bg-slate-50 p-6 rounded-3xl space-y-3">
-                             {Object.entries(order.station_statuses || {}).filter(([_, s]) => s === 'ready').map(([station, _]) => (
+                             {Object.entries(order.station_statuses || {}).filter(([, s]) => s === 'ready').map(([station]) => (
                                <div key={station} className="flex justify-between items-center">
                                   <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">{station}</span>
                                   <span className="text-[10px] font-black text-emerald-500 uppercase italic">¡LISTO!</span>

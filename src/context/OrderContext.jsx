@@ -108,7 +108,16 @@ export const OrderProvider = ({ children }) => {
       })
       .subscribe();
 
-    // 3. Real-time Subscription for Products
+    // 3. Real-time Subscription for Order Items (Important for full order loading)
+    const orderItemsSubscription = supabase
+      .channel('public:order_items')
+      .on('postgres_changes', { event: '*', table: 'order_items' }, async () => {
+        const { data } = await supabase.from('orders').select('*, order_items(*, products(name, description))').order('timestamp', { ascending: false });
+        if (data) setOrders(data.map(o => ({ ...o, items: o.order_items })));
+      })
+      .subscribe();
+
+    // 4. Real-time Subscription for Products
     const productsSubscription = supabase
       .channel('public:products')
       .on('postgres_changes', { event: '*', table: 'products' }, async () => {
@@ -119,6 +128,7 @@ export const OrderProvider = ({ children }) => {
 
     return () => {
       supabase.removeChannel(ordersSubscription);
+      supabase.removeChannel(orderItemsSubscription);
       supabase.removeChannel(productsSubscription);
     };
   }, []);
@@ -649,7 +659,7 @@ export const OrderProvider = ({ children }) => {
     };
     
     speak(message);
-  }, [selectedVoice, voices]);
+  }, [selectedVoice]);
 
   const announceOrder = React.useCallback((order, stationKey, manual = false) => {
     const announcementKey = `${order.id}-${stationKey}-ready`;
@@ -661,8 +671,8 @@ export const OrderProvider = ({ children }) => {
     
     // Get unique ready stations if stationKey is not fixed
     const stations = [...new Set(Object.entries(order.station_statuses || {})
-      .filter(([_, s]) => s === 'ready')
-      .map(([st, _]) => st))];
+      .filter(([, s]) => s === 'ready')
+      .map(([st]) => st))];
       
     let stationText = stationKey;
     if (stations.length > 0) {
@@ -729,7 +739,7 @@ export const OrderProvider = ({ children }) => {
       
       if (error || !data) return false;
       return true;
-    } catch (err) {
+    } catch {
       return false;
     }
   };
