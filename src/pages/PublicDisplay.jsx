@@ -4,7 +4,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Coffee, Utensils, IceCream, Clock, CheckCircle, LogOut } from 'lucide-react';
 import { STATIONS, STATION_LABELS } from '../utils/constants';
 
-const StationColumn = ({ label, icon: Icon, color, orders, stationKey }) => {
+const StationColumn = ({ label, icon: IconComponent, color, orders, stationKey }) => {
+  if (!IconComponent) return null;
   // Filter orders that have items for this specific station
   const stationOrders = (orders || []).filter(o => o.status !== 'cancelled' && (o.items || []).some(i => i.station === stationKey));
   
@@ -16,7 +17,7 @@ const StationColumn = ({ label, icon: Icon, color, orders, stationKey }) => {
       <div className={`p-3 sm:p-4 rounded-[1.5rem] bg-slate-900 border-2 border-slate-800 flex items-center justify-between shadow-xl`}>
          <div className="flex items-center gap-3">
             <div className={`p-2 rounded-xl bg-${color}-500/10 text-${color}-500 border border-${color}-500/20`}>
-               <Icon size={20} />
+               <IconComponent size={20} />
             </div>
             <h2 className="text-lg font-black uppercase tracking-tighter italic">{label}</h2>
          </div>
