@@ -618,6 +618,14 @@ export const OrderProvider = ({ children }) => {
     isSpeaking.current = true;
     const { message, key, manual } = announcementQueue.current.shift();
     
+    // RESTRICTION: Only the '/display' route should play automatic voice messages
+    const isDisplayRoute = window.location.pathname === '/display';
+    if (!manual && !isDisplayRoute) {
+      isSpeaking.current = false;
+      setTimeout(processQueue, 100);
+      return;
+    }
+    
     // Cross-tab lock check (Only for automatic announcements)
     if (!manual) {
       const now = Date.now();
