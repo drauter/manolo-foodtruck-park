@@ -1,11 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useOrder } from '../context/OrderContext';
 import {
    Plus, Edit2, Trash2, DollarSign, Package, TrendingUp,
    AlertCircle, ArrowUpRight, ArrowDownRight,
    Layers, X, Save, LogOut, Users, FileText, Filter, CheckCircle2, CheckCircle,
-   ShoppingCart, Wallet, Banknote, CreditCard, Landmark, Search, ChevronRight, Printer, RotateCcw, Settings, Volume2, Coffee
+   ShoppingCart, Wallet, Banknote, CreditCard, Landmark, Search, ChevronRight, Printer, RotateCcw, Settings, Volume2, Coffee,
+   BarChart3, PieChart as PieIcon, LineChart as LineIcon, Calendar, Clock, Info, Shield
 } from 'lucide-react';
+import { 
+  AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  PieChart, Pie, Cell, BarChart, Bar, Legend
+} from 'recharts';
 import { STATIONS, STATION_LABELS, STATION_COLORS, getStationDisplay } from '../utils/constants';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -67,6 +72,7 @@ const AdminPanel = () => {
    const [selectedCheckoutStation, setSelectedCheckoutStation] = useState('TODAS');
    const [selectedCollectionsStation, setSelectedCollectionsStation] = useState('TODAS');
    const [salesFilter, setSalesFilter] = useState('Todos');
+   const [analyticsPeriod, setAnalyticsPeriod] = useState('7days'); // 'day', '7days', 'month'
 
    const [isEditingOrder, setIsEditingOrder] = useState(null);
 
@@ -158,6 +164,61 @@ const AdminPanel = () => {
    }, 0);
    const totalProfit = totalSales - totalCost;
 
+    // Advanced Analytics Calculations
+    const analyticsData = useMemo(() => {
+      const now = new Date();
+      const periods = {
+        day: 1,
+        '7days': 7,
+        month: 30
+      };
+      const days = periods[analyticsPeriod] || 7;
+
+      // 1. Sales Trend
+      const trendDays = [...Array(days)].map((_, i) => {
+        const d = new Date();
+        d.setDate(d.getDate() - (days - 1 - i));
+        return d.toLocaleDateString();
+      });
+
+      const trend = trendDays.map(date => {
+        const dayOrders = orders.filter(o => o.status !== 'cancelled' && new Date(o.timestamp).toLocaleDateString() === date);
+        const total = dayOrders.reduce((s, o) => s + (Number(o.total_price) || 0), 0);
+        return { name: date.split('/')[0] + '/' + date.split('/')[1], ventas: total };
+      });
+
+      // 2. Inventory Distribution (By Station)
+      const stationDist = Object.values(STATIONS).map(st => ({
+        name: STATION_LABELS[st] || st,
+        value: products.filter(p => p.station === st).reduce((acc, p) => acc + (Number(p.stock) * Number(p.price)), 0)
+      })).filter(s => s.value > 0);
+
+      // 3. Projections
+      // Average sales per day (based on selected period)
+      const periodStart = new Date();
+      periodStart.setDate(periodStart.getDate() - days);
+      const recentOrders = orders.filter(o => o.status !== 'cancelled' && new Date(o.timestamp) > periodStart);
+      
+      const productPerformance = products.map(p => {
+        const unitsSold = recentOrders.reduce((sum, o) => {
+          const item = o.items?.find(i => i.id === p.id);
+          return sum + (Number(item?.quantity) || 0);
+        }, 0);
+        
+        const avgDailySales = unitsSold / days;
+        const daysRemaining = avgDailySales > 0 ? Math.floor(Number(p.stock) / avgDailySales) : Infinity;
+        
+        return {
+          ...p,
+          avgDailySales,
+          daysRemaining,
+          potentialProfit: (Number(p.price) - Number(p.cost)) * Number(p.stock)
+        };
+      });
+
+      return { trend, stationDist, productPerformance };
+    }, [orders, products, analyticsPeriod]);
+
 
    const lowStockProducts = products.filter(p => p.stock < 10);
 
@@ -224,59 +285,72 @@ const AdminPanel = () => {
       else if (reportPeriod === 'Mes') startDate = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
 
       const filteredOrders = reportPeriod === 'Todo' ? orders : orders.filter(o => new Date(o.timestamp) >= startDate);
+       // 1. Analytics & Projections
+       const analyticsSummary = analyticsData.productPerformance.map(p => ({
+          Producto: p.name,
+          Estacion: p.station,
+          Stock: p.stock,
+          Ventas_Dia_Prom: p.avgDailySales.toFixed(2),
+          Dias_Restantes: p.daysRemaining === Infinity ? 'N/A' : p.daysRemaining,
+          Ganancia_Potencial: p.potentialProfit,
+          Inversion: Number(p.cost) * Number(p.stock)
+       }));
+       XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(analyticsSummary), "Analítica");
 
-      // 1. Web Sales
-      const salesData = filteredOrders.map(o => ({
-         Ticket: o.ticket_number,
-         Cliente: o.customer_name,
-         Fecha: new Date(o.timestamp).toLocaleString(),
-         Total: o.total_price,
-         Estado: o.status,
-         Pagado: o.is_paid ? 'SI' : 'NO'
-      }));
-      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(salesData), "Ventas");
+       // 2. Detailed Sales
+       const salesData = filteredOrders.map(o => ({
+          Ticket: o.ticket_number,
+          Cliente: o.customer_name,
+          Fecha: new Date(o.timestamp).toLocaleString(),
+          Total: o.total_price,
+          Estado: o.status,
+          Pagado: o.is_paid ? 'SI' : 'NO'
+       }));
+       XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(salesData), "Ventas");
 
-      // 2. Inventory by Station
-      const stations = ['BAR', 'COMIDA RAPIDA', 'DULCES/POSTRES'];
-      stations.forEach(station => {
-         const stationProducts = products.filter(p => p.station === station);
-         const invData = stationProducts.map(p => {
-            const price = Number(p.price) || 0;
-            const cost = Number(p.cost) || 0;
-            const stock = Number(p.stock) || 0;
-            return {
-               Nombre: p.name,
-               Precio: price,
-               Costo: cost,
-               Stock: stock,
-               Valor: price * stock,
-               Ganancia: (price - cost) * stock,
-               Estado: stock < 10 ? 'STOCK BAJO' : 'OK'
-            };
-         });
+       // 3. Inventory by Station
+       Object.values(STATIONS).filter(s => s !== 'CAJA').forEach(station => {
+          const stationProducts = products.filter(p => p.station === station);
+          const invData = stationProducts.map(p => {
+             const price = Number(p.price) || 0;
+             const cost = Number(p.cost) || 0;
+             const stock = Number(p.stock) || 0;
+             const performance = analyticsData.productPerformance.find(pp => pp.id === p.id);
+             return {
+                Nombre: p.name,
+                Precio: price,
+                Costo: cost,
+                Stock: stock,
+                Valor_Venta: price * stock,
+                Ganancia_Proyectada: (price - cost) * stock,
+                Proyeccion_Agotamiento: performance?.daysRemaining === Infinity ? 'Sin ventas' : `${performance?.daysRemaining} días`,
+                Estado: stock < 10 ? 'STOCK BAJO' : 'OK'
+             };
+          });
 
-         const totalValue = invData.reduce((sum, item) => sum + item.Valor, 0);
-         const totalProfit = invData.reduce((sum, item) => sum + item.Ganancia, 0);
-         invData.push({ Nombre: 'TOTAL ESTACION', Precio: '', Costo: '', Stock: '', Valor: totalValue, Ganancia: totalProfit, Estado: '' });
+          const totalValue = invData.reduce((sum, item) => sum + item.Valor_Venta, 0);
+          const totalProfit = invData.reduce((sum, item) => sum + item.Ganancia_Proyectada, 0);
+          invData.push({ Nombre: 'TOTAL ESTACION', Precio: '', Costo: '', Stock: '', Valor_Venta: totalValue, Ganancia_Proyectada: totalProfit, Estado: '' });
 
-         const wsInv = XLSX.utils.json_to_sheet(invData);
-         const sanitizedName = station.replace(/[:\\/?*[\]]/g, '_').substring(0, 31);
-         XLSX.utils.book_append_sheet(wb, wsInv, sanitizedName);
-      });
+          const wsInv = XLSX.utils.json_to_sheet(invData);
+          const sanitizedName = (STATION_LABELS[station] || station).replace(/[:\\/?*[\]]/g, '_').substring(0, 31);
+          XLSX.utils.book_append_sheet(wb, wsInv, sanitizedName);
+       });
 
-      // 3. Shifts
-      const shiftData = shifts.map(s => ({ 
-         Estación: s.station, 
-         Fecha: new Date(s.timestamp).toLocaleString(), 
-         Esperado: s.expected_cash || s.expected_sales, 
-         Real: s.actual_cash, 
-         Diferencia: s.difference,
-         Justificacion: s.note || '-',
-         Autorizado_Por: s.authorized_by || '-'
-      }));
-      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(shiftData), "Turnos");
+       // 4. Shifts
+       const shiftData = shifts.map(s => ({ 
+          Estación: s.station, 
+          Fecha: new Date(s.timestamp).toLocaleString(), 
+          Esperado: s.expected_cash || s.expected_sales, 
+          Real: s.actual_cash, 
+          Diferencia: s.difference,
+          Justificacion: s.note || '-',
+          Autorizado_Por: s.authorized_by || '-'
+       }));
+       XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(shiftData), "Turnos");
 
-      XLSX.writeFile(wb, `Reporte_Manolo_${reportPeriod}_${new Date().toISOString().split('T')[0]}.xlsx`);
+       XLSX.writeFile(wb, `Reporte_Avanzado_Manolo_${new Date().toISOString().split('T')[0]}.xlsx`);
+
    };
 
    const handleFinalizePayment = () => {
@@ -320,6 +394,7 @@ const AdminPanel = () => {
    const menuItems = [
       { id: 'dashboard', label: 'Ventas', icon: TrendingUp, roles: ['admin', 'contador'] },
       { id: 'pos', label: 'Ventas (POS)', icon: ShoppingCart, roles: ['admin'] },
+      { id: 'analytics', label: 'Analítica', icon: BarChart3, roles: ['admin', 'contador'] },
       { id: 'checkout', label: 'Entrega / Caja', icon: Package, roles: ['admin'] },
       { id: 'history', label: 'Historial / Fact.', icon: FileText, roles: ['admin', 'contador'] },
       { id: 'products', label: 'Catalogo', icon: Package, roles: ['admin', 'catalogo'] },
@@ -442,11 +517,11 @@ const AdminPanel = () => {
                            { label: 'Ganancia Neta', value: `$${totalProfit}`, icon: TrendingUp, color: 'text-blue-500' },
                            { label: 'Stock Bajo', value: lowStockProducts.length, icon: AlertCircle, color: 'text-amber-500' },
                         ].map((stat, i) => (
-                           <div key={i} className="bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
-                              <div className={`p-3 rounded-xl bg-slate-50 ${stat.color} w-fit`}><stat.icon size={20} /></div>
-                              <div className="mt-4">
-                                 <div className="text-slate-400 text-[10px] font-black uppercase tracking-widest">{stat.label}</div>
-                                 <div className="text-3xl font-black mt-1 text-slate-900">{stat.value}</div>
+                           <div key={i} className="bg-white p-4 sm:p-5 rounded-3xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
+                              <div className={`p-2 rounded-xl bg-slate-50 ${stat.color} w-fit`}><stat.icon size={18} /></div>
+                              <div className="mt-3">
+                                 <div className="text-slate-400 text-[8px] sm:text-[10px] font-black uppercase tracking-widest leading-none">{stat.label}</div>
+                                 <div className="text-xl sm:text-2xl font-black mt-1 text-slate-900 tracking-tighter">{stat.value}</div>
                               </div>
                            </div>
                         ))}
@@ -491,26 +566,21 @@ const AdminPanel = () => {
                               <div className="col-span-full py-10 text-center opacity-20 italic">No hay pedidos por cobrar</div>
                            ) : (
                               orders.filter(o => o.status !== 'cancelled' && o.station_statuses && Object.values(o.station_statuses).some(s => s !== 'delivered')).slice(0, 3).map(order => (
-                                 <div key={order.id} className="bg-slate-50 p-6 rounded-3xl border border-slate-100">
-                                    <div className="text-[10px] font-black text-slate-400 mb-1 flex justify-between">
+                                 <div key={order.id} className="bg-slate-50 p-4 sm:p-6 rounded-3xl border border-slate-100">
+                                    <div className="text-[9px] font-black text-slate-400 mb-1 flex justify-between uppercase">
                                        <span>TKT #{order.ticket_number}</span>
                                        {order.is_paid && <span className="text-emerald-500">PAGADO</span>}
                                     </div>
-                                    <div className="font-black text-xl italic uppercase mb-4">{order.customer_name}</div>
+                                    <h3 className="font-black text-lg sm:text-xl italic uppercase mb-4 text-slate-900 leading-none truncate">{order.customer_name}</h3>
                                     <div className="space-y-2">
-                                       {Object.entries(order.station_statuses).filter(([, s]) => s !== 'delivered').map(([st, s]) => (
-                                          <button key={st} onClick={() => { setPaymentOrder(order); setPaymentStation(st); }} className={`w-full p-4 ${s === 'ready' ? 'bg-emerald-600' : 'bg-slate-900'} text-white rounded-2xl text-[10px] font-black uppercase hover:opacity-80 transition-all flex items-center justify-between`}>
-                                             <div className="flex items-center gap-2">
-                                                <span>Pagar {st}</span>
-                                                {s === 'ready' && <div className="w-2 h-1 bg-white rounded-full animate-ping" />}
-                                             </div>
-                                             <div className="flex items-center gap-2">
-                                                <span className="opacity-40">{s === 'ready' ? 'LISTO' : 'COLA'}</span>
-                                                <Banknote size={16} />
-                                             </div>
-                                          </button>
+                                       {Object.entries(order.station_statuses || {}).map(([station, status]) => (
+                                          <div key={station} className="flex justify-between items-center bg-white/50 p-3 rounded-2xl border border-slate-100/50">
+                                             <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">{getStationDisplay(station)}</span>
+                                             <span className={`text-[8px] font-black uppercase px-2 py-0.5 rounded-full ${status === 'ready' ? 'bg-emerald-100 text-emerald-600' : 'bg-amber-100 text-amber-600'}`}>{status}</span>
+                                          </div>
                                        ))}
                                     </div>
+                                    <button onClick={() => { setPaymentOrder(order); setPaymentStation('CAJA'); }} className="w-full mt-4 py-3 bg-slate-900 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-emerald-600 transition-all shadow-lg">COBRAR AHORA</button>
                                  </div>
                               ))
                            )}
@@ -625,18 +695,18 @@ const AdminPanel = () => {
                                        <div className={`text-2xl font-black font-mono tracking-tighter ${order.status === 'cancelled' ? 'text-slate-400 line-through' : 'text-slate-900'}`}>${order.status === 'cancelled' ? '0' : order.total_price}</div>
                                     </div>
                                     <div className="grid grid-cols-4 sm:flex gap-2 w-full sm:w-auto">
-                                       <button onClick={() => setSelectedInvoice(order)} title="Imprimir" className="p-4 sm:p-3 bg-white text-slate-500 rounded-2xl hover:bg-slate-900 hover:text-white transition-all shadow-sm border border-slate-100 flex items-center justify-center"><Printer size={20} /></button>
-                                       <button onClick={() => setIsEditingOrder(order)} title="Editar" className="p-4 sm:p-3 bg-white text-slate-500 rounded-2xl hover:bg-blue-600 hover:text-white transition-all shadow-sm border border-slate-100 flex items-center justify-center"><Edit2 size={20} /></button>
+                                       <button onClick={() => setSelectedInvoice(order)} title="Imprimir" className="p-4 sm:p-3 bg-white text-slate-500 rounded-2xl hover:bg-slate-900 hover:text-white transition-all shadow-sm border border-slate-100 flex items-center justify-center min-h-[50px]"><Printer size={20} /></button>
+                                       <button onClick={() => setIsEditingOrder(order)} title="Editar" className="p-4 sm:p-3 bg-white text-slate-500 rounded-2xl hover:bg-blue-600 hover:text-white transition-all shadow-sm border border-slate-100 flex items-center justify-center min-h-[50px]"><Edit2 size={20} /></button>
                                        <button onClick={() => {
                                           requireAdminAuth(() => {
                                              if (confirm("¿Anular venta? Se devolverá el stock.")) cancelOrder(order.id);
                                           });
-                                       }} title="Anular" className="p-4 sm:p-3 bg-white text-slate-500 rounded-2xl hover:bg-amber-500 hover:text-white transition-all shadow-sm border border-slate-100 flex items-center justify-center"><RotateCcw size={20} /></button>
+                                       }} title="Anular" className="p-4 sm:p-3 bg-white text-slate-500 rounded-2xl hover:bg-amber-500 hover:text-white transition-all shadow-sm border border-slate-100 flex items-center justify-center min-h-[50px]"><RotateCcw size={20} /></button>
                                        <button onClick={() => {
                                           requireAdminAuth(() => {
                                              if (confirm("¿ELIMINAR DEFINITIVAMENTE? No se puede deshacer.")) deleteOrder(order.id);
                                           });
-                                       }} title="Eliminar" className="p-4 sm:p-3 bg-white text-slate-500 rounded-2xl hover:bg-red-500 hover:text-white transition-all shadow-sm border border-slate-100 flex items-center justify-center"><Trash2 size={20} /></button>
+                                       }} title="Eliminar" className="p-4 sm:p-3 bg-white text-slate-500 rounded-2xl hover:bg-red-500 hover:text-white transition-all shadow-sm border border-slate-100 flex items-center justify-center min-h-[50px]"><Trash2 size={20} /></button>
                                     </div>
                                  </div>
                               </div>
@@ -806,8 +876,8 @@ const AdminPanel = () => {
                            </div>
                         </div>
 
-                        <div className="overflow-hidden bg-slate-50 rounded-[3rem] border border-slate-100">
-                           <table className="w-full text-left border-collapse">
+                        <div className="overflow-x-auto bg-slate-50 rounded-[3rem] border border-slate-100 scrollbar-hide">
+                           <table className="w-full text-left border-collapse min-w-[800px]">
                               <thead>
                                  <tr className="bg-slate-950 text-white text-[10px] uppercase font-black tracking-widest">
                                     <th className="p-8 border-r border-white/5">Ticket</th>
@@ -964,6 +1034,171 @@ const AdminPanel = () => {
                   </motion.div>
                )}
 
+               {activeTab === 'analytics' && (
+                 <motion.div key="analytics" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8">
+                    {/* Period Selector */}
+                    <div className="flex justify-between items-center">
+                       <div className="flex bg-white p-1.5 rounded-2xl border border-slate-100 shadow-sm gap-2">
+                          {[
+                             { id: 'day', label: 'Día' },
+                             { id: '7days', label: '7 Días' },
+                             { id: 'month', label: 'Mes' }
+                          ].map(p => (
+                             <button key={p.id} onClick={() => setAnalyticsPeriod(p.id)} className={`px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${analyticsPeriod === p.id ? 'bg-slate-900 text-white shadow-lg' : 'text-slate-400 hover:bg-slate-50'}`}>{p.label}</button>
+                          ))}
+                       </div>
+                       <div className="hidden sm:flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                          <Clock size={14} /> Fecha reporte: {new Date().toLocaleDateString()}
+                       </div>
+                    </div>
+                    {/* Header Summary for Analytics */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+                       <div className="bg-slate-900 p-6 rounded-[2.5rem] border border-white/5 shadow-2xl relative overflow-hidden text-white group">
+                          <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/10 rounded-bl-[4rem]" />
+                          <TrendingUp className="text-emerald-400 mb-4" size={24} />
+                          <div className="text-[10px] font-black uppercase tracking-[0.2em] opacity-40">Ganancia Potencial</div>
+                          <div className="text-3xl font-black mt-1">$ {analyticsData.productPerformance.reduce((s, p) => s + p.potentialProfit, 0).toLocaleString()}</div>
+                       </div>
+                       <div className="bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-sm group">
+                          <Package className="text-slate-900 mb-4" size={24} />
+                          <div className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Inversión Total</div>
+                          <div className="text-3xl font-black mt-1 text-slate-900">$ {products.reduce((s, p) => s + (Number(p.cost) * Number(p.stock)), 0).toLocaleString()}</div>
+                       </div>
+                       <div className="bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-sm group">
+                          <PieIcon className="text-blue-500 mb-4" size={24} />
+                          <div className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Margen Promedio</div>
+                          <div className="text-3xl font-black mt-1 text-slate-900">
+                             {Math.round((analyticsData.productPerformance.reduce((s, p) => s + (p.potentialProfit || 0), 0) / products.reduce((s, p) => s + (Number(p.cost) * Number(p.stock) || 1), 0)) * 100)}%
+                          </div>
+                       </div>
+                       <div className="bg-amber-50 p-6 rounded-[2.5rem] border border-amber-100 shadow-sm group">
+                          <AlertCircle className="text-amber-600 mb-4" size={24} />
+                          <div className="text-[10px] font-black uppercase tracking-[0.2em] text-amber-600/60">Agotamiento Próximo</div>
+                          <div className="text-3xl font-black mt-1 text-amber-900">{analyticsData.productPerformance.filter(p => p.daysRemaining <= 3).length} Items</div>
+                       </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                       {/* Sales Trend Chart */}
+                       <div className="bg-white p-8 rounded-[3.5rem] border border-slate-100 shadow-sm">
+                          <div className="flex justify-between items-center mb-8">
+                             <div>
+                                <h3 className="text-xl font-black uppercase italic tracking-tighter">Tendencia de Ventas</h3>
+                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">
+                                   {analyticsPeriod === 'day' ? 'Hoy' : analyticsPeriod === '7days' ? 'Últimos 7 Días' : 'Últimos 30 Días'}
+                                </p>
+                             </div>
+                             <LineIcon className="text-slate-300" size={20} />
+                          </div>
+                          <div className="h-[300px] w-full">
+                             <ResponsiveContainer width="100%" height="100%">
+                                <AreaChart data={analyticsData.trend}>
+                                   <defs>
+                                      <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
+                                         <stop offset="5%" stopColor="#10b981" stopOpacity={0.1}/>
+                                         <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
+                                      </linearGradient>
+                                   </defs>
+                                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                                   <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fontSize: 10, fontWeight: 900}} />
+                                   <YAxis axisLine={false} tickLine={false} tick={{fontSize: 10, fontWeight: 900}} />
+                                   <Tooltip 
+                                      contentStyle={{ borderRadius: '24px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', padding: '16px' }}
+                                      itemStyle={{ fontWeight: 900, textTransform: 'uppercase', fontSize: '10px' }}
+                                   />
+                                   <Area type="monotone" dataKey="ventas" stroke="#10b981" strokeWidth={4} fillOpacity={1} fill="url(#colorSales)" />
+                                </AreaChart>
+                             </ResponsiveContainer>
+                          </div>
+                       </div>
+
+                       {/* Station Values Chart */}
+                       <div className="bg-white p-8 rounded-[3.5rem] border border-slate-100 shadow-sm">
+                          <div className="flex justify-between items-center mb-8">
+                             <div>
+                                <h3 className="text-xl font-black uppercase italic tracking-tighter">Valor por Almacén</h3>
+                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Potencial de Venta</p>
+                             </div>
+                             <PieIcon className="text-slate-300" size={20} />
+                          </div>
+                          <div className="h-[300px] w-full">
+                             <ResponsiveContainer width="100%" height="100%">
+                                <PieChart>
+                                   <Pie
+                                      data={analyticsData.stationDist}
+                                      cx="50%"
+                                      cy="50%"
+                                      innerRadius={60}
+                                      outerRadius={100}
+                                      paddingAngle={5}
+                                      dataKey="value"
+                                   >
+                                      {analyticsData.stationDist.map((entry, index) => (
+                                         <Cell key={`cell-${index}`} fill={['#10b981', '#3b82f6', '#f59e0b', '#8b5cf6'][index % 4]} rounded-2xl />
+                                      ))}
+                                   </Pie>
+                                   <Tooltip />
+                                   <Legend layout="vertical" align="right" verticalAlign="middle" wrapperStyle={{ fontWeight: 900, fontSize: '10px', textTransform: 'uppercase' }} />
+                                </PieChart>
+                             </ResponsiveContainer>
+                          </div>
+                       </div>
+                    </div>
+
+                    {/* Projections Table */}
+                    <div className="bg-slate-900 rounded-[3.5rem] p-10 overflow-hidden shadow-2xl">
+                       <div className="flex justify-between items-center mb-10">
+                          <div>
+                             <h3 className="text-2xl font-black italic uppercase text-white tracking-tighter">Proyecciones de Inventario</h3>
+                             <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">Basado en consumo de los últimos 7 días</p>
+                          </div>
+                          <Calendar className="text-white opacity-20" size={32} />
+                       </div>
+                       <div className="overflow-x-auto scrollbar-hide">
+                          <table className="w-full text-left border-separate border-spacing-y-4">
+                             <thead>
+                                <tr className="text-[10px] font-black text-slate-500 uppercase tracking-widest leading-none">
+                                   <th className="px-6 pb-2">Producto</th>
+                                   <th className="px-6 pb-2">Stock Actual</th>
+                                   <th className="px-6 pb-2">Ventas/Día</th>
+                                   <th className="px-6 pb-2">Proyección</th>
+                                   <th className="px-6 pb-2 text-right">Potencial RD$</th>
+                                </tr>
+                             </thead>
+                             <tbody>
+                                {analyticsData.productPerformance.sort((a,b) => a.daysRemaining - b.daysRemaining).slice(0, 8).map(p => (
+                                   <tr key={p.id} className="bg-white/5 rounded-3xl group hover:bg-white/10 transition-all">
+                                      <td className="px-6 py-5 rounded-l-3xl">
+                                         <div className="flex items-center gap-3">
+                                            <img src={p.image_url} className="w-10 h-10 rounded-xl object-cover" />
+                                            <div>
+                                               <div className="text-sm font-black text-white uppercase truncate max-w-[150px]">{p.name}</div>
+                                               <div className="text-[8px] font-black text-slate-500 uppercase italic">{p.station}</div>
+                                            </div>
+                                         </div>
+                                      </td>
+                                      <td className="px-6 py-5">
+                                         <div className={`text-sm font-black ${Number(p.stock) < 10 ? 'text-amber-400' : 'text-slate-300'}`}>{p.stock} <span className="text-[8px] opacity-30">UNDS</span></div>
+                                      </td>
+                                      <td className="px-6 py-5">
+                                         <div className="text-xs font-black text-slate-400">{p.avgDailySales.toFixed(1)} <span className="text-[8px] opacity-30">P/D</span></div>
+                                      </td>
+                                      <td className="px-6 py-5">
+                                         <div className={`px-3 py-1 rounded-full text-[8px] font-black uppercase inline-block ${p.daysRemaining === Infinity ? 'bg-slate-800 text-slate-500' : p.daysRemaining <= 3 ? 'bg-red-500 text-white animate-pulse' : 'bg-emerald-500/10 text-emerald-500'}`}>
+                                            {p.daysRemaining === Infinity ? 'Sin Ventas' : `Agt. en ${p.daysRemaining} días`}
+                                         </div>
+                                      </td>
+                                      <td className="px-6 py-5 text-right rounded-r-3xl">
+                                         <div className="text-lg font-black font-mono text-white tracking-tighter">$ {p.potentialProfit.toLocaleString()}</div>
+                                      </td>
+                                   </tr>
+                                ))}
+                             </tbody>
+                          </table>
+                       </div>
+                    </div>
+                 </motion.div>
+               )}
                {activeTab === 'inventory' && (
                   <motion.div key="inventory" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
                      <div className="bg-white p-6 sm:p-10 rounded-[3rem] border border-slate-100 shadow-sm">
