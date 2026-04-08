@@ -197,7 +197,7 @@ const SellerPOS = () => {
     setAmountReceived('');
   };
 
-  const handleCloseShift = (e) => {
+  const handleCloseShift = async (e) => {
     if (e) e.preventDefault();
     const totals = getShiftTotals(currentUser.station);
     const difference = Number(actualCash) - totals.cash;
@@ -208,7 +208,7 @@ const SellerPOS = () => {
       return;
     }
 
-    closeShift(currentUser.station, actualCash, shiftNote, authorizedBy);
+    await closeShift(currentUser.station, actualCash, shiftNote, authorizedBy);
     logout();
     navigate('/');
   };

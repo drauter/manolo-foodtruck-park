@@ -3,8 +3,8 @@ import { useOrder } from '../context/OrderContext';
 import {
    Plus, Edit2, Trash2, DollarSign, Package, TrendingUp,
    AlertCircle, ArrowUpRight, ArrowDownRight,
-   Layers, X, Save, LogOut, Users, FileText, Filter, CheckCircle2, CheckCircle,
-   ShoppingCart, Wallet, Banknote, CreditCard, Landmark, Search, ChevronRight, Printer, RotateCcw, Settings, Volume2, Shield, Coffee, Utensils, IceCream
+   X, Save, LogOut, Users, FileText, Filter, CheckCircle2, CheckCircle,
+   ShoppingCart, Wallet, Banknote, CreditCard, Landmark, Search, ChevronRight, Printer, RotateCcw, Settings, Volume2
 } from 'lucide-react';
 import { STATIONS, STATION_LABELS, STATION_COLORS, getStationDisplay } from '../utils/constants';
 import { useNavigate } from 'react-router-dom';

@@ -41,48 +41,52 @@ export const OrderProvider = ({ children }) => {
   const announcedOrdersRef = React.useRef(new Set());
 
   // 1. Initial Data Fetching from Supabase
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        // Fetch Products
-        const { data: productsData, error: prodError } = await supabase.from('products').select('*');
-        if (productsData) setProducts(productsData);
-        if (prodError) throw prodError;
+  const refreshData = async () => {
+    setLoadingOrders(true);
+    try {
+      // Fetch Products
+      const { data: productsData, error: prodError } = await supabase.from('products').select('*');
+      if (productsData) setProducts(productsData);
+      if (prodError) throw prodError;
 
-        // Fetch Users (Safe columns only)
-        const { data: usersData, error: userError } = await supabase.from('users').select('id, name, role, station');
-        if (usersData) {
-          setUsers(usersData);
-          localStorage.setItem('foodtruck_system_users', JSON.stringify(usersData));
-        }
-        if (userError) throw userError;
-
-        // Fetch Orders
-        const { data: ordersData, error: orderError } = await supabase.from('orders').select('*, order_items(*, products(name, description))').order('timestamp', { ascending: false });
-        if (ordersData) setOrders(ordersData.map(o => ({ ...o, items: o.order_items })));
-        if (orderError) throw orderError;
-
-        setConnectionError(false);
-      } catch (err) {
-        console.error('FETCH DATA ERROR:', err);
-        setConnectionError(true);
-      } finally {
-        setLoadingOrders(false);
+      // Fetch Users (Safe columns only)
+      const { data: usersData, error: userError } = await supabase.from('users').select('id, name, role, station');
+      if (usersData) {
+        setUsers(usersData);
+        localStorage.setItem('foodtruck_system_users', JSON.stringify(usersData));
       }
-    };
+      if (userError) throw userError;
 
-    fetchData();
+      // Fetch Orders
+      const { data: ordersData, error: orderError } = await supabase.from('orders').select('*, order_items(*, products(name, description))').order('timestamp', { ascending: false });
+      if (ordersData) setOrders(ordersData.map(o => ({ ...o, items: o.order_items })));
+      if (orderError) throw orderError;
+
+      // Fetch Shifts
+      const { data: shiftsData, error: shiftsError } = await supabase.from('shifts').select('*').order('timestamp', { ascending: false });
+      if (shiftsData) setShifts(shiftsData);
+      if (shiftsError) throw shiftsError;
+
+      setConnectionError(false);
+    } catch (err) {
+      console.error('REFRESH DATA ERROR:', err);
+      setConnectionError(true);
+    } finally {
+      setLoadingOrders(false);
+    }
+  };
+
+  useEffect(() => {
+    refreshData();
 
     // Load Voices
     const loadVoices = () => {
       const v = window.speechSynthesis.getVoices();
       if (v.length > 0) {
-        console.log('Voices loaded:', v.length);
         setVoices(v.filter(voice => voice.lang.startsWith('es')));
       }
     };
     
-    // Some browsers need this to fire
     loadVoices();
     if (window.speechSynthesis.onvoiceschanged !== undefined) {
       window.speechSynthesis.onvoiceschanged = loadVoices;
@@ -91,8 +95,6 @@ export const OrderProvider = ({ children }) => {
     // Aggressive engine priming: Resume on any interaction
     const primeEngine = () => {
       window.speechSynthesis.resume();
-      console.log('Speech engine primed (resume)');
-      // After first interaction, we can stop listening
       window.removeEventListener('click', primeEngine);
       window.removeEventListener('keydown', primeEngine);
     };
@@ -103,27 +105,17 @@ export const OrderProvider = ({ children }) => {
     const ordersSubscription = supabase
       .channel('public:orders')
       .on('postgres_changes', { event: '*', table: 'orders' }, async () => {
-        try {
-          const { data, error } = await supabase.from('orders').select('*, order_items(*, products(name, description))').order('timestamp', { ascending: false });
-          if (error) throw error;
-          if (data) setOrders(data.map(o => ({ ...o, items: o.order_items })));
-        } catch (err) {
-          console.error("SCHEMATA ERROR (ORDERS):", err.message);
-        }
+        const { data } = await supabase.from('orders').select('*, order_items(*, products(name, description))').order('timestamp', { ascending: false });
+        if (data) setOrders(data.map(o => ({ ...o, items: o.order_items })));
       })
       .subscribe();
 
-    // 3. Real-time Subscription for Order Items (Important for full order loading)
+    // 3. Real-time Subscription for Order Items
     const orderItemsSubscription = supabase
       .channel('public:order_items')
       .on('postgres_changes', { event: '*', table: 'order_items' }, async () => {
-        try {
-          const { data, error } = await supabase.from('orders').select('*, order_items(*, products(name, description))').order('timestamp', { ascending: false });
-          if (error) throw error;
-          if (data) setOrders(data.map(o => ({ ...o, items: o.order_items })));
-        } catch (err) {
-          console.error("SCHEMATA ERROR (ITEMS):", err.message);
-        }
+        const { data, error } = await supabase.from('orders').select('*, order_items(*, products(name, description))').order('timestamp', { ascending: false });
+        if (data) setOrders(data.map(o => ({ ...o, items: o.order_items })));
       })
       .subscribe();
 
@@ -136,10 +128,20 @@ export const OrderProvider = ({ children }) => {
       })
       .subscribe();
 
+    // 5. Real-time Subscription for Shifts
+    const shiftsSubscription = supabase
+      .channel('public:shifts')
+      .on('postgres_changes', { event: '*', table: 'shifts' }, async () => {
+        const { data } = await supabase.from('shifts').select('*').order('timestamp', { ascending: false });
+        if (data) setShifts(data);
+      })
+      .subscribe();
+
     return () => {
       supabase.removeChannel(ordersSubscription);
       supabase.removeChannel(orderItemsSubscription);
       supabase.removeChannel(productsSubscription);
+      supabase.removeChannel(shiftsSubscription);
     };
   }, []);
 
@@ -152,15 +154,6 @@ export const OrderProvider = ({ children }) => {
     localStorage.setItem('foodtruck_user', JSON.stringify(currentUser));
   }, [currentUser]);
 
-  // Old local storage effects removed as data is now from Supabase
-  // useEffect(() => {
-  //   localStorage.setItem('foodtruck_orders', JSON.stringify(orders));
-  //   localStorage.setItem('foodtruck_products', JSON.stringify(products));
-  //   localStorage.setItem('foodtruck_shifts', JSON.stringify(shifts));
-  //   localStorage.setItem('foodtruck_printer_config', JSON.stringify(printerConfig));
-  // }, [orders, products, shifts, users, printerConfig]);
-  // useEffect(() => localStorage.setItem('foodtruck_user', JSON.stringify(currentUser)), [currentUser]);
-  // useEffect(() => localStorage.setItem('foodtruck_system_users', JSON.stringify(users)), [users]);
 
   const addToCart = (product, quantity = 1) => {
     setCart(prev => {
@@ -178,61 +171,88 @@ export const OrderProvider = ({ children }) => {
 
   const clearCart = () => setCart([]);
 
-  const placeOrder = async (customerName, source = 'client', notes = '') => {
-    if (cart.length === 0) return;
+  const placeOrder = async (customerName, source = 'POS', totalPrice = 0, notes = '') => {
+    if (!cart || cart.length === 0) {
+      alert("No se puede procesar un pedido vacío.");
+      return null;
+    }
 
-    const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     const stationStatuses = {};
     const stations = [...new Set(cart.map(item => item.station))];
     stations.forEach(s => stationStatuses[s] = 'received');
 
-    // Calculate daily ticket number
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const { data: todayOrders } = await supabase
-      .from('orders')
-      .select('ticket_number')
-      .gte('timestamp', today.toISOString())
-      .order('ticket_number', { ascending: false })
-      .limit(1);
-    
-    const nextTicket = (todayOrders?.[0]?.ticket_number || 0) + 1;
+    let createdOrderId = null;
 
-    const newOrder = {
-      customer_name: customerName,
-      source,
-      origin_station: currentUser?.station || source,
-      total_price: Number(totalPrice),
-      status: 'received',
-      station_statuses: stationStatuses,
-      is_paid: false,
-      notes: notes || '',
-      timestamp: new Date().toISOString(),
-      ticket_number: nextTicket
-    };
+    try {
+      // 1. Calculate daily ticket number
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const { data: todayOrders } = await supabase
+        .from('orders')
+        .select('ticket_number')
+        .gte('timestamp', today.toISOString())
+        .order('ticket_number', { ascending: false })
+        .limit(1);
+      
+      const nextTicket = (todayOrders?.[0]?.ticket_number || 0) + 1;
 
-    const { data: order, error } = await supabase.from('orders').insert(newOrder).select().single();
-    if (error) return console.error(error);
+      const newOrder = {
+        customer_name: customerName,
+        source,
+        origin_station: currentUser?.station || source,
+        total_price: Number(totalPrice),
+        status: 'received',
+        station_statuses: stationStatuses,
+        is_paid: false,
+        notes: notes || '',
+        timestamp: new Date().toISOString(),
+        ticket_number: nextTicket
+      };
 
-    const itemsToInsert = cart.map(item => ({
-      order_id: order.id,
-      product_id: item.id,
-      quantity: item.quantity,
-      price_at_time: item.price,
-      station: item.station
-    }));
+      // 2. Insert Order Header
+      const { data: order, error: orderError } = await supabase.from('orders').insert(newOrder).select().single();
+      if (orderError) throw orderError;
+      createdOrderId = order.id;
 
-    await supabase.from('order_items').insert(itemsToInsert);
-    
-    // Fetch the full order with its items to return it
-    const { data: fullOrder } = await supabase
-      .from('orders')
-      .select('*, order_items(*, products(name, description))')
-      .eq('id', order.id)
-      .single();
+      // 3. Insert Order Items
+      const itemsToInsert = cart.map(item => ({
+        order_id: createdOrderId,
+        product_id: item.id,
+        quantity: item.quantity,
+        price_at_time: item.price,
+        station: item.station
+      }));
 
-    clearCart();
-    return { ...fullOrder, items: fullOrder.order_items };
+      const { error: itemsError } = await supabase.from('order_items').insert(itemsToInsert);
+      if (itemsError) {
+        // Explicitly handle items error to trigger rollback in catch
+        throw itemsError;
+      }
+      
+      // 4. Fetch the full order with its items to return it
+      const { data: fullOrder, error: fetchError } = await supabase
+        .from('orders')
+        .select('*, order_items(*, products(name, description))')
+        .eq('id', createdOrderId)
+        .single();
+
+      if (fetchError) throw fetchError;
+
+      clearCart();
+      return { ...fullOrder, items: fullOrder.order_items };
+
+    } catch (err) {
+      console.error("FATAL ORDER ERROR:", err.message);
+      
+      // MANUAL ROLLBACK: Delete order header if it was created but items/fetch failed
+      if (createdOrderId) {
+        console.warn("INTEGRITY: Rolling back orphan order header", createdOrderId);
+        await supabase.from('orders').delete().eq('id', createdOrderId);
+      }
+
+      alert("ERROR DE INTEGRIDAD: El pedido no se pudo completar. " + err.message);
+      return null;
+    }
   };
 
   const updateOrderStatus = (orderId, newStatus) => {
@@ -373,56 +393,71 @@ export const OrderProvider = ({ children }) => {
   };
 
   const addStock = async (productId, quantity) => {
-    const product = products.find(p => p.id === productId);
-    if (!product) return;
-    await supabase.from('products').update({ stock: (Number(product.stock) || 0) + Number(quantity) }).eq('id', productId);
+    try {
+      const product = products.find(p => p.id === productId);
+      if (!product) return;
+      
+      const { error } = await supabase.from('products').update({ 
+        stock: (Number(product.stock) || 0) + Number(quantity) 
+      }).eq('id', productId);
+      
+      if (error) throw error;
+    } catch (err) {
+      console.error('ERROR ADDING STOCK:', err);
+      alert("Error al actualizar inventario: " + err.message);
+    }
   };
 
-  const deleteShift = (shiftId) => {
-    setShifts(prev => prev.filter(s => s.id !== shiftId));
-  };
 
   const deletePayment = async (orderId, station) => {
-    setOrders(prev => prev.map(order => {
-      if (order.id !== orderId) return order;
-      
-      const newPaymentDetails = { ...(order.payment_details || {}) };
-      delete newPaymentDetails[station];
-      
-      const newStationStatuses = { ...order.station_statuses };
-      if (newStationStatuses[station] === 'delivered') {
-        newStationStatuses[station] = 'ready'; 
-      }
+    const order = orders.find(o => o.id === orderId);
+    if (!order) return;
 
-      const statuses = Object.values(newStationStatuses);
-      const allStationsPaid = Object.keys(newStationStatuses).every(st => newPaymentDetails[st]);
-      
-      let overallStatus = 'received';
-      const allReadyOrDone = statuses.every(s => s === 'ready' || s === 'delivered');
-      const allDelivered = statuses.every(s => s === 'delivered');
-      
-      if (allDelivered) overallStatus = 'delivered';
-      else if (allReadyOrDone) overallStatus = 'ready';
-      else if (statuses.some(s => s === 'preparing' || s === 'ready' || s === 'delivered')) overallStatus = 'preparing';
+    const newPaymentDetails = { ...(order.payment_details || {}) };
+    delete newPaymentDetails[station];
+    
+    const newStationStatuses = { ...order.station_statuses };
+    if (newStationStatuses[station] === 'delivered') {
+      newStationStatuses[station] = 'ready'; 
+    }
 
-      // Persist to Supabase
-      supabase.from('orders').update({
+    const statuses = Object.values(newStationStatuses);
+    const allStationsPaid = Object.keys(newStationStatuses).every(st => newPaymentDetails[st]);
+    
+    let overallStatus = 'received';
+    const allReadyOrDone = statuses.every(s => s === 'ready' || s === 'delivered');
+    const allDelivered = statuses.every(s => s === 'delivered');
+    
+    if (allDelivered) overallStatus = 'delivered';
+    else if (allReadyOrDone) overallStatus = 'ready';
+    else if (statuses.some(s => s === 'preparing' || s === 'ready' || s === 'delivered')) overallStatus = 'preparing';
+
+    try {
+      // 1. Persist to Supabase
+      const { error } = await supabase.from('orders').update({
         payment_details: newPaymentDetails,
         station_statuses: newStationStatuses,
-        is_paid: allStationsPaid,
+        is_paid: !!allStationsPaid,
         status: overallStatus
-      }).eq('id', orderId).then(({ error }) => {
-        if (error) console.error("Error persisting payment deletion:", error);
-      });
-      
-      return {
-        ...order,
-        payment_details: newPaymentDetails,
-        station_statuses: newStationStatuses,
-        is_paid: allStationsPaid,
-        status: overallStatus
-      };
-    }));
+      }).eq('id', orderId);
+
+      if (error) throw error;
+
+      // 2. Update local state
+      setOrders(prev => prev.map(o => {
+        if (o.id !== orderId) return o;
+        return {
+          ...o,
+          payment_details: newPaymentDetails,
+          station_statuses: newStationStatuses,
+          is_paid: !!allStationsPaid,
+          status: overallStatus
+        };
+      }));
+    } catch (err) {
+      console.error("Error deleting payment:", err.message);
+      alert("Hubo un error al eliminar el pago en el servidor.");
+    }
   };
 
   const addProduct = async (newProductData) => {
@@ -506,13 +541,9 @@ export const OrderProvider = ({ children }) => {
   };
 
   const login = (role, station = null) => {
-    let normalizedStation = station ? station.toUpperCase() : null;
-    if (normalizedStation === 'COMIDA RAPIDA') normalizedStation = 'COMIDA RAPIDA';
-    if (normalizedStation === 'COMIDA RAPIDA') normalizedStation = 'COMIDA RAPIDA';
-    
-    const user = { role, station: normalizedStation };
+    const user = { role, station: station ? station.toUpperCase() : null };
     setCurrentUser(user);
-    localStorage.setItem('foodtruck_user', JSON.stringify(user));
+    // Persisted via useEffect at line 167
   };
 
   const logout = () => {
@@ -537,11 +568,10 @@ export const OrderProvider = ({ children }) => {
     }, { cash: 0, card: 0, transfer: 0, total: 0 });
   };
 
-  const closeShift = (stationName, actualCash, note = '', authorizedBy = null) => {
+  const closeShift = async (stationName, actualCash, note = '', authorizedBy = null) => {
     const totals = getShiftTotals(stationName);
 
     const newShift = {
-      id: Date.now(),
       station: stationName,
       timestamp: new Date().toISOString(),
       expected_sales: totals.total,
@@ -553,13 +583,29 @@ export const OrderProvider = ({ children }) => {
       authorized_by: authorizedBy
     };
 
-    setShifts(prev => {
-      const updated = [newShift, ...prev];
-      localStorage.setItem('foodtruck_shifts', JSON.stringify(updated));
-      return updated;
-    });
+    const { data, error } = await supabase.from('shifts').insert(newShift).select();
+    
+    if (error) {
+      console.error('ERROR CLOSING SHIFT:', error);
+      alert("Error al cerrar turno: " + error.message);
+      return null;
+    }
 
-    return newShift;
+    if (data) {
+      setShifts(prev => [data[0], ...prev]);
+      return data[0];
+    }
+  };
+
+  const deleteShift = async (shiftId) => {
+    const { error } = await supabase.from('shifts').delete().eq('id', shiftId);
+    if (error) {
+      console.error('ERROR DELETING SHIFT:', error);
+      alert("Error al eliminar turno: " + error.message);
+      return false;
+    }
+    setShifts(prev => prev.filter(s => s.id !== shiftId));
+    return true;
   };
 
   const addUser = async (userData) => {
@@ -787,31 +833,7 @@ export const OrderProvider = ({ children }) => {
       voices, selectedVoice, setSelectedVoice, announceOrder,
       connectionError, setConnectionError, 
       verifyPin, verifyAdminPin,
-      refreshData: () => {
-        setLoadingOrders(true);
-        const fetchData = async () => {
-          try {
-            const { data: usersData } = await supabase.from('users').select('id, name, role, station');
-            if (usersData) {
-              setUsers(usersData);
-              localStorage.setItem('foodtruck_system_users', JSON.stringify(usersData));
-            }
-            const { data: productsData } = await supabase.from('products').select('*');
-            if (productsData) setProducts(productsData);
-            
-            const { data: ordersData } = await supabase.from('orders').select('*, order_items(*, products(name, description))').order('timestamp', { ascending: false });
-            if (ordersData) setOrders(ordersData.map(o => ({ ...o, items: o.order_items })));
-            
-            setConnectionError(false);
-          } catch (err) {
-            console.error('RETRY ERROR:', err);
-            setConnectionError(true);
-          } finally {
-            setLoadingOrders(false);
-          }
-        };
-        fetchData();
-      }
+      refreshData,
     }}>
       {children}
     </OrderContext.Provider>
