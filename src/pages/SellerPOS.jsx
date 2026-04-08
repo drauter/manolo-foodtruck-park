@@ -522,9 +522,9 @@ const SellerPOS = () => {
                                       }
                                    });
                                 }}
-                                className="w-full py-6 bg-blue-600 text-white rounded-[2.5rem] font-black text-sm uppercase tracking-[0.1em] shadow-xl shadow-blue-500/20 hover:bg-blue-500 active:scale-95 transition-all flex items-center justify-center gap-3"
+                                className="w-full py-4 sm:py-6 bg-blue-600 text-white rounded-[2rem] sm:rounded-[2.5rem] font-black text-xs sm:text-sm uppercase tracking-[0.1em] shadow-xl shadow-blue-500/20 hover:bg-blue-500 active:scale-95 transition-all flex items-center justify-center gap-2 sm:gap-3"
                              >
-                                <CheckCircle size={24} /> Marcar Entregado
+                                <CheckCircle size={20} className="sm:w-6 sm:h-6" /> Marcar Entregado
                              </button>
                              <div className="grid grid-cols-2 gap-3">
                                 <button 
@@ -699,15 +699,15 @@ const SellerPOS = () => {
                 <div className="bg-slate-950 p-8 rounded-[3rem] border border-white/5 shadow-inner space-y-6 mt-auto">
                    <div className="space-y-2">
                       <label className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-600 ml-4">Cliente</label>
-                      <input type="text" value={customerName} onChange={e => setCustomerName(e.target.value)} placeholder="..." className="w-full bg-slate-900 p-6 rounded-3xl font-black text-4xl italic text-center text-white border border-white/5 outline-none focus:ring-4 focus:ring-emerald-500/20" />
-                   </div>
-                   <div className="flex justify-between items-center pt-4">
-                      <span className="text-4xl font-black font-mono tracking-tighter text-white">${total}</span>
-                      <div className="flex gap-4">
-                         <button onClick={() => handlePlaceOrder(false)} className="px-8 py-5 bg-slate-900 text-slate-400 font-black rounded-3xl uppercase tracking-widest text-[10px] border border-white/5">Registrar</button>
-                         <button onClick={() => handlePlaceOrder(true)} className="px-10 py-5 bg-emerald-600 text-white font-black rounded-3xl uppercase tracking-widest text-sm shadow-xl shadow-emerald-900/40 hover:bg-emerald-500 transition-all flex items-center gap-3">
-                            <Banknote size={20} /> Pagado
-                         </button>
+                      <input type="text" value={customerName} onChange={e => setCustomerName(e.target.value)} placeholder="..." className="w-full bg-slate-900 p-4 rounded-3xl font-black text-xl sm:text-4xl italic text-center text-white border border-white/5 outline-none focus:ring-4 focus:ring-emerald-500/20" />
+                      <div className="flex flex-col sm:flex-row justify-between items-center gap-6 sm:gap-4 pt-4">
+                         <span className="text-4xl font-black font-mono tracking-tighter text-white">${total}</span>
+                         <div className="flex gap-3 sm:gap-4 w-full sm:w-auto">
+                            <button onClick={() => handlePlaceOrder(false)} className="flex-1 px-8 py-5 bg-slate-900 text-slate-400 font-black rounded-3xl uppercase tracking-widest text-[10px] border border-white/5 h-[60px] flex items-center justify-center">Registrar</button>
+                            <button onClick={() => handlePlaceOrder(true)} className="flex-1 px-8 py-5 bg-emerald-600 text-white font-black rounded-3xl uppercase tracking-widest text-[10px] sm:text-sm shadow-xl shadow-emerald-900/40 hover:bg-emerald-500 transition-all flex items-center justify-center gap-3 h-[60px]">
+                               <Banknote size={20} /> Pagado
+                            </button>
+                         </div>
                       </div>
                    </div>
                 </div>

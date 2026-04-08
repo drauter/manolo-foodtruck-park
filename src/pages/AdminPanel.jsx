@@ -3,8 +3,8 @@ import { useOrder } from '../context/OrderContext';
 import {
    Plus, Edit2, Trash2, DollarSign, Package, TrendingUp,
    AlertCircle, ArrowUpRight, ArrowDownRight,
-   X, Save, LogOut, Users, FileText, Filter, CheckCircle2, CheckCircle,
-   ShoppingCart, Wallet, Banknote, CreditCard, Landmark, Search, ChevronRight, Printer, RotateCcw, Settings, Volume2
+   Layers, X, Save, LogOut, Users, FileText, Filter, CheckCircle2, CheckCircle,
+   ShoppingCart, Wallet, Banknote, CreditCard, Landmark, Search, ChevronRight, Printer, RotateCcw, Settings, Volume2, Coffee
 } from 'lucide-react';
 import { STATIONS, STATION_LABELS, STATION_COLORS, getStationDisplay } from '../utils/constants';
 import { useNavigate } from 'react-router-dom';
@@ -619,25 +619,24 @@ const AdminPanel = () => {
                                        </div>
                                     ))}
                                  </div>
-
-                                 <div className="flex items-center gap-6 w-full md:w-auto justify-between md:justify-end">
-                                    <div className="text-right">
+                                 <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 w-full md:w-auto justify-between md:justify-end border-t sm:border-t-0 border-slate-100 pt-4 sm:pt-0">
+                                    <div className="text-left sm:text-right w-full sm:w-auto">
                                        <span className="text-[10px] font-black text-slate-400 uppercase">Subtotal</span>
                                        <div className={`text-2xl font-black font-mono tracking-tighter ${order.status === 'cancelled' ? 'text-slate-400 line-through' : 'text-slate-900'}`}>${order.status === 'cancelled' ? '0' : order.total_price}</div>
                                     </div>
-                                    <div className="flex gap-2">
-                                       <button onClick={() => setSelectedInvoice(order)} title="Imprimir" className="p-3 bg-white text-slate-500 rounded-2xl hover:bg-slate-900 hover:text-white transition-all shadow-sm"><Printer size={20} /></button>
-                                       <button onClick={() => setIsEditingOrder(order)} title="Editar" className="p-3 bg-white text-slate-500 rounded-2xl hover:bg-blue-600 hover:text-white transition-all shadow-sm"><Edit2 size={20} /></button>
+                                    <div className="grid grid-cols-4 sm:flex gap-2 w-full sm:w-auto">
+                                       <button onClick={() => setSelectedInvoice(order)} title="Imprimir" className="p-4 sm:p-3 bg-white text-slate-500 rounded-2xl hover:bg-slate-900 hover:text-white transition-all shadow-sm border border-slate-100 flex items-center justify-center"><Printer size={20} /></button>
+                                       <button onClick={() => setIsEditingOrder(order)} title="Editar" className="p-4 sm:p-3 bg-white text-slate-500 rounded-2xl hover:bg-blue-600 hover:text-white transition-all shadow-sm border border-slate-100 flex items-center justify-center"><Edit2 size={20} /></button>
                                        <button onClick={() => {
                                           requireAdminAuth(() => {
                                              if (confirm("¿Anular venta? Se devolverá el stock.")) cancelOrder(order.id);
                                           });
-                                       }} title="Anular" className="p-3 bg-white text-slate-500 rounded-2xl hover:bg-amber-500 hover:text-white transition-all shadow-sm"><RotateCcw size={20} /></button>
+                                       }} title="Anular" className="p-4 sm:p-3 bg-white text-slate-500 rounded-2xl hover:bg-amber-500 hover:text-white transition-all shadow-sm border border-slate-100 flex items-center justify-center"><RotateCcw size={20} /></button>
                                        <button onClick={() => {
                                           requireAdminAuth(() => {
                                              if (confirm("¿ELIMINAR DEFINITIVAMENTE? No se puede deshacer.")) deleteOrder(order.id);
                                           });
-                                       }} title="Eliminar" className="p-3 bg-white text-slate-500 rounded-2xl hover:bg-red-500 hover:text-white transition-all shadow-sm"><Trash2 size={20} /></button>
+                                       }} title="Eliminar" className="p-4 sm:p-3 bg-white text-slate-500 rounded-2xl hover:bg-red-500 hover:text-white transition-all shadow-sm border border-slate-100 flex items-center justify-center"><Trash2 size={20} /></button>
                                     </div>
                                  </div>
                               </div>
