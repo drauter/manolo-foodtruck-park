@@ -519,35 +519,46 @@ export const OrderProvider = ({ children }) => {
     setCurrentUser(null);
   };
 
-  const closeShift = (stationName, actualCash) => {
+  const getShiftTotals = (stationName) => {
     const stationOrders = orders.filter(o => 
-      o.station_statuses && o.station_statuses[stationName] === 'delivered'
+      o.status !== 'cancelled' && o.station_statuses && o.station_statuses[stationName] === 'delivered'
     );
     
-    const paymentMethods = stationOrders.reduce((acc, o) => {
+    return stationOrders.reduce((acc, o) => {
       const detail = o.payment_details ? o.payment_details[stationName] : null;
       const method = detail ? detail.method : 'desconocido';
       const itemsTotal = o.items
-        .filter(i => i.station === stationName)
-        .reduce((sum, i) => sum + ((Number(i.price_at_time) || 0) * (Number(i.quantity) || 0)), 0);
+        ?.filter(i => i.station === stationName)
+        .reduce((sum, i) => sum + ((Number(i.price_at_time) || 0) * (Number(i.quantity) || 0)), 0) || 0;
       
       acc[method] = (acc[method] || 0) + itemsTotal;
+      acc.total = (acc.total || 0) + itemsTotal;
       return acc;
-    }, {});
+    }, { cash: 0, card: 0, transfer: 0, total: 0 });
+  };
 
-    const totalSales = Object.values(paymentMethods).reduce((a, b) => a + b, 0);
+  const closeShift = (stationName, actualCash, note = '', authorizedBy = null) => {
+    const totals = getShiftTotals(stationName);
 
     const newShift = {
       id: Date.now(),
       station: stationName,
       timestamp: new Date().toISOString(),
-      expectedSales: totalSales,
-      paymentBreakdown: paymentMethods,
-      actualCash: Number(actualCash),
-      difference: Number(actualCash) - (paymentMethods['cash'] || 0)
+      expected_sales: totals.total,
+      expected_cash: totals.cash,
+      payment_breakdown: totals,
+      actual_cash: Number(actualCash),
+      difference: Number(actualCash) - totals.cash,
+      note,
+      authorized_by: authorizedBy
     };
 
-    setShifts(prev => [newShift, ...prev]);
+    setShifts(prev => {
+      const updated = [newShift, ...prev];
+      localStorage.setItem('foodtruck_shifts', JSON.stringify(updated));
+      return updated;
+    });
+
     return newShift;
   };
 
@@ -762,7 +773,7 @@ export const OrderProvider = ({ children }) => {
       resetSystem,
       markStationReady,
       currentUser, setCurrentUser, login, logout,
-      shifts, setShifts, closeShift, deleteShift,
+      shifts, setShifts, closeShift, deleteShift, getShiftTotals,
       users, setUsers, addUser, deleteUser, updateUser,
       printerConfig, updatePrinterConfig,
       voices, selectedVoice, setSelectedVoice, announceOrder,

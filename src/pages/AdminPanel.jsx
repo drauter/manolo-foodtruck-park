@@ -265,7 +265,15 @@ const AdminPanel = () => {
       });
 
       // 3. Shifts
-      const shiftData = shifts.map(s => ({ Estación: s.station, Fecha: new Date(s.timestamp).toLocaleString(), Esperado: s.expected_sales, Real: s.actual_cash, Diferencia: s.difference }));
+      const shiftData = shifts.map(s => ({ 
+         Estación: s.station, 
+         Fecha: new Date(s.timestamp).toLocaleString(), 
+         Esperado: s.expected_cash || s.expected_sales, 
+         Real: s.actual_cash, 
+         Diferencia: s.difference,
+         Justificacion: s.note || '-',
+         Autorizado_Por: s.authorized_by || '-'
+      }));
       XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(shiftData), "Turnos");
 
       XLSX.writeFile(wb, `Reporte_Manolo_${reportPeriod}_${new Date().toISOString().split('T')[0]}.xlsx`);
@@ -891,6 +899,7 @@ const AdminPanel = () => {
                                  <th className="pb-6 px-4">Esperado (Cash)</th>
                                  <th className="pb-6 px-4">Reportado</th>
                                  <th className="pb-6 px-4 text-center">Diferencia</th>
+                                 <th className="pb-6 px-4">Justificación / Autorización</th>
                                  <th className="pb-6 px-4 text-right">Acción</th>
                               </tr>
                            </thead>
@@ -902,9 +911,13 @@ const AdminPanel = () => {
                                     <td className="py-6 px-4 font-mono font-black text-slate-900">${shift.payment_breakdown?.cash || 0}</td>
                                     <td className="py-6 px-4 font-mono font-black text-slate-900">${shift.actual_cash}</td>
                                     <td className="py-6 px-4 text-center">
-                                       <span className={`px-3 py-1 rounded-full font-black font-mono text-xs ${shift.difference === 0 ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600'}`}>
-                                          ${shift.difference}
+                                       <span className={`px-3 py-1 rounded-full font-black font-mono text-xs ${Math.abs(shift.difference) < 0.01 ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600'}`}>
+                                          ${shift.difference.toFixed(2)}
                                        </span>
+                                    </td>
+                                    <td className="py-6 px-4">
+                                       {shift.note && <p className="text-[10px] text-slate-500 italic max-w-xs">{shift.note}</p>}
+                                       {shift.authorized_by && <p className="text-[10px] font-black text-emerald-600 uppercase mt-1">✓ Aut: {shift.authorized_by}</p>}
                                     </td>
                                     <td className="py-6 px-4 text-right">
                                        <button onClick={() => {

@@ -55,6 +55,9 @@ const SellerPOS = () => {
   const [customerName, setCustomerName] = useState('');
   const [isClosingShift, setIsClosingShift] = useState(false);
   const [actualCash, setActualCash] = useState('');
+  const [shiftNote, setShiftNote] = useState('');
+  const [authorizedBy, setAuthorizedBy] = useState(null);
+  const [authError_shift, setAuthError_shift] = useState('');
   
   // Payment Modal States
   const [paymentOrderId, setPaymentOrderId] = useState(null);
@@ -195,10 +198,32 @@ const SellerPOS = () => {
   };
 
   const handleCloseShift = (e) => {
-    e.preventDefault();
-    closeShift(currentUser.station, actualCash);
+    if (e) e.preventDefault();
+    const totals = getShiftTotals(currentUser.station);
+    const difference = Number(actualCash) - totals.cash;
+
+    // Logic: If there's a discrepancy, we need a note and admin auth (unless already authorized)
+    if (Math.abs(difference) > 0.01 && !authorizedBy) {
+      setAuthError_shift("Se requiere autorización de administrador para cerrar con descuadre.");
+      return;
+    }
+
+    closeShift(currentUser.station, actualCash, shiftNote, authorizedBy);
     logout();
     navigate('/');
+  };
+
+  const handleAdminAuthForShift = async (pin) => {
+    const admin = await verifyAdminPin(pin);
+    if (admin) {
+      // Find the admin user name
+      const adminUser = users.find(u => u.pin === pin && u.role === 'admin');
+      setAuthorizedBy(adminUser?.name || 'Administrador');
+      setAuthError_shift('');
+      // We don't call handleCloseShift yet, the user clicks CERRAR again
+    } else {
+      setAuthError_shift("PIN de Administrador Incorrecto");
+    }
   };
 
   const handleWhatsAppShare = (order) => {
@@ -811,30 +836,112 @@ const SellerPOS = () => {
                     </>
                   )}
                </motion.div>
-           </>
-         )}
+            </>
+          )}
 
-         {isClosingShift && (
-           <>
+          {isClosingShift && (
+            <>
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-slate-950/95 backdrop-blur-2xl z-[500]" />
-              <motion.div initial={{ scale: 0.9, y: 50 }} animate={{ scale: 1, y: 0 }} className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-sm bg-slate-900 p-12 rounded-[4.5rem] shadow-2xl z-[501] border border-amber-500/20">
-                 <div className="flex flex-col items-center text-center gap-8">
-                    <div className="w-24 h-24 bg-amber-500/10 text-amber-500 rounded-full flex items-center justify-center border border-amber-500/30"><Wallet size={48} /></div>
+              <motion.div initial={{ scale: 0.9, y: 50 }} animate={{ scale: 1, y: 0 }} className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg bg-slate-900 p-8 sm:p-12 rounded-[4.5rem] shadow-2xl z-[501] border border-amber-500/20 overflow-y-auto max-h-[90vh] custom-scrollbar">
+                 <div className="flex flex-col items-center text-center gap-6">
+                    <div className="w-20 h-20 bg-amber-500/10 text-amber-500 rounded-full flex items-center justify-center border border-amber-500/30"><Wallet size={40} /></div>
                     <div>
-                       <h2 className="text-4xl font-black uppercase italic tracking-tighter text-white">Cerrar Turno</h2>
-                       <p className="text-[10px] font-black text-amber-500/60 uppercase tracking-widest mt-2">{currentUser.station}</p>
+                       <h2 className="text-3xl font-black uppercase italic tracking-tighter text-white leading-none">Cierre de Caja</h2>
+                       <p className="text-[10px] font-black text-amber-500/60 uppercase tracking-widest mt-2">Turno: {currentUser.station}</p>
                     </div>
-                    <form onSubmit={handleCloseShift} className="w-full space-y-8">
-                       <input required type="number" value={actualCash} onChange={e => setActualCash(e.target.value)} className="w-full bg-slate-950 p-6 rounded-3xl font-mono text-4xl font-black text-white text-center border border-white/5 focus:ring-4 focus:ring-amber-500/20" placeholder="0.00" />
-                       <div className="flex gap-4">
-                          <button type="button" onClick={() => setIsClosingShift(false)} className="flex-grow py-5 bg-slate-800 rounded-3xl font-black text-slate-500">ATRÁS</button>
-                          <button type="submit" className="flex-grow py-5 bg-amber-600 text-white rounded-3xl font-black shadow-xl shadow-amber-900/40">CERRAR</button>
+
+                    {/* Stats Panel */}
+                    <div className="w-full grid grid-cols-2 gap-4">
+                       <div className="bg-slate-950 p-6 rounded-[2.5rem] border border-white/5">
+                          <p className="text-[8px] font-black uppercase text-slate-500 tracking-widest mb-1">Ventas Totales</p>
+                          <p className="text-2xl font-black text-white font-mono">${getShiftTotals(currentUser.station).total.toFixed(2)}</p>
+                       </div>
+                       <div className="bg-slate-950 p-6 rounded-[2.5rem] border border-white/5">
+                          <p className="text-[8px] font-black uppercase text-slate-500 tracking-widest mb-1">Efectivo Esperado</p>
+                          <p className="text-2xl font-black text-emerald-500 font-mono">${getShiftTotals(currentUser.station).cash.toFixed(2)}</p>
+                       </div>
+                    </div>
+
+                    <form onSubmit={handleCloseShift} className="w-full space-y-6">
+                       <div className="space-y-2">
+                          <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Efectivo Real en Caja</label>
+                          <input 
+                            required 
+                            type="number" 
+                            step="0.01"
+                            value={actualCash} 
+                            onChange={e => setActualCash(e.target.value)} 
+                            className="w-full bg-slate-950 p-6 rounded-3xl font-mono text-4xl font-black text-white text-center border border-white/5 focus:ring-4 focus:ring-amber-500/20 transition-all" 
+                            placeholder="0.00" 
+                            autoFocus
+                          />
+                       </div>
+
+                       {/* Discrepancy Display */}
+                       {actualCash && (
+                          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className={`p-6 rounded-3xl border flex flex-col items-center gap-1 ${Math.abs(Number(actualCash) - getShiftTotals(currentUser.station).cash) < 0.01 ? 'bg-emerald-500/5 border-emerald-500/20' : 'bg-red-500/5 border-red-500/20'}`}>
+                             <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">Diferencia (Descuadre)</p>
+                             <p className={`text-3xl font-black font-mono ${Math.abs(Number(actualCash) - getShiftTotals(currentUser.station).cash) < 0.01 ? 'text-emerald-500' : 'text-red-500'}`}>
+                                RD$ {(Number(actualCash) - getShiftTotals(currentUser.station).cash).toFixed(2)}
+                             </p>
+                          </motion.div>
+                       )}
+
+                       {/* Discrepancy Handling */}
+                       {actualCash && Math.abs(Number(actualCash) - getShiftTotals(currentUser.station).cash) > 0.01 && (
+                          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="space-y-4">
+                             <div>
+                                <label className="text-[10px] font-black uppercase text-red-500 tracking-widest block mb-2">Justificación Obligatoria</label>
+                                <textarea 
+                                  required
+                                  value={shiftNote}
+                                  onChange={e => setShiftNote(e.target.value)}
+                                  placeholder="Explica el motivo del descuadre..."
+                                  className="w-full bg-slate-950 p-4 rounded-2xl text-xs font-bold text-white border border-red-500/20 h-24 italic"
+                                />
+                             </div>
+                             
+                             {!authorizedBy ? (
+                                <div className="bg-slate-950 p-6 rounded-3xl border border-red-500/20 space-y-4">
+                                   <div className="flex items-center gap-3 text-red-500 mb-2">
+                                      <Shield size={16} />
+                                      <p className="text-[10px] font-black uppercase tracking-widest">Pin de Admin Requerido</p>
+                                   </div>
+                                   <input 
+                                     type="password"
+                                     maxLength="4"
+                                     placeholder="PIN"
+                                     onChange={(e) => {
+                                       if (e.target.value.length === 4) handleAdminAuthForShift(e.target.value);
+                                     }}
+                                     className="w-full bg-slate-900 p-4 rounded-xl text-center text-2xl font-black font-mono tracking-[0.5em] text-white border border-white/5"
+                                   />
+                                   {authError_shift && <p className="text-[8px] font-black text-red-500 uppercase tracking-widest text-center">{authError_shift}</p>}
+                                </div>
+                             ) : (
+                                <div className="bg-emerald-500/10 p-4 rounded-2xl border border-emerald-500/20 flex items-center justify-center gap-3">
+                                   <CheckCircle size={16} className="text-emerald-500" />
+                                   <p className="text-[10px] font-black text-emerald-500 uppercase tracking-widest">Autorizado por {authorizedBy}</p>
+                                </div>
+                             )}
+                          </motion.div>
+                       )}
+
+                       <div className="flex gap-4 pt-4">
+                          <button type="button" onClick={() => setIsClosingShift(false)} className="flex-grow py-5 bg-slate-800 rounded-3xl font-black text-slate-500 uppercase text-xs">Atrás</button>
+                          <button 
+                            type="submit" 
+                            disabled={actualCash && Math.abs(Number(actualCash) - getShiftTotals(currentUser.station).cash) > 0.01 && (!authorizedBy || !shiftNote)}
+                            className={`flex-[2] py-5 rounded-3xl font-black shadow-xl uppercase text-xs transition-all ${actualCash && Math.abs(Number(actualCash) - getShiftTotals(currentUser.station).cash) > 0.01 ? 'bg-red-600 text-white hover:bg-red-500' : 'bg-amber-600 text-white hover:bg-amber-500'}`}
+                          >
+                            Finalizar Turno
+                          </button>
                        </div>
                     </form>
                  </div>
               </motion.div>
-           </>
-          )}
+            </>
+           )}
 
           {isAuthModalOpen && (
             <>
