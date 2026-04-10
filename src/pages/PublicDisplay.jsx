@@ -113,7 +113,9 @@ const StationColumn = ({ label, icon: IconComponent, color, orders, stationKey }
 
 const PublicDisplay = () => {
   const { orders } = useOrder();
-  const [audioUnlocked, setAudioUnlocked] = React.useState(false);
+  const [audioUnlocked, setAudioUnlocked] = React.useState(() => {
+    return localStorage.getItem('manolo_audio_unlocked') === 'true';
+  });
 
   // Resume speech context on first interaction
   const unlockAudio = () => {
@@ -122,6 +124,7 @@ const PublicDisplay = () => {
     const ut = new SpeechSynthesisUtterance('');
     window.speechSynthesis.speak(ut);
     setAudioUnlocked(true);
+    localStorage.setItem('manolo_audio_unlocked', 'true');
   };
 
   const stations = [

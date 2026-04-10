@@ -63,9 +63,12 @@ CREATE TABLE shifts (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   station TEXT NOT NULL,
   expected_sales NUMERIC DEFAULT 0,
+  expected_cash NUMERIC DEFAULT 0, -- New: Expected cash after expenses
   payment_breakdown JSONB DEFAULT '{}'::jsonb,
   actual_cash NUMERIC DEFAULT 0,
   difference NUMERIC DEFAULT 0,
+  note TEXT, -- New: Closure notes
+  authorized_by TEXT, -- New: Admin who authorized discrepancy
   timestamp TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 

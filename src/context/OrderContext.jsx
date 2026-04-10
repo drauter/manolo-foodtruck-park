@@ -629,8 +629,8 @@ export const OrderProvider = ({ children }) => {
       payment_breakdown: totals,
       actual_cash: Number(actualCash),
       difference: Number(actualCash) - totals.cash,
-      note: authorizedBy ? `[AUT: ${authorizedBy}] ${note}` : note
-      // authorized_by column removed as it's missing from schema
+      note,
+      authorized_by: authorizedBy
     };
 
     const { data, error } = await supabase.from('shifts').insert(newShift).select();
