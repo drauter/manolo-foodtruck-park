@@ -68,7 +68,7 @@ const ClientMenu = () => {
     }
     
     setIsPlacingOrder(true);
-    const order = await placeOrder(customerName.trim(), 'client', orderNotes);
+    const order = await placeOrder(customerName.trim(), 'client', 0, orderNotes);
     setIsPlacingOrder(false);
     
     if (order) {

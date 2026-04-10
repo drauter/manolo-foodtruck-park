@@ -178,9 +178,14 @@ export const OrderProvider = ({ children }) => {
     }
 
     // AUTO-CALC TOTAL PRICE if it's 0 or missing
-    const calculatedTotal = totalPrice > 0 
+    let calculatedTotal = totalPrice > 0 
       ? Number(totalPrice) 
       : cart.reduce((acc, item) => acc + (Number(item.price) * (Number(item.quantity) || 1)), 0);
+
+    // Final safety check to avoid null/NaN in DB
+    if (isNaN(calculatedTotal) || calculatedTotal === null) {
+      calculatedTotal = 0;
+    }
 
     const stationStatuses = {};
     const stations = [...new Set(cart.map(item => item.station))];
