@@ -47,7 +47,7 @@ const ProductItem = ({ product, addToCart }) => {
 };
 
 const SellerPOS = () => {
-  const { products, addToCart, cart, removeFromCart, clearCart, placeOrder, currentUser, logout, closeShift, orders, updateStationStatus, cancelOrder, deleteOrder, deletePayment, announceOrder, verifyAdminPin } = useOrder();
+  const { products, addToCart, cart, removeFromCart, clearCart, placeOrder, currentUser, logout, closeShift, orders, updateStationStatus, cancelOrder, deleteOrder, deletePayment, announceOrder, verifyAdminPin, getShiftTotals, users } = useOrder();
   const [selectedInvoice, setSelectedInvoice] = useState(null);
   const [activeTab, setActiveTab] = useState('ventas'); // 'ventas', 'cobros', 'despacho', 'historial'
   const [isCartOpen, setIsCartOpen] = useState(false);

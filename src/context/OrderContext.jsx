@@ -551,19 +551,32 @@ export const OrderProvider = ({ children }) => {
   };
 
   const getShiftTotals = (stationName) => {
+    const isCaja = stationName === 'CAJA';
+    
     const stationOrders = orders.filter(o => 
-      o.status !== 'cancelled' && o.station_statuses && o.station_statuses[stationName] === 'delivered'
+      o.status !== 'cancelled' && 
+      o.payment_details && 
+      o.payment_details[stationName]
     );
     
     return stationOrders.reduce((acc, o) => {
-      const detail = o.payment_details ? o.payment_details[stationName] : null;
-      const method = detail ? detail.method : 'desconocido';
-      const itemsTotal = o.items
-        ?.filter(i => i.station === stationName)
-        .reduce((sum, i) => sum + ((Number(i.price_at_time) || 0) * (Number(i.quantity) || 0)), 0) || 0;
+      const detail = o.payment_details[stationName];
+      const method = detail.method || 'desconocido';
       
-      acc[method] = (acc[method] || 0) + itemsTotal;
-      acc.total = (acc.total || 0) + itemsTotal;
+      let amount = 0;
+      if (isCaja) {
+        // For CAJA, we sum everything because it's a general collector
+        amount = o.items?.reduce((sum, i) => sum + ((Number(i.price_at_time) || 0) * (Number(i.quantity) || 0)), 0) || 0;
+        if (amount === 0) amount = Number(o.total_price) || 0;
+      } else {
+        // For individual stations, we only sum their items
+        amount = o.items
+          ?.filter(i => i.station === stationName)
+          .reduce((sum, i) => sum + ((Number(i.price_at_time) || 0) * (Number(i.quantity) || 0)), 0) || 0;
+      }
+      
+      acc[method] = (acc[method] || 0) + amount;
+      acc.total = (acc.total || 0) + amount;
       return acc;
     }, { cash: 0, card: 0, transfer: 0, total: 0 });
   };
