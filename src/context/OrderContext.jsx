@@ -34,11 +34,21 @@ export const OrderProvider = ({ children }) => {
   });
 
   // Voice State
-  const [voices, setVoices] = useState([]);
-  const [selectedVoice, setSelectedVoice] = useState(localStorage.getItem('preferredVoice') || '');
+  const announcedOrdersRef = React.useRef(new Set());
+  const [selectedVoice, setSelectedVoice] = useState(() => localStorage.getItem('manolo_voice') || '');
+  const [isVoicesLoaded, setIsVoicesLoaded] = useState(false);
+
+  // Monitor voice changes (important for some browsers)
+  useEffect(() => {
+    const loadVoices = () => {
+      const voices = window.speechSynthesis.getVoices();
+      if (voices.length > 0) setIsVoicesLoaded(true);
+    };
+    window.speechSynthesis.onvoiceschanged = loadVoices;
+    loadVoices();
+  }, []);
   const announcementQueue = React.useRef([]);
   const isSpeaking = React.useRef(false);
-  const announcedOrdersRef = React.useRef(new Set());
 
   // 1. Initial Data Fetching from Supabase
   const refreshData = async () => {
@@ -722,6 +732,18 @@ export const OrderProvider = ({ children }) => {
       
       // Better voice selection: try selected, then any Spanish
       const allVoices = window.speechSynthesis.getVoices();
+      
+      // If no voices yet, wait a bit or use defaults
+      if (allVoices.length === 0 && !isVoicesLoaded) {
+          console.warn("Voices not loaded yet, rescheduling...");
+          setTimeout(() => {
+            isSpeaking.current = false;
+            announcementQueue.current.unshift({ message, key, manual });
+            processQueue();
+          }, 1000);
+          return;
+      }
+
       let v = allVoices.find(voice => voice.voiceURI === selectedVoice);
       if (!v) v = allVoices.find(voice => voice.lang.startsWith('es'));
       

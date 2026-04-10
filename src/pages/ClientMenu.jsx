@@ -247,7 +247,7 @@ const ClientMenu = () => {
                  <div className="flex-grow overflow-y-auto space-y-4 pr-2 custom-scrollbar pb-8">
                     {cart.map(item => (
                       <div key={item.id} className="bg-slate-950/50 p-6 rounded-[2.5rem] border border-white/5 flex gap-6 items-center group">
-                         <img src={item.image} className="w-20 h-20 rounded-3xl object-cover shadow-xl" />
+                         <img src={item.image_url} className="w-20 h-20 rounded-3xl object-cover shadow-xl" />
                          <div className="flex-grow">
                             <h4 className="font-black text-xl italic uppercase tracking-tighter group-hover:text-emerald-400 transition-colors">{item.name}</h4>
                             <div className="flex justify-between items-end mt-4">
