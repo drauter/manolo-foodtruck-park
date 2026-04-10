@@ -177,6 +177,11 @@ export const OrderProvider = ({ children }) => {
       return null;
     }
 
+    // AUTO-CALC TOTAL PRICE if it's 0 or missing
+    const calculatedTotal = totalPrice > 0 
+      ? Number(totalPrice) 
+      : cart.reduce((acc, item) => acc + (Number(item.price) * (Number(item.quantity) || 1)), 0);
+
     const stationStatuses = {};
     const stations = [...new Set(cart.map(item => item.station))];
     stations.forEach(s => stationStatuses[s] = 'received');
@@ -200,7 +205,7 @@ export const OrderProvider = ({ children }) => {
         customer_name: customerName,
         source,
         origin_station: currentUser?.station || source,
-        total_price: Number(totalPrice),
+        total_price: calculatedTotal,
         status: 'received',
         station_statuses: stationStatuses,
         is_paid: false,
@@ -677,8 +682,9 @@ export const OrderProvider = ({ children }) => {
     isSpeaking.current = true;
     const { message, key, manual } = announcementQueue.current.shift();
     
-    // RESTRICTION: Only the '/display' route should play automatic voice messages
-    const isDisplayRoute = window.location.pathname === '/display';
+    // RESTRICTION: Only the display route or manual triggers should play voice
+    const isDisplayRoute = window.location.pathname.toLowerCase().includes('display');
+    
     if (!manual && !isDisplayRoute) {
       isSpeaking.current = false;
       setTimeout(processQueue, 100);
