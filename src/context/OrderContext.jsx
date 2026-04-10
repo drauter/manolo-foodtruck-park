@@ -118,7 +118,20 @@ export const OrderProvider = ({ children }) => {
     // 2. Real-time Subscription for Orders
     const ordersSubscription = supabase
       .channel('public:orders')
-      .on('postgres_changes', { event: '*', table: 'orders' }, async () => {
+      .on('postgres_changes', { event: '*', table: 'orders' }, async (payload) => {
+        // Immediate Voice Trigger: If an UPDATE shows a station became 'ready'
+        if (payload.eventType === 'UPDATE' && payload.new.station_statuses) {
+          const oldStatuses = payload.old?.station_statuses || {};
+          const newStatuses = payload.new.station_statuses;
+          
+          Object.entries(newStatuses).forEach(([st, status]) => {
+            if (status === 'ready' && oldStatuses[st] !== 'ready') {
+              console.log('IMMEDIATE VOICE TRIGGER:', payload.new.ticket_number, st);
+              announceOrder(payload.new, st, false);
+            }
+          });
+        }
+
         const { data } = await supabase.from('orders').select('*, order_items(*, products(name, description))').order('timestamp', { ascending: false });
         if (data) setOrders(data.map(o => ({ ...o, items: o.order_items })));
       })
@@ -616,8 +629,8 @@ export const OrderProvider = ({ children }) => {
       payment_breakdown: totals,
       actual_cash: Number(actualCash),
       difference: Number(actualCash) - totals.cash,
-      note,
-      authorized_by: authorizedBy
+      note: authorizedBy ? `[AUT: ${authorizedBy}] ${note}` : note
+      // authorized_by column removed as it's missing from schema
     };
 
     const { data, error } = await supabase.from('shifts').insert(newShift).select();
