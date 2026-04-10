@@ -83,30 +83,6 @@ const StationColumn = ({ label, icon: IconComponent, color, orders, stationKey }
          </div>
       </div>
       
-      <AnimatePresence>
-        {!audioUnlocked && (
-          <motion.div 
-            initial={{ opacity: 0 }} 
-            animate={{ opacity: 1 }} 
-            exit={{ opacity: 0 }} 
-            className="fixed inset-0 z-[600] bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-6"
-          >
-             <motion.button 
-               initial={{ scale: 0.9 }}
-               animate={{ scale: [0.9, 1, 0.9] }}
-               transition={{ repeat: Infinity, duration: 2 }}
-               onClick={unlockAudio}
-               className="bg-emerald-600 text-white p-12 rounded-[4rem] shadow-2xl flex flex-col items-center gap-6 border-4 border-emerald-400 group hover:bg-emerald-500 transition-colors"
-             >
-                <div className="w-24 h-24 bg-white/20 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform"><CheckCircle size={48} /></div>
-                <div className="text-center">
-                   <h2 className="text-4xl font-black uppercase italic tracking-tighter mb-2">Activar Sonido</h2>
-                   <p className="text-xs font-black uppercase tracking-[0.3em] opacity-60">Haz clic para habilitar mensajes de voz</p>
-                </div>
-             </motion.button>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </div>
   );
 };
@@ -194,6 +170,32 @@ const PublicDisplay = () => {
           ))}
         </div>
       </footer>
+
+      {/* Audio Unlocker Overlay */}
+      <AnimatePresence>
+        {!audioUnlocked && (
+          <motion.div 
+            initial={{ opacity: 0 }} 
+            animate={{ opacity: 1 }} 
+            exit={{ opacity: 0 }} 
+            className="fixed inset-0 z-[600] bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-6"
+          >
+             <motion.button 
+               initial={{ scale: 0.9 }}
+               animate={{ scale: [0.9, 1, 0.9] }}
+               transition={{ repeat: Infinity, duration: 2 }}
+               onClick={unlockAudio}
+               className="bg-emerald-600 text-white p-12 rounded-[4rem] shadow-2xl flex flex-col items-center gap-6 border-4 border-emerald-400 group hover:bg-emerald-500 transition-colors"
+             >
+                <div className="w-24 h-24 bg-white/20 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform"><CheckCircle size={48} /></div>
+                <div className="text-center">
+                   <h2 className="text-4xl font-black uppercase italic tracking-tighter mb-2">Activar Sonido</h2>
+                   <p className="text-xs font-black uppercase tracking-[0.3em] opacity-60">Haz clic para habilitar mensajes de voz</p>
+                </div>
+             </motion.button>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <style dangerouslySetInnerHTML={{ __html: `
         @keyframes marquee {
