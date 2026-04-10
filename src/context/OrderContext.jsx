@@ -36,13 +36,17 @@ export const OrderProvider = ({ children }) => {
   // Voice State
   const announcedOrdersRef = React.useRef(new Set());
   const [selectedVoice, setSelectedVoice] = useState(() => localStorage.getItem('manolo_voice') || '');
+  const [voices, setVoices] = useState([]);
   const [isVoicesLoaded, setIsVoicesLoaded] = useState(false);
 
   // Monitor voice changes (important for some browsers)
   useEffect(() => {
     const loadVoices = () => {
-      const voices = window.speechSynthesis.getVoices();
-      if (voices.length > 0) setIsVoicesLoaded(true);
+      const vList = window.speechSynthesis.getVoices();
+      if (vList.length > 0) {
+        setVoices(vList);
+        setIsVoicesLoaded(true);
+      }
     };
     window.speechSynthesis.onvoiceschanged = loadVoices;
     loadVoices();
