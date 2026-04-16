@@ -6,139 +6,157 @@ const Receipt = ({ order, station = STATIONS.CAJA }) => {
   const { printerConfig } = useOrder();
   if (!order) return null;
   const config = printerConfig[station] || printerConfig[STATIONS.CAJA];
-  const is58mm = config.paperWidth === '58mm';
 
   const is_paid = order.is_paid;
   const totalPaid = order.is_paid ? order.total_price : 0;
   const pending = order.is_paid ? 0 : order.total_price;
 
+  // Helper to sanitize text for thermal printers (No accents, no special chars)
+  const sanitize = (text) => {
+    if (!text) return '';
+    return text
+      .toString()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "") // Remove accents
+      .replace(/[¡!¿?#]/g, "")         // Remove common special chars
+      .toUpperCase();
+  };
+
   return (
-    <div id="printable-receipt-wrapper" className="bg-slate-200 p-4 sm:p-10 min-h-full w-full flex justify-center items-start">
+    <div id="printable-receipt-wrapper" style={{ padding: '20px', backgroundColor: '#eee', minHeight: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'flex-start' }}>
       <div 
-        className={`receipt-print bg-white ${is58mm ? 'p-4 w-[58mm]' : 'p-8 w-[72mm]'} shadow-2xl font-mono text-slate-900 relative overflow-hidden`} 
+        className="receipt-print"
+        style={{ 
+          backgroundColor: 'white', 
+          width: '72mm', 
+          padding: '5mm', 
+          fontFamily: 'monospace', 
+          color: 'black',
+          border: '1px solid #ccc',
+          lineHeight: '1.2'
+        }} 
         id="printable-invoice"
       >
-       
-        {/* Branded Header */}
-        <div className="flex flex-col items-center mb-6 pb-6 border-b-2 border-slate-900 border-double">
-           <div className="w-16 h-8 bg-slate-950 text-white rounded-lg flex items-center justify-center text-sm font-black mb-2 shadow-lg tracking-widest border-2 border-white/20">
-              #{order.ticket_number}
+        {/* Header */}
+        <div style={{ textAlign: 'center', marginBottom: '15px', borderBottom: '2px solid black', paddingBottom: '10px' }}>
+           <div style={{ display: 'inline-block', padding: '5px 10px', backgroundColor: 'black', color: 'white', fontWeight: 'bold', fontSize: '14px' }}>
+              TICKET {order.ticket_number}
            </div>
-           <h1 className="text-2xl font-black italic tracking-tighter text-slate-900 leading-none uppercase text-center">MANOLO</h1>
-           <h2 className="text-lg font-black uppercase tracking-[0.2em] text-slate-400 mt-1 text-center">FOODTRUCK PARK</h2>
+           <div style={{ fontSize: '24px', fontWeight: 'bold', marginTop: '10px' }}>MANOLO</div>
+           <div style={{ fontSize: '12px', fontWeight: 'bold' }}>FOODTRUCK PARK</div>
         </div>
 
-        {/* Metadata Header */}
-       <div className="space-y-3 mb-6">
-          <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest">
-             <span className="text-slate-400">ESTADO:</span>
-             <span className={`font-black tracking-tighter italic ${is_paid ? "text-emerald-500" : "text-orange-500"}`}>{order.status === 'cancelled' ? 'ANULADO' : (is_paid ? 'PAGADO' : 'PENDIENTE')}</span>
-          </div>
-          <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-slate-400">
-             <span>NO. FACTURA:</span>
-             <span className="text-slate-900 font-mono font-black border-b border-slate-900/10">#FAC-{order.ticket_number}-{order.id?.toString().slice(-3) || '000'}</span>
-          </div>
-          <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-slate-400">
-             <span>FECHA:</span>
-             <span className="text-slate-900">{new Date(order.timestamp).toLocaleString()}</span>
-          </div>
-          <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-slate-400">
-             <span>CLIENTE:</span>
-             <span className="text-slate-900 font-black italic">{order.customer_name}</span>
-          </div>
-          <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-slate-400">
-             <span>ESTACIÓN:</span>
-             <span className="text-slate-900 font-black italic">
-               {getStationDisplay(station, order)}
-             </span>
-          </div>
-       </div>
+        {/* metadata */}
+        <div style={{ fontSize: '11px', marginBottom: '15px' }}>
+           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2px' }}>
+              <span>ESTADO:</span>
+              <span style={{ fontWeight: 'bold' }}>{sanitize(order.status === 'cancelled' ? 'ANULADO' : (is_paid ? 'PAGADO' : 'PENDIENTE'))}</span>
+           </div>
+           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2px' }}>
+              <span>FACTURA:</span>
+              <span>FAC-{order.ticket_number}</span>
+           </div>
+           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2px' }}>
+              <span>FECHA:</span>
+              <span>{sanitize(new Date(order.timestamp).toLocaleString())}</span>
+           </div>
+           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2px' }}>
+              <span>CLIENTE:</span>
+              <span>{sanitize(order.customer_name)}</span>
+           </div>
+           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2px' }}>
+              <span>ESTACION:</span>
+              <span>{sanitize(getStationDisplay(station, order))}</span>
+           </div>
+        </div>
 
-       {/* Items Table */}
-       <div className="mb-6 text-slate-900">
-          <table className="w-full text-left">
-             <thead>
-                <tr className="border-b-2 border-slate-900 text-[10px] font-black uppercase tracking-widest text-slate-400">
-                   <th className="py-2">DESCRIPCIÓN</th>
-                   <th className="py-2 text-center">CANT</th>
-                   <th className="py-2 text-right">TOTAL</th>
-                </tr>
-             </thead>
-             <tbody className="divide-y divide-slate-100">
-                {order.items?.filter(item => station === 'CAJA' || item.station === station).map((item, i) => (
-                   <tr key={i} className="text-xs font-bold text-slate-900">
-                      <td className="py-2 uppercase tracking-tighter italic">{item.products?.name || item.product?.name || 'Producto'}</td>
-                      <td className="py-2 text-center font-mono">x{item.quantity}</td>
-                      <td className="py-2 text-right font-mono">${((item.price_at_time || 0) * (item.quantity || 1)).toFixed(2)}</td>
-                   </tr>
-                ))}
-             </tbody>
-          </table>
-       </div>
+        {/* Table - FIXED LAYOUT TO PREVENT MASHING */}
+        <div style={{ borderTop: '1px solid black', borderBottom: '1px solid black', margin: '10px 0', padding: '5px 0' }}>
+           <table style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed', fontSize: '11px' }}>
+              <thead>
+                 <tr style={{ borderBottom: '1px solid black' }}>
+                    <th style={{ textAlign: 'left', width: '60%', padding: '2px 0' }}>DESC</th>
+                    <th style={{ textAlign: 'center', width: '15%', padding: '2px 0' }}>CANT</th>
+                    <th style={{ textAlign: 'right', width: '25%', padding: '2px 0' }}>TOTAL</th>
+                 </tr>
+              </thead>
+              <tbody>
+                 {order.items?.filter(item => station === 'CAJA' || item.station === station).map((item, i) => (
+                    <tr key={i}>
+                       <td style={{ textAlign: 'left', padding: '4px 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          {sanitize(item.products?.name || item.product?.name || 'PRODUCTO')}
+                       </td>
+                       <td style={{ textAlign: 'center', padding: '4px 0' }}>{item.quantity}</td>
+                       <td style={{ textAlign: 'right', padding: '4px 0' }}>${((item.price_at_time || 0) * (item.quantity || 1)).toFixed(2)}</td>
+                    </tr>
+                 ))}
+              </tbody>
+           </table>
+        </div>
 
-        {/* Totals Section */}
-        <div className="space-y-2 pt-4 border-t-2 border-slate-900 border-dashed">
-           <div className="flex justify-between items-center text-xs font-black uppercase tracking-widest text-slate-900">
+        {/* Totals */}
+        <div style={{ fontSize: '12px', fontWeight: 'bold' }}>
+           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
               <span>TOTAL PEDIDO:</span>
-              <span className="font-mono">${order.total_price.toFixed(2)}</span>
+              <span>${order.total_price.toFixed(2)}</span>
            </div>
            
            {order.payment_details?.[station] && (
-             <>
-                <div className="flex justify-between items-center text-[10px] font-bold uppercase tracking-widest text-slate-400">
-                   <span>MÉTODO:</span>
-                   <span className="text-slate-900">{order.payment_details[station].method === 'cash' ? 'EFECTIVO' : 'TARJETA'}</span>
+             <div style={{ fontSize: '11px', fontWeight: 'normal', borderTop: '1px dashed #ccc', paddingTop: '4px', marginTop: '4px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                   <span>METODO:</span>
+                   <span>{sanitize(order.payment_details[station].method === 'cash' ? 'EFECTIVO' : 'TARJETA')}</span>
                 </div>
                 {order.payment_details[station].method === 'cash' && (
                   <>
-                    <div className="flex justify-between items-center text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                        <span>RECIBIDO:</span>
-                       <span className="text-slate-900 font-mono">${Number(order.payment_details[station].received || 0).toFixed(2)}</span>
+                       <span>${Number(order.payment_details[station].received || 0).toFixed(2)}</span>
                     </div>
-                    <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-emerald-600">
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold' }}>
                        <span>CAMBIO:</span>
-                       <span className="font-mono">${Number(order.payment_details[station].change || 0).toFixed(2)}</span>
+                       <span>${Number(order.payment_details[station].change || 0).toFixed(2)}</span>
                     </div>
                   </>
                 )}
-             </>
+             </div>
            )}
 
-           <div className="flex justify-between items-center text-xs font-black uppercase tracking-widest text-emerald-500 border-t border-slate-100 pt-2 mt-2">
+           <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '2px solid black', marginTop: '8px', paddingTop: '8px', fontSize: '15px' }}>
               <span>TOTAL PAGADO:</span>
-               <span className="font-mono">${totalPaid.toFixed(2)}</span>
+               <span>${totalPaid.toFixed(2)}</span>
            </div>
+           
            {pending > 0 && (
-             <div className="flex justify-between items-center text-lg font-black uppercase tracking-tighter text-slate-950 pt-2">
+             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '16px', marginTop: '5px', backgroundColor: 'black', color: 'white', padding: '4px' }}>
                 <span>PENDIENTE:</span>
-                <span className="font-mono decoration-slate-950 underline decoration-2">${pending.toFixed(2)}</span>
+                <span>${pending.toFixed(2)}</span>
              </div>
            )}
         </div>
 
-        {/* QR Tracking Section */}
-        <div className="mt-8 mb-4 flex flex-col items-center">
-            <div className="p-2 bg-white border-2 border-slate-900 rounded-2xl mb-2">
+        {/* QR Section */}
+        <div style={{ marginTop: '25px', textAlign: 'center', borderTop: '1px dashed black', paddingTop: '15px' }}>
+            <div style={{ display: 'inline-block', padding: '8px', backgroundColor: 'white', border: '1px solid black' }}>
                 <img 
-                  src={`https://quickchart.io/qr?text=${encodeURIComponent(`https://manolofoodtruckpark.pages.dev/tracking/${order.id}`)}&size=200&margin=1&ecLevel=M`} 
-                  alt="Seguimiento"
-                  decoding="async"
-                  loading="eager"
-                  className="w-24 h-24"
+                  src={`https://quickchart.io/qr?text=${encodeURIComponent(`https://manolofoodtruckpark.pages.dev/tracking/${order.id}`)}&size=150&margin=0`} 
+                  alt="QR"
+                  style={{ width: '100px', height: '100px', display: 'block' }}
                 />
             </div>
-            <p className="text-[10px] font-black uppercase tracking-tighter text-slate-900 text-center leading-tight max-w-[120px]">
-               Escaneame para ver el estado de tu pedido
-            </p>
+            <div style={{ marginTop: '8px', fontSize: '9px', fontWeight: 'bold' }}>
+               ESCANEAME PARA VER EL<br/>ESTADO DE TU PEDIDO
+            </div>
         </div>
 
-       {/* Footer */}
-       <div className="mt-4 text-center">
-          <div className="inline-block px-4 py-1 bg-slate-900 text-white rounded-full text-[8px] font-black uppercase tracking-[0.4em] mb-2 shadow-lg rotate-1">
-             ¡GRACIAS POR TU COMPRA!
-          </div>
-          <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">VISÍTANOS PRONTO EN MANOLO FOODTRUCK PARK</p>
-       </div>
+        {/* Footer */}
+        <div style={{ marginTop: '25px', textAlign: 'center', fontSize: '11px', borderTop: '1px solid black', paddingTop: '15px' }}>
+           <div style={{ display: 'inline-block', border: '2px solid black', padding: '5px 10px', fontWeight: 'bold', marginBottom: '8px' }}>
+              GRACIAS POR TU COMPRA
+           </div>
+           <div style={{ fontWeight: 'bold' }}>VISITANOS PRONTO EN MANOLO</div>
+           <div style={{ fontWeight: 'bold' }}>FOODTRUCK PARK</div>
+        </div>
       </div>
     </div>
   );
