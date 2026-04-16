@@ -63,11 +63,12 @@
   .receipt-print tr { display: table-row !important; }
   .receipt-print td, .receipt-print th { display: table-cell !important; }
 
-  /* Position receipt at the top of the 1-page viewport */
+  /* Position receipt in the center of the 80mm paper to avoid clipping */
   .receipt-print {
     position: fixed !important;
     top: 0 !important;
-    left: 0 !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
     width: 72mm !important;
     height: auto !important;
     background-color: white !important;
@@ -75,7 +76,7 @@
   }
 
   @page {
-    size: 72mm auto;
+    size: 80mm auto;
     margin: 0;
   }
 }
