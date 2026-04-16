@@ -29,14 +29,16 @@ const Receipt = ({ order, station = STATIONS.CAJA, isForPrint = false }) => {
           backgroundColor: 'white', 
           width: '72mm', 
           margin: '0 auto',
-          padding: isForPrint ? '0' : '2mm', 
-          paddingTop: isForPrint ? '15mm' : '5mm', 
+          paddingLeft: '4mm',
+          paddingRight: '4mm',
+          paddingTop: '2mm',
+          paddingBottom: '15mm',
           fontFamily: 'monospace', 
+          fontSize: '11px',
           color: 'black',
           border: isForPrint ? 'none' : '1px solid #ccc',
           lineHeight: '1.5',
-          letterSpacing: '0.1px',
-          paddingBottom: isForPrint ? '50mm' : '10mm'
+          letterSpacing: '0.1px'
         }} 
         id="printable-invoice"
       >
@@ -53,23 +55,23 @@ const Receipt = ({ order, station = STATIONS.CAJA, isForPrint = false }) => {
 
         {/* METADATA */}
         <div style={{ fontSize: '12px', marginBottom: '15px', lineHeight: '1.7' }}>
-           <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px', gap: '4px' }}>
               <span>ESTADO:</span>
               <span style={{ fontWeight: '900' }}>{sanitize(order.status === 'cancelled' ? 'ANULADO' : (is_paid ? 'PAGADO' : 'PENDIENTE'))}</span>
            </div>
-           <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px', gap: '4px' }}>
               <span>FACTURA:</span>
               <span>FAC-{order.ticket_number}</span>
            </div>
-           <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px', gap: '4px' }}>
               <span>FECHA:</span>
               <span>{sanitize(new Date(order.timestamp).toLocaleString())}</span>
            </div>
-           <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px', gap: '4px' }}>
               <span>CLIENTE:</span>
               <span style={{ fontWeight: '900' }}>{sanitize(order.customer_name)}</span>
            </div>
-           <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px', gap: '4px' }}>
               <span>ESTACION:</span>
               <span>{sanitize(getStationDisplay(station, order))}</span>
            </div>
@@ -165,7 +167,7 @@ const Receipt = ({ order, station = STATIONS.CAJA, isForPrint = false }) => {
         <div style={{ borderTop: '1px solid black', margin: '15px 0' }}></div>
 
         {/* MINIMALIST FOOTER */}
-        <div style={{ textAlign: 'center' }}>
+        <div style={{ textAlign: 'center', paddingBottom: '20px' }}>
            <div style={{ display: 'inline-block', border: '1px solid black', padding: '6px 12px', fontWeight: '900', fontSize: '12px', marginBottom: '10px' }}>
               GRACIAS POR TU COMPRA
            </div>
