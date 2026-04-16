@@ -21,6 +21,14 @@ const Receipt = ({ order, station = STATIONS.CAJA, isForPrint = false }) => {
       .toUpperCase();
   };
 
+  // Helper for Table Rows with explicit height for thermal motor stepping
+  const DataRow = ({ label, value, isBold = false, height = '28px' }) => (
+    <tr style={{ height }}>
+      <td style={{ textAlign: 'left', verticalAlign: 'middle', fontSize: '12px' }}>{sanitize(label)}</td>
+      <td style={{ textAlign: 'right', verticalAlign: 'middle', fontSize: '12px', fontWeight: isBold ? '900' : 'normal' }}>{sanitize(value)}</td>
+    </tr>
+  );
+
   return (
     <div id="printable-receipt-wrapper" className="receipt-wrapper" style={{ marginTop: 0, paddingTop: 0 }}>
       <div 
@@ -32,20 +40,20 @@ const Receipt = ({ order, station = STATIONS.CAJA, isForPrint = false }) => {
           boxSizing: 'border-box',
           paddingLeft: '5mm',
           paddingRight: '5mm',
-          paddingTop: '5mm',
+          paddingTop: '15mm', // Balanced top advance
           paddingBottom: '0',
           fontFamily: 'monospace', 
           fontSize: '12px',
           color: 'black',
           border: isForPrint ? 'none' : '1px solid #ccc',
-          lineHeight: '1.8',
+          lineHeight: '1.2', // Tight for table control
           letterSpacing: '0.1px',
           overflow: 'hidden'
         }} 
         id="printable-invoice"
       >
-        {/* MINIMALIST HEADER */}
-        <div style={{ textAlign: 'center', borderBottom: '2px solid black', marginBottom: '12px', paddingBottom: '12px', paddingTop: '5mm' }}>
+        {/* HEADER */}
+        <div style={{ textAlign: 'center', marginBottom: '15px' }}>
             <div style={{ fontSize: '12px', fontWeight: '900', textDecoration: 'underline' }}>
                TICKET {order.ticket_number}
             </div>
@@ -53,105 +61,94 @@ const Receipt = ({ order, station = STATIONS.CAJA, isForPrint = false }) => {
             <div style={{ fontSize: '13px', fontWeight: '700', letterSpacing: '2px' }}>FOODTRUCK PARK</div>
         </div>
 
-        {/* METADATA */}
-        <div style={{ marginBottom: '12px' }}>
-           <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '8px', gap: '4px' }}>
-              <span>ESTADO:</span>
-              <span style={{ fontWeight: '900' }}>{sanitize(order.status === 'cancelled' ? 'ANULADO' : (is_paid ? 'PAGADO' : 'PENDIENTE'))}</span>
-           </div>
-           <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '8px', gap: '4px' }}>
-              <span>FACTURA:</span>
-              <span>FAC-{order.ticket_number}</span>
-           </div>
-           <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '8px', gap: '4px' }}>
-              <span>FECHA:</span>
-              <span>{sanitize(new Date(order.timestamp).toLocaleString())}</span>
-           </div>
-           <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '8px', gap: '4px' }}>
-              <span>CLIENTE:</span>
-              <span style={{ fontWeight: '900' }}>{sanitize(order.customer_name)}</span>
-           </div>
-           <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '8px', gap: '4px' }}>
-              <span>ESTACION:</span>
-              <span>{sanitize(getStationDisplay(station, order))}</span>
-           </div>
+        <div style={{ borderTop: '1px solid black', margin: '10px 0' }}></div>
+
+        {/* METADATA - USING TABLES TO PREVENT OVERLAPPING */}
+        <div style={{ marginBottom: '15px' }}>
+           <table style={{ width: '100%', tableLayout: 'fixed', borderCollapse: 'collapse' }}>
+              <tbody>
+                 <DataRow label="ESTADO:" value={order.status === 'cancelled' ? 'ANULADO' : (is_paid ? 'PAGADO' : 'PENDIENTE')} isBold={true} />
+                 <DataRow label="FACTURA:" value={`FAC-${order.ticket_number}`} />
+                 <DataRow label="FECHA:" value={new Date(order.timestamp).toLocaleString()} />
+                 <DataRow label="CLIENTE:" value={order.customer_name} />
+                 <DataRow label="ESTACION:" value={getStationDisplay(station, order)} />
+              </tbody>
+           </table>
         </div>
 
-        <div style={{ borderTop: '1px solid black', marginTop: '12px', marginBottom: '12px' }}></div>
+        <div style={{ borderTop: '1px solid black', margin: '10px 0' }}></div>
 
         {/* ITEMS TABLE */}
-        <div style={{ marginBottom: '12px' }}>
+        <div style={{ margin: '15px 0' }}>
            <table style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed', fontSize: '11px' }}>
               <thead>
-                 <tr style={{ borderBottom: '1px solid black' }}>
-                    <th style={{ textAlign: 'left', width: '60%', padding: '10px 0' }}>DESC</th>
-                    <th style={{ textAlign: 'center', width: '15%', padding: '10px 0' }}>CANT</th>
-                    <th style={{ textAlign: 'right', width: '25%', padding: '10px 0' }}>TOTAL</th>
+                 <tr style={{ borderBottom: '1px solid black', height: '25px' }}>
+                    <th style={{ textAlign: 'left', width: '60%', verticalAlign: 'middle' }}>DESC</th>
+                    <th style={{ textAlign: 'center', width: '15%', verticalAlign: 'middle' }}>CANT</th>
+                    <th style={{ textAlign: 'right', width: '25%', verticalAlign: 'middle' }}>TOTAL</th>
                  </tr>
               </thead>
               <tbody>
                  {order.items?.filter(item => station === 'CAJA' || item.station === station).map((item, i) => (
-                    <tr key={i}>
-                       <td style={{ textAlign: 'left', padding: '10px 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    <tr key={i} style={{ height: '28px' }}>
+                       <td style={{ textAlign: 'left', verticalAlign: 'middle', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                           {sanitize(item.products?.name || item.product?.name || 'PRODUCTO')}
                        </td>
-                       <td style={{ textAlign: 'center', padding: '10px 0' }}>{item.quantity}</td>
-                       <td style={{ textAlign: 'right', padding: '10px 0' }}>${((item.price_at_time || 0) * (item.quantity || 1)).toFixed(2)}</td>
+                       <td style={{ textAlign: 'center', verticalAlign: 'middle' }}>{item.quantity}</td>
+                       <td style={{ textAlign: 'right', verticalAlign: 'middle' }}>${((item.price_at_time || 0) * (item.quantity || 1)).toFixed(2)}</td>
                     </tr>
                  ))}
               </tbody>
            </table>
         </div>
 
-        <div style={{ borderTop: '1px solid black', marginTop: '12px', marginBottom: '15px' }}></div>
+        <div style={{ borderTop: '1px solid black', margin: '10px 0' }}></div>
 
-        {/* TOTALS SECTION */}
+        {/* TOTALS SECTION - USING TABLES TO PREVENT OVERLAPPING */}
         <div style={{ marginBottom: '15px' }}>
-           <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <span>TOTAL PEDIDO:</span>
-              <span>${order.total_price.toFixed(2)}</span>
-           </div>
-           
-           {order.payment_details?.[station] && (
-             <div style={{ marginTop: '5px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '4px' }}>
-                   <span>METODO:</span>
-                   <span>{sanitize(order.payment_details[station].method === 'cash' ? 'EFECTIVO' : 'TARJETA')}</span>
-                </div>
-                {order.payment_details[station].method === 'cash' && (
-                  <>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '4px' }}>
-                       <span>RECIBIDO:</span>
-                       <span>${Number(order.payment_details[station].received || 0).toFixed(2)}</span>
-                    </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '4px' }}>
-                       <span>CAMBIO:</span>
-                       <span>${Number(order.payment_details[station].change || 0).toFixed(2)}</span>
-                    </div>
-                  </>
-                )}
-             </div>
-           )}
+           <table style={{ width: '100%', tableLayout: 'fixed', borderCollapse: 'collapse' }}>
+              <tbody>
+                 <DataRow label="TOTAL PEDIDO:" value={`$${order.total_price.toFixed(2)}`} />
+                 
+                 {order.payment_details?.[station] && (
+                   <>
+                     <DataRow label="METODO:" value={order.payment_details[station].method === 'cash' ? 'EFECTIVO' : 'TARJETA'} />
+                     {order.payment_details[station].method === 'cash' && (
+                       <>
+                         <DataRow label="RECIBIDO:" value={`$${Number(order.payment_details[station].received || 0).toFixed(2)}`} />
+                         <DataRow label="CAMBIO:" value={`$${Number(order.payment_details[station].change || 0).toFixed(2)}`} />
+                       </>
+                     )}
+                   </>
+                 )}
 
-           <div style={{ borderTop: '1px solid black', margin: '10px 0' }}></div>
+                 <tr style={{ height: '40px', borderTop: '1px solid black' }}>
+                    <td style={{ textAlign: 'left', verticalAlign: 'middle', fontSize: '16px', fontWeight: '900' }}>TOTAL PAGADO:</td>
+                    <td style={{ textAlign: 'right', verticalAlign: 'middle', fontSize: '16px', fontWeight: '900' }}>${totalPaid.toFixed(2)}</td>
+                 </tr>
 
-           <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '16px', fontWeight: '900' }}>
-              <span>TOTAL PAGADO:</span>
-               <span>${totalPaid.toFixed(2)}</span>
-           </div>
-           
-           {pending > 0 && (
-             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '16px', marginTop: '8px', border: '2px solid black', padding: '4px 6px' }}>
-                <span>PENDIENTE:</span>
-                <span>${pending.toFixed(2)}</span>
-             </div>
-           )}
+                 {pending > 0 && (
+                   <tr style={{ height: '40px' }}>
+                      <td colSpan="2" style={{ border: '2px solid black' }}>
+                         <table style={{ width: '100%' }}>
+                            <tbody>
+                               <tr>
+                                  <td style={{ textAlign: 'left', fontSize: '16px', fontWeight: '900' }}>PENDIENTE:</td>
+                                  <td style={{ textAlign: 'right', fontSize: '16px', fontWeight: '900' }}>${pending.toFixed(2)}</td>
+                               </tr>
+                            </tbody>
+                         </table>
+                      </td>
+                   </tr>
+                 )}
+              </tbody>
+           </table>
         </div>
 
-        <div style={{ borderTop: '1px dashed black', marginTop: '15px', marginBottom: '15px' }}></div>
+        <div style={{ borderTop: '1px dashed black', margin: '15px 0' }}></div>
 
         {/* QR SECTION */}
-        <div style={{ textAlign: 'center', marginBottom: '12px' }}>
+        <div style={{ textAlign: 'center', marginBottom: '20px' }}>
            <div style={{ display: 'inline-block', padding: '8px', border: '1px solid black' }}>
                <img 
                  src={`https://quickchart.io/qr?text=${encodeURIComponent(`https://manolofoodtruckpark.pages.dev/tracking/${order.id}`)}&size=200&margin=0`} 
@@ -166,7 +163,7 @@ const Receipt = ({ order, station = STATIONS.CAJA, isForPrint = false }) => {
 
         <div style={{ borderTop: '1px solid black', margin: '15px 0' }}></div>
 
-        {/* MINIMALIST FOOTER */}
+        {/* FOOTER */}
         <div style={{ textAlign: 'center' }}>
            <div style={{ display: 'inline-block', border: '1px solid black', padding: '6px 12px', fontWeight: '900', fontSize: '12px', marginBottom: '10px' }}>
               GRACIAS POR TU COMPRA
