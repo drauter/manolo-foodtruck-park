@@ -16,6 +16,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import * as XLSX from 'xlsx';
 import Receipt from '../components/Receipt';
+import { printReceipt } from '../utils/printUtils';
 
 // Main Admin Panel Component for Foodtruck Management
 const AdminPanel = () => {
@@ -388,11 +389,7 @@ const AdminPanel = () => {
    };
 
    const handlePrint = () => {
-      document.body.classList.add('is-printing');
-      window.print();
-      setTimeout(() => {
-         document.body.classList.remove('is-printing');
-      }, 500);
+      printReceipt('printable-invoice');
    };
 
    const menuItems = [

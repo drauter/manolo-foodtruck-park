@@ -4,6 +4,7 @@ import { useOrder } from '../context/OrderContext';
 import { Clock, CheckCircle, Package, Printer, X, Settings, AlertCircle, LogOut, Volume2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Receipt from '../components/Receipt';
+import { printReceipt } from '../utils/printUtils';
 import { STATIONS } from '../utils/constants';
 
 const EmployeePanel = () => {
@@ -13,11 +14,7 @@ const EmployeePanel = () => {
   const [showSettings, setShowSettings] = React.useState(false);
 
   const handlePrint = () => {
-    document.body.classList.add('is-printing');
-    window.print();
-    setTimeout(() => {
-      document.body.classList.remove('is-printing');
-    }, 500);
+    printReceipt('printable-invoice');
   };
 
   // Map URL parameter to display name and icon

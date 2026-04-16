@@ -8,6 +8,7 @@ import { STATIONS, STATION_LABELS, STATION_COLORS, getStationDisplay } from '../
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import Receipt from '../components/Receipt';
+import { printReceipt } from '../utils/printUtils';
 import { Plus, Minus } from 'lucide-react';
 
 const ProductItem = ({ product, addToCart }) => {
@@ -227,11 +228,7 @@ const SellerPOS = () => {
   };
 
   const handlePrint = () => {
-    document.body.classList.add('is-printing');
-    window.print();
-    setTimeout(() => {
-      document.body.classList.remove('is-printing');
-    }, 500);
+    printReceipt('printable-invoice');
   };
 
   const handleWhatsAppShare = (order) => {

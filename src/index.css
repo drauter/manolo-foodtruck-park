@@ -31,50 +31,10 @@
   }
 }
 
-/* Print configuration for Thermal Printer */
+/* Standard Print configuration */
 @media print {
-  @page {
-    size: 72mm auto;
-    margin: 0;
-  }
-
-  /* Hide EVERYTHING by default using visibility to avoid layout space usage */
-  body.is-printing * {
-    visibility: hidden;
-    border: none !important;
-    box-shadow: none !important;
-  }
-
-  /* Force only the receipt to be visible and take over the page */
-  body.is-printing .print-only,
-  body.is-printing .print-only * {
-    visibility: visible !important;
-  }
-
-  body.is-printing .print-only {
-    display: block !important;
-    position: absolute !important;
-    left: 0 !important;
-    top: 0 !important;
-    width: 72mm !important;
-    height: auto !important;
-    margin: 0 !important;
-    padding: 2mm !important;
+  body {
     background: white !important;
-    float: none !important;
-  }
-
-  /* Prevent extra pages by collapsing the main container */
-  body.is-printing #root {
-    max-height: 0 !important;
-    overflow: hidden !important;
-    display: block !important; /* Keep it in the DOM but collapsed */
-  }
-
-  body, html {
-    background: white !important;
-    height: auto !important;
-    overflow: visible !important;
   }
 }
 
