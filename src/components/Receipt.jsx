@@ -22,7 +22,7 @@ const Receipt = ({ order, station = STATIONS.CAJA, isForPrint = false }) => {
   };
 
   return (
-    <div id="printable-receipt-wrapper" className="receipt-wrapper">
+    <div id="printable-receipt-wrapper" className="receipt-wrapper" style={{ marginTop: 0, paddingTop: 0 }}>
       <div 
         className={isForPrint ? "receipt-print" : "receipt-preview"}
         style={{ 
@@ -32,8 +32,8 @@ const Receipt = ({ order, station = STATIONS.CAJA, isForPrint = false }) => {
           boxSizing: 'border-box',
           paddingLeft: '5mm',
           paddingRight: '5mm',
-          paddingTop: '12mm',
-          paddingBottom: '30mm',
+          paddingTop: 0,
+          paddingBottom: 0,
           fontFamily: 'monospace', 
           fontSize: '12px',
           color: 'black',
@@ -45,7 +45,7 @@ const Receipt = ({ order, station = STATIONS.CAJA, isForPrint = false }) => {
         id="printable-invoice"
       >
         {/* MINIMALIST HEADER */}
-        <div style={{ textAlign: 'center', borderBottom: '2px solid black', marginBottom: '15px', paddingBottom: '15px' }}>
+        <div style={{ textAlign: 'center', borderBottom: '2px solid black', marginBottom: '12px', paddingBottom: '12px', paddingTop: '5mm' }}>
             <div style={{ fontSize: '12px', fontWeight: '900', textDecoration: 'underline' }}>
                TICKET {order.ticket_number}
             </div>
@@ -54,33 +54,33 @@ const Receipt = ({ order, station = STATIONS.CAJA, isForPrint = false }) => {
         </div>
 
         {/* METADATA */}
-        <div style={{ marginBottom: '15px' }}>
-           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px', gap: '4px' }}>
+        <div style={{ marginBottom: '12px' }}>
+           <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '8px', gap: '4px' }}>
               <span>ESTADO:</span>
               <span style={{ fontWeight: '900' }}>{sanitize(order.status === 'cancelled' ? 'ANULADO' : (is_paid ? 'PAGADO' : 'PENDIENTE'))}</span>
            </div>
-           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px', gap: '4px' }}>
+           <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '8px', gap: '4px' }}>
               <span>FACTURA:</span>
               <span>FAC-{order.ticket_number}</span>
            </div>
-           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px', gap: '4px' }}>
+           <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '8px', gap: '4px' }}>
               <span>FECHA:</span>
               <span>{sanitize(new Date(order.timestamp).toLocaleString())}</span>
            </div>
-           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px', gap: '4px' }}>
+           <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '8px', gap: '4px' }}>
               <span>CLIENTE:</span>
               <span style={{ fontWeight: '900' }}>{sanitize(order.customer_name)}</span>
            </div>
-           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px', gap: '4px' }}>
+           <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '8px', gap: '4px' }}>
               <span>ESTACION:</span>
               <span>{sanitize(getStationDisplay(station, order))}</span>
            </div>
         </div>
 
-        <div style={{ borderTop: '1px solid black', margin: '15px 0' }}></div>
+        <div style={{ borderTop: '1px solid black', marginTop: '12px', marginBottom: '12px' }}></div>
 
         {/* ITEMS TABLE */}
-        <div style={{ margin: '15px 0' }}>
+        <div style={{ marginBottom: '12px' }}>
            <table style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed', fontSize: '11px' }}>
               <thead>
                  <tr style={{ borderBottom: '1px solid black' }}>
@@ -103,7 +103,7 @@ const Receipt = ({ order, station = STATIONS.CAJA, isForPrint = false }) => {
            </table>
         </div>
 
-        <div style={{ borderTop: '1px solid black', margin: '15px 0' }}></div>
+        <div style={{ borderTop: '1px solid black', marginTop: '12px', marginBottom: '15px' }}></div>
 
         {/* TOTALS SECTION */}
         <div style={{ marginBottom: '15px' }}>
@@ -114,17 +114,17 @@ const Receipt = ({ order, station = STATIONS.CAJA, isForPrint = false }) => {
            
            {order.payment_details?.[station] && (
              <div style={{ marginTop: '5px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '4px' }}>
                    <span>METODO:</span>
                    <span>{sanitize(order.payment_details[station].method === 'cash' ? 'EFECTIVO' : 'TARJETA')}</span>
                 </div>
                 {order.payment_details[station].method === 'cash' && (
                   <>
-                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '4px' }}>
                        <span>RECIBIDO:</span>
                        <span>${Number(order.payment_details[station].received || 0).toFixed(2)}</span>
                     </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '4px' }}>
                        <span>CAMBIO:</span>
                        <span>${Number(order.payment_details[station].change || 0).toFixed(2)}</span>
                     </div>
@@ -148,10 +148,10 @@ const Receipt = ({ order, station = STATIONS.CAJA, isForPrint = false }) => {
            )}
         </div>
 
-        <div style={{ borderTop: '1px dashed black', marginTop: '20px', marginBottom: '20px' }}></div>
+        <div style={{ borderTop: '1px dashed black', marginTop: '15px', marginBottom: '15px' }}></div>
 
         {/* QR SECTION */}
-        <div style={{ textAlign: 'center', marginBottom: '15px' }}>
+        <div style={{ textAlign: 'center', marginBottom: '12px' }}>
            <div style={{ display: 'inline-block', padding: '8px', border: '1px solid black' }}>
                <img 
                  src={`https://quickchart.io/qr?text=${encodeURIComponent(`https://manolofoodtruckpark.pages.dev/tracking/${order.id}`)}&size=200&margin=0`} 
@@ -176,6 +176,7 @@ const Receipt = ({ order, station = STATIONS.CAJA, isForPrint = false }) => {
               FOODTRUCK PARK
            </div>
         </div>
+        <div style={{ height: '30mm' }}></div>
       </div>
     </div>
   );
