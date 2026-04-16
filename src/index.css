@@ -40,6 +40,8 @@
     height: 100% !important; /* Fixed height for the viewport */
     overflow: hidden !important; /* No scrolling = no phantom pages */
     background-color: white !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
 
   /* Hide everything in the body by default */
@@ -50,6 +52,8 @@
   /* Reveal ONLY the receipt and its content */
   .receipt-print, .receipt-print * {
     visibility: visible !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
 
   /* RESTORE TABLE LAYOUT (CRITICAL) */
