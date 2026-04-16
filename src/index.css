@@ -35,25 +35,34 @@
 @media print {
   @page {
     size: 72mm auto;
-    margin: 2mm;
+    margin: 0;
   }
 
-  /* Hide everything when printing if is-printing class is present */
-  body.is-printing > * {
-    display: none !important;
+  /* Hide UI using visibility so parents don't collapse children */
+  body.is-printing {
+    visibility: hidden;
+    background: white !important;
   }
 
-  /* Only show elements with print-only class */
-  body.is-printing .print-only {
-    display: block !important;
-    width: 72mm !important;
-    margin: 0 auto !important;
-    padding: 0 !important;
+  /* Force show elements with print-only class */
+  body.is-printing .print-only,
+  body.is-printing .print-only * {
     visibility: visible !important;
   }
 
-  /* Ensure the root and other containers don't interfere */
-  #root, body, html {
+  body.is-printing .print-only {
+    display: block !important;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 72mm !important;
+    margin: 0 !important;
+    padding: 2mm !important;
+    background: white !important;
+  }
+
+  /* Ensure the body, html don't interfere */
+  body, html {
     height: auto !important;
     overflow: visible !important;
   }
