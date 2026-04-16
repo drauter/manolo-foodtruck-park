@@ -409,7 +409,7 @@ const AdminPanel = () => {
    }
 
    return (
-      <div className="min-h-screen bg-slate-50 flex flex-col lg:flex-row font-sans overflow-x-hidden">
+      <div className="min-h-screen bg-slate-50 flex flex-col lg:flex-row font-sans overflow-x-hidden no-print">
          {/* Sidebar - Desktop */}
          <aside className="hidden lg:flex w-72 bg-slate-900 text-white p-6 flex-col gap-8 sticky top-0 h-screen overflow-y-auto z-50">
             <div className="text-2xl font-black italic text-emerald-500 tracking-tighter uppercase leading-none">Manolo <span className="text-white">FOODTRUCK Park</span></div>

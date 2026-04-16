@@ -49,7 +49,7 @@ const EmployeePanel = () => {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 p-4 sm:p-6 font-sans">
+    <div className="min-h-screen bg-slate-950 text-slate-100 p-4 sm:p-6 font-sans no-print">
       <header className="mb-10 flex flex-col md:flex-row md:items-center justify-between gap-6 bg-slate-900 p-8 rounded-[2.5rem] border border-slate-800 shadow-2xl">
         <div className="flex items-center gap-6">
           <div className={`p-4 sm:p-5 rounded-2xl sm:rounded-3xl ${currentStation.bg} ${currentStation.color} shadow-lg border border-current/20`}>
