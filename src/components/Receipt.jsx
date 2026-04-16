@@ -29,16 +29,18 @@ const Receipt = ({ order, station = STATIONS.CAJA, isForPrint = false }) => {
           backgroundColor: 'white', 
           width: '72mm', 
           margin: '0 auto',
-          paddingLeft: '4mm',
-          paddingRight: '4mm',
-          paddingTop: '8mm',
-          paddingBottom: '15mm',
+          boxSizing: 'border-box',
+          paddingLeft: '5mm',
+          paddingRight: '5mm',
+          paddingTop: '12mm',
+          paddingBottom: '30mm',
           fontFamily: 'monospace', 
           fontSize: '11px',
           color: 'black',
           border: isForPrint ? 'none' : '1px solid #ccc',
           lineHeight: '1.5',
-          letterSpacing: '0.1px'
+          letterSpacing: '0.1px',
+          overflow: 'hidden'
         }} 
         id="printable-invoice"
       >
@@ -172,7 +174,7 @@ const Receipt = ({ order, station = STATIONS.CAJA, isForPrint = false }) => {
               GRACIAS POR TU COMPRA
            </div>
            <div style={{ fontSize: '10px', fontWeight: '700' }}>VISITANOS PRONTO EN MANOLO</div>
-           <div style={{ paddingBottom: '25mm', fontSize: '13px', fontWeight: '900' }}>
+           <div style={{ fontSize: '10px', fontWeight: '700' }}>
               FOODTRUCK PARK
            </div>
         </div>
