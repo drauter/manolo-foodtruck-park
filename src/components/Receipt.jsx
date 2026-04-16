@@ -31,7 +31,7 @@ const Receipt = ({ order, station = STATIONS.CAJA, isForPrint = false }) => {
           margin: '0 auto',
           paddingLeft: '4mm',
           paddingRight: '4mm',
-          paddingTop: '2mm',
+          paddingTop: '8mm',
           paddingBottom: '15mm',
           fontFamily: 'monospace', 
           fontSize: '11px',
@@ -167,12 +167,14 @@ const Receipt = ({ order, station = STATIONS.CAJA, isForPrint = false }) => {
         <div style={{ borderTop: '1px solid black', margin: '15px 0' }}></div>
 
         {/* MINIMALIST FOOTER */}
-        <div style={{ textAlign: 'center', paddingBottom: '20px' }}>
+        <div style={{ textAlign: 'center' }}>
            <div style={{ display: 'inline-block', border: '1px solid black', padding: '6px 12px', fontWeight: '900', fontSize: '12px', marginBottom: '10px' }}>
               GRACIAS POR TU COMPRA
            </div>
            <div style={{ fontSize: '10px', fontWeight: '700' }}>VISITANOS PRONTO EN MANOLO</div>
-           <div style={{ fontSize: '10px', fontWeight: '700' }}>FOODTRUCK PARK</div>
+           <div style={{ paddingBottom: '25mm', fontSize: '13px', fontWeight: '900' }}>
+              FOODTRUCK PARK
+           </div>
         </div>
       </div>
     </div>
