@@ -37,3 +37,31 @@
     background: white !important;
   }
 }
+
+/* THERMAL PRINT ROOT ISOLATION */
+@media print {
+  #root {
+    display: none !important;
+  }
+
+  #print-portal {
+    display: block !important;
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 72mm !important;
+    visibility: visible !important;
+  }
+
+  /* Reset body for single page */
+  body, html {
+    height: auto !important;
+    overflow: visible !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+}
+
+#print-portal {
+  display: none;
+}
