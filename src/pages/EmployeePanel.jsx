@@ -12,6 +12,14 @@ const EmployeePanel = () => {
   const [printingOrder, setPrintingOrder] = React.useState(null);
   const [showSettings, setShowSettings] = React.useState(false);
 
+  const handlePrint = () => {
+    document.body.classList.add('is-printing');
+    window.print();
+    setTimeout(() => {
+      document.body.classList.remove('is-printing');
+    }, 500);
+  };
+
   // Map URL parameter to display name and icon
   const stationConfig = {
     'bar': { label: STATIONS.BAR, display: 'BAR', color: 'text-blue-500', bg: 'bg-blue-500/10' },
@@ -215,7 +223,7 @@ const EmployeePanel = () => {
                 </div>
                 <div className="fixed bottom-10 left-1/2 -translate-x-1/2 z-[110]">
                   <button 
-                    onClick={() => window.print()}
+                    onClick={() => handlePrint()}
                     className="px-12 py-6 bg-white text-slate-950 font-black rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.5)] flex items-center gap-4 hover:scale-105 active:scale-95 transition-all text-xl uppercase tracking-widest border-4 border-emerald-500/20"
                   >
                     <Printer size={28} /> Confirmar Impresión
@@ -268,7 +276,7 @@ const EmployeePanel = () => {
 
                   <div className="pt-6 border-t border-slate-100 flex flex-col gap-4">
                      <button 
-                        onClick={() => window.print()}
+                        onClick={() => handlePrint()}
                         className="w-full py-6 bg-blue-600 text-white rounded-[2rem] font-black uppercase text-xs tracking-[0.2em] shadow-lg hover:bg-blue-500 transition-all flex items-center justify-center gap-3"
                      >
                         <Printer size={20} />

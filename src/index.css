@@ -30,3 +30,35 @@
     background: rgba(255, 255, 255, 0.1);
   }
 }
+
+/* Print configuration for Thermal Printer */
+@media print {
+  @page {
+    size: 72mm auto;
+    margin: 2mm;
+  }
+
+  /* Hide everything when printing if is-printing class is present */
+  body.is-printing > * {
+    display: none !important;
+  }
+
+  /* Only show elements with print-only class */
+  body.is-printing .print-only {
+    display: block !important;
+    width: 72mm !important;
+    margin: 0 auto !important;
+    padding: 0 !important;
+    visibility: visible !important;
+  }
+
+  /* Ensure the root and other containers don't interfere */
+  #root, body, html {
+    height: auto !important;
+    overflow: visible !important;
+  }
+}
+
+.print-only {
+  display: none;
+}

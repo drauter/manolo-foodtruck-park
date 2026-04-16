@@ -13,54 +13,11 @@ const Receipt = ({ order, station = STATIONS.CAJA }) => {
   const pending = order.is_paid ? 0 : order.total_price;
 
   return (
-    <div id="printable-receipt-wrapper" className="bg-slate-200 p-4 sm:p-10 min-h-full w-full flex justify-center items-start print:bg-white print:p-0">
+    <div id="printable-receipt-wrapper" className="print-only bg-slate-200 p-4 sm:p-10 min-h-full w-full flex justify-center items-start print:bg-white print:p-0">
       <div 
-        className={`bg-white ${is58mm ? 'p-4 w-[58mm]' : 'p-8 w-[80mm]'} shadow-2xl font-sans text-slate-600 relative overflow-hidden print:shadow-none print:w-full print:p-0`} 
+        className={`bg-white ${is58mm ? 'p-4 w-[58mm]' : 'p-8 w-[72mm]'} shadow-2xl font-mono text-slate-900 relative overflow-hidden print:shadow-none print:w-[72mm] print:p-0`} 
         id="printable-invoice"
       >
-        <style>{`
-          @page {
-            margin: 0;
-            size: auto;
-          }
-          @media print {
-            html, body {
-              margin: 0 !important;
-              padding: 0 !important;
-              background: white !important;
-              height: auto !important;
-            }
-            /* Collapse the main app to prevents Page 1 being blank */
-            #root {
-              height: 0 !important;
-              overflow: hidden !important;
-            }
-            #printable-receipt-wrapper {
-              position: absolute !important;
-              top: 0 !important;
-              left: 0 !important;
-              width: 100% !important;
-              height: auto !important;
-              background: white !important;
-              z-index: 99999 !important;
-              display: flex !important;
-              justify-content: center !important;
-              visibility: visible !important;
-            }
-            #printable-receipt-wrapper * {
-              visibility: visible !important;
-            }
-            #printable-invoice {
-              width: ${is58mm ? '58mm' : '80mm'} !important;
-              margin: 0 !important;
-              padding: ${is58mm ? '1mm' : '3mm'} !important;
-              box-shadow: none !important;
-              border: none !important;
-              background: white !important;
-            }
-            .no-print { display: none !important; }
-          }
-        `}</style>
        
         {/* Branded Header */}
         <div className="flex flex-col items-center mb-6 pb-6 border-b-2 border-slate-900 border-double print:mb-4 print:pb-4">
