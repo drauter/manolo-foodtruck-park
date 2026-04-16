@@ -111,7 +111,7 @@ const AdminPanel = () => {
    React.useEffect(() => {
       if (selectedInvoice && activeTab === 'checkout') {
          const timer = setTimeout(() => {
-            window.print();
+            handlePrint();
          }, 1000);
          return () => clearTimeout(timer);
       }
@@ -388,7 +388,11 @@ const AdminPanel = () => {
    };
 
    const handlePrint = () => {
+      document.body.classList.add('is-printing');
       window.print();
+      setTimeout(() => {
+         document.body.classList.remove('is-printing');
+      }, 500);
    };
 
    const menuItems = [
@@ -1286,7 +1290,7 @@ const AdminPanel = () => {
                                  <Printer size={20} />
                                  <span>VER IMPRESORAS</span>
                               </button>
-                              <button onClick={() => window.print()} className="flex items-center gap-3 px-8 py-5 bg-[#007BFF] text-white rounded-[2rem] font-black uppercase text-[10px] shadow-lg hover:opacity-90 transition-all tracking-widest">
+                              <button onClick={() => handlePrint()} className="flex items-center gap-3 px-8 py-5 bg-[#007BFF] text-white rounded-[2rem] font-black uppercase text-[10px] shadow-lg hover:opacity-90 transition-all tracking-widest">
                                  <FileText size={20} />
                                  <span>IMPRIMIR</span>
                               </button>
