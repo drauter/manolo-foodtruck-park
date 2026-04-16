@@ -31,30 +31,11 @@
   }
 }
 
-/* THERMAL PRINT FIX: RESTORE DESIGN AND FORCE 1-PAGE */
+/* THERMAL PRINT FIX: USER DEFINED BLOCK */
 @media print {
-  /* Kill phantom height from the main app */
   html, body {
     margin: 0 !important;
     padding: 0 !important;
-    height: 100% !important; /* Fixed height for the viewport */
-    overflow: hidden !important; /* No scrolling = no phantom pages */
-    background-color: white !important;
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
-  }
-
-  /* Hide everything in the body by default */
-  body * {
-    visibility: hidden !important;
-  }
-
-  /* Reveal ONLY the receipt and its content */
-  .receipt-print, .receipt-print * {
-    visibility: visible !important;
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
-  }
     background: white !important;
   }
   body * { visibility: hidden !important; }
