@@ -26,7 +26,7 @@ const Receipt = ({ order, station = STATIONS.CAJA, isForPrint = false }) => {
     <div style={{ 
       display: 'block', 
       width: '100%', 
-      marginBottom: '15px', // Aggressive margin
+      marginBottom: '15px', 
       clear: 'both',
       fontSize: '13px',
       lineHeight: '1.5'
@@ -34,7 +34,7 @@ const Receipt = ({ order, station = STATIONS.CAJA, isForPrint = false }) => {
       <span style={{ float: 'left', fontWeight: 'normal' }}>{label}</span>
       <span style={{ float: 'right', fontWeight: isBold ? '900' : 'normal' }}>{value}</span>
       <div style={{ clear: 'both' }}></div>
-      <br /> {/* HARD BREAK TO PREVENT OVERLAPPING */}
+      <br />
     </div>
   );
 
@@ -46,12 +46,12 @@ const Receipt = ({ order, station = STATIONS.CAJA, isForPrint = false }) => {
           backgroundColor: 'white', 
           width: '72mm', 
           padding: isForPrint ? '0' : '5mm', 
-          paddingTop: isForPrint ? '25mm' : '5mm', // Buffer at the top to clear previous ticket
+          paddingTop: isForPrint ? '25mm' : '5mm', 
           fontFamily: 'monospace', 
           color: 'black',
           border: isForPrint ? 'none' : '1px solid #ccc',
           lineHeight: '1.2', 
-          paddingBottom: isForPrint ? '80mm' : '10mm' // EXTREME Buffer at the bottom for cut safety
+          paddingBottom: isForPrint ? '100mm' : '10mm' // MASSIVE cut buffer
         }} 
         id="printable-invoice"
       >
@@ -64,23 +64,7 @@ const Receipt = ({ order, station = STATIONS.CAJA, isForPrint = false }) => {
             <div style={{ fontSize: '16px', fontWeight: '900', letterSpacing: '4px' }}>FOODTRUCK PARK</div>
         </div>
 
-        {/* QR Section - MOVED TO TOP/MIDDLE FOR CUT SAFETY */}
-        <div style={{ marginBottom: '40px', textAlign: 'center', borderBottom: '2px dashed black', paddingBottom: '30px' }}>
-           <div style={{ display: 'flex', justifyContent: 'center' }}>
-               <div style={{ display: 'inline-block', padding: '10px', backgroundColor: 'white', border: '3px solid black' }}>
-                   <img 
-                     src={`https://quickchart.io/qr?text=${encodeURIComponent(`https://manolofoodtruckpark.pages.dev/tracking/${order.id}`)}&size=200&margin=0`} 
-                     alt="QR"
-                     style={{ width: '120px', height: '120px', display: 'block' }}
-                   />
-               </div>
-           </div>
-           <div style={{ marginTop: '15px', fontSize: '11px', fontWeight: '900' }}>
-              ESCANEAME PARA VER EL<br/>ESTADO DE TU PEDIDO
-           </div>
-        </div>
-
-        {/* metadata - Using brute force separation */}
+        {/* metadata */}
         <div style={{ marginBottom: '30px' }}>
            <InfoLine label="ESTADO:" value={sanitize(order.status === 'cancelled' ? 'ANULADO' : (is_paid ? 'PAGADO' : 'PENDIENTE'))} isBold={true} />
            <InfoLine label="FACTURA:" value={`FAC-${order.ticket_number}`} />
@@ -89,7 +73,7 @@ const Receipt = ({ order, station = STATIONS.CAJA, isForPrint = false }) => {
            <InfoLine label="ESTACION:" value={sanitize(getStationDisplay(station, order))} />
         </div>
 
-        {/* Table - FIXED LAYOUT */}
+        {/* Table */}
         <div style={{ borderTop: '2px solid black', borderBottom: '2px solid black', margin: '20px 0', padding: '10px 0' }}>
            <table style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed', fontSize: '12px' }}>
               <thead>
@@ -148,8 +132,24 @@ const Receipt = ({ order, station = STATIONS.CAJA, isForPrint = false }) => {
            )}
         </div>
 
+        {/* QR Section - Back at the end */}
+        <div style={{ marginTop: '50px', textAlign: 'center', borderTop: '2px dashed black', paddingTop: '30px' }}>
+           <div style={{ display: 'flex', justifyContent: 'center' }}>
+               <div style={{ display: 'inline-block', padding: '10px', backgroundColor: 'white', border: '2px solid black' }}>
+                   <img 
+                     src={`https://quickchart.io/qr?text=${encodeURIComponent(`https://manolofoodtruckpark.pages.dev/tracking/${order.id}`)}&size=200&margin=0`} 
+                     alt="QR"
+                     style={{ width: '120px', height: '120px', display: 'block' }}
+                   />
+               </div>
+           </div>
+           <div style={{ marginTop: '15px', fontSize: '11px', fontWeight: '900' }}>
+              ESCANEAME PARA VER EL<br/>ESTADO DE TU PEDIDO
+           </div>
+        </div>
+
         {/* Footer */}
-        <div style={{ marginTop: '60px', textAlign: 'center', fontSize: '14px', borderTop: '2px solid black', paddingTop: '30px' }}>
+        <div style={{ marginTop: '50px', textAlign: 'center', fontSize: '14px', borderTop: '2px solid black', paddingTop: '30px' }}>
            <div style={{ display: 'inline-block', border: '3px solid black', padding: '10px 15px', fontWeight: '900', marginBottom: '15px' }}>
               GRACIAS POR TU COMPRA
            </div>
@@ -158,6 +158,7 @@ const Receipt = ({ order, station = STATIONS.CAJA, isForPrint = false }) => {
            <br />
            <br />
            <br />
+           <div style={{ height: '40px' }}>&nbsp;</div>
         </div>
       </div>
     </div>
