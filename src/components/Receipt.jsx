@@ -23,14 +23,14 @@ const Receipt = ({ order, station = STATIONS.CAJA, isForPrint = false }) => {
 
   // Helper for Table Rows with stable high-density padding
   const DataRow = ({ label, value, isBold = false }) => (
-    <tr style={{ borderBottom: '6px solid transparent' }}>
-      <td style={{ textAlign: 'left', verticalAlign: 'middle', fontSize: '12px', padding: '10px 0' }}>{sanitize(label)}</td>
-      <td style={{ textAlign: 'right', verticalAlign: 'middle', fontSize: '12px', padding: '10px 0', fontWeight: isBold ? '900' : 'normal' }}>{sanitize(value)}</td>
+    <tr style={{ borderBottom: '4px solid transparent' }}>
+      <td style={{ textAlign: 'left', verticalAlign: 'middle', fontSize: '12px', padding: '6px 0' }}>{sanitize(label)}</td>
+      <td style={{ textAlign: 'right', verticalAlign: 'middle', fontSize: '12px', padding: '6px 0', fontWeight: isBold ? '900' : 'normal' }}>{sanitize(value)}</td>
     </tr>
   );
 
   return (
-    <div id="printable-receipt-wrapper" className="receipt-wrapper" style={{ marginTop: 0, paddingTop: 0 }}>
+    <div id="printable-receipt-wrapper" className="receipt-wrapper" style={{ marginTop: 0, paddingTop: 0, overflow: 'visible' }}>
       <div 
         className={isForPrint ? "receipt-print" : "receipt-preview"}
         style={{ 
@@ -40,31 +40,31 @@ const Receipt = ({ order, station = STATIONS.CAJA, isForPrint = false }) => {
           boxSizing: 'border-box',
           paddingLeft: '2mm',
           paddingRight: '2mm',
-          paddingTop: isForPrint ? '8mm' : '5mm', 
+          paddingTop: isForPrint ? '4mm' : '5mm', // Bare minimum lead
           paddingBottom: '0',
           fontFamily: 'monospace', 
-          fontSize: '12px',
+          fontSize: '11px', // Slightly smaller for better fit
           color: 'black',
           border: isForPrint ? 'none' : '1px solid #ccc',
           lineHeight: '1.4', 
           letterSpacing: '0.1px',
-          overflow: 'hidden' // Reverted to hidden for stability
+          overflow: 'visible' 
         }} 
         id={isForPrint ? "printable-invoice" : undefined}
       >
         {/* HEADER */}
-        <div style={{ textAlign: 'center', marginBottom: '10px' }}>
-            <div style={{ fontSize: '12px', fontWeight: '900', textDecoration: 'underline' }}>
+        <div style={{ textAlign: 'center', marginBottom: '8px' }}>
+            <div style={{ fontSize: '11px', fontWeight: '900', textDecoration: 'underline' }}>
                TICKET {order.ticket_number}
             </div>
-            <div style={{ fontSize: '26px', fontWeight: '900', marginTop: '8px' }}>MANOLO</div>
-            <div style={{ fontSize: '13px', fontWeight: '700', letterSpacing: '2px' }}>FOODTRUCK PARK</div>
+            <div style={{ fontSize: '24px', fontWeight: '900', marginTop: '6px' }}>MANOLO</div>
+            <div style={{ fontSize: '12px', fontWeight: '700', letterSpacing: '2px' }}>FOODTRUCK PARK</div>
         </div>
 
-        <div style={{ borderTop: '2px solid black', margin: '10px 0' }}></div>
+        <div style={{ borderTop: '2px solid black', margin: '8px 0' }}></div>
 
-        {/* METADATA - USING BORDER BOTTOM AS SPACER (CLEANER) */}
-        <div style={{ marginBottom: '10px' }}>
+        {/* METADATA */}
+        <div style={{ marginBottom: '8px' }}>
            <table style={{ width: '100%', tableLayout: 'fixed', borderCollapse: 'collapse' }}>
               <tbody>
                  <DataRow label="ESTADO:" value={order.status === 'cancelled' ? 'ANULADO' : (is_paid ? 'PAGADO' : 'PENDIENTE')} isBold={true} />
@@ -76,36 +76,36 @@ const Receipt = ({ order, station = STATIONS.CAJA, isForPrint = false }) => {
            </table>
         </div>
 
-        <div style={{ borderTop: '1px solid black', margin: '10px 0' }}></div>
+        <div style={{ borderTop: '1px solid black', margin: '8px 0' }}></div>
 
         {/* ITEMS TABLE */}
-        <div style={{ margin: '15px 0' }}>
-           <table style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed', fontSize: '11px' }}>
+        <div style={{ margin: '8px 0' }}>
+           <table style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed', fontSize: '10px' }}>
               <thead>
                  <tr style={{ borderBottom: '1px solid black' }}>
-                    <th style={{ textAlign: 'left', width: '60%', padding: '10px 0' }}>DESC</th>
-                    <th style={{ textAlign: 'center', width: '15%', padding: '10px 0' }}>CANT</th>
-                    <th style={{ textAlign: 'right', width: '25%', padding: '10px 0' }}>TOTAL</th>
+                    <th style={{ textAlign: 'left', width: '60%', padding: '6px 0' }}>DESC</th>
+                    <th style={{ textAlign: 'center', width: '15%', padding: '6px 0' }}>CANT</th>
+                    <th style={{ textAlign: 'right', width: '25%', padding: '6px 0' }}>TOTAL</th>
                  </tr>
               </thead>
               <tbody>
                  {order.items?.filter(item => station === 'CAJA' || item.station === station).map((item, i) => (
                     <tr key={i} style={{ borderBottom: '1px solid #f0f0f0' }}>
-                       <td style={{ textAlign: 'left', padding: '10px 0', verticalAlign: 'middle', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                       <td style={{ textAlign: 'left', padding: '6px 0', verticalAlign: 'middle', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                           {sanitize(item.products?.name || item.product?.name || 'PRODUCTO')}
                        </td>
-                       <td style={{ textAlign: 'center', padding: '10px 0', verticalAlign: 'middle' }}>{item.quantity}</td>
-                       <td style={{ textAlign: 'right', padding: '10px 0', verticalAlign: 'middle' }}>${((item.price_at_time || 0) * (item.quantity || 1)).toFixed(2)}</td>
+                       <td style={{ textAlign: 'center', padding: '6px 0', verticalAlign: 'middle' }}>{item.quantity}</td>
+                       <td style={{ textAlign: 'right', padding: '6px 0', verticalAlign: 'middle' }}>${((item.price_at_time || 0) * (item.quantity || 1)).toFixed(2)}</td>
                     </tr>
                  ))}
               </tbody>
            </table>
         </div>
 
-        <div style={{ borderTop: '1px solid black', margin: '10px 0' }}></div>
+        <div style={{ borderTop: '1px solid black', margin: '8px 0' }}></div>
 
         {/* TOTALS SECTION */}
-        <div style={{ marginBottom: '10px' }}>
+        <div style={{ marginBottom: '8px' }}>
            <table style={{ width: '100%', tableLayout: 'fixed', borderCollapse: 'collapse' }}>
               <tbody>
                  <DataRow label="TOTAL PEDIDO:" value={`$${order.total_price.toFixed(2)}`} />
@@ -122,18 +122,18 @@ const Receipt = ({ order, station = STATIONS.CAJA, isForPrint = false }) => {
                  )}
 
                  <tr style={{ borderTop: '2px solid black' }}>
-                    <td style={{ textAlign: 'left', padding: '12px 0', fontSize: '16px', fontWeight: '900' }}>TOTAL PAGADO:</td>
-                    <td style={{ textAlign: 'right', padding: '12px 0', fontSize: '16px', fontWeight: '900' }}>${totalPaid.toFixed(2)}</td>
+                    <td style={{ textAlign: 'left', padding: '10px 0', fontSize: '15px', fontWeight: '900' }}>TOTAL PAGADO:</td>
+                    <td style={{ textAlign: 'right', padding: '10px 0', fontSize: '15px', fontWeight: '900' }}>${totalPaid.toFixed(2)}</td>
                  </tr>
 
                  {pending > 0 && (
                    <tr>
-                      <td colSpan="2" style={{ border: '2px solid black', padding: '8px' }}>
+                      <td colSpan="2" style={{ border: '2px solid black', padding: '6px' }}>
                          <table style={{ width: '100%' }}>
                             <tbody>
                                <tr>
-                                  <td style={{ textAlign: 'left', fontSize: '16px', fontWeight: '900' }}>PENDIENTE:</td>
-                                  <td style={{ textAlign: 'right', fontSize: '16px', fontWeight: '900' }}>${pending.toFixed(2)}</td>
+                                  <td style={{ textAlign: 'left', fontSize: '15px', fontWeight: '900' }}>PENDIENTE:</td>
+                                  <td style={{ textAlign: 'right', fontSize: '15px', fontWeight: '900' }}>${pending.toFixed(2)}</td>
                                </tr>
                             </tbody>
                          </table>
@@ -147,8 +147,8 @@ const Receipt = ({ order, station = STATIONS.CAJA, isForPrint = false }) => {
         <div style={{ borderTop: '1px dashed black', margin: '15px 0' }}></div>
 
         {/* QR SECTION */}
-        <div style={{ textAlign: 'center', marginBottom: '20px' }}>
-           <div style={{ display: 'inline-block', padding: '8px', border: '1px solid black', marginBottom: '10px' }}>
+        <div style={{ textAlign: 'center', marginBottom: '15px' }}>
+           <div style={{ display: 'inline-block', padding: '6px', border: '1px solid black', marginBottom: '8px' }}>
                <img 
                  src={`https://quickchart.io/qr?text=${encodeURIComponent(`https://manolofoodtruckpark.pages.dev/tracking/${order.id}`)}&size=200&margin=0`} 
                  alt="QR"
@@ -163,8 +163,8 @@ const Receipt = ({ order, station = STATIONS.CAJA, isForPrint = false }) => {
         <div style={{ borderTop: '1px solid black', margin: '15px 0' }}></div>
 
         {/* FOOTER */}
-        <div style={{ textAlign: 'center', marginBottom: '10px' }}>
-           <div style={{ display: 'inline-block', border: '1px solid black', padding: '6px 12px', fontWeight: '900', fontSize: '12px', marginBottom: '5px' }}>
+        <div style={{ textAlign: 'center', marginBottom: '8px' }}>
+           <div style={{ display: 'inline-block', border: '1px solid black', padding: '6px 12px', fontWeight: '900', fontSize: '11px', marginBottom: '4px' }}>
               GRACIAS POR TU COMPRA
            </div>
            <div style={{ fontSize: '10px', fontWeight: '700', marginBottom: '2px' }}>VISITANOS PRONTO EN MANOLO</div>
@@ -173,9 +173,9 @@ const Receipt = ({ order, station = STATIONS.CAJA, isForPrint = false }) => {
            </div>
         </div>
 
-        {/* FINAL TICKET ADVANCE */}
-        <div style={{ borderTop: '2px solid black', marginTop: '10px' }}></div>
-        <div style={{ height: '22mm', backgroundColor: 'white' }}>&nbsp;</div>
+        {/* MINIMAL HARDWARE ADVANCE */}
+        <div style={{ borderTop: '2px solid black', marginTop: '8px' }}></div>
+        <div style={{ height: '15mm', backgroundColor: 'white' }}>&nbsp;</div>
       </div>
     </div>
   );
