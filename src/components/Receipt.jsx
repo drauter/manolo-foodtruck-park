@@ -13,132 +13,116 @@ const Receipt = ({ order, station = STATIONS.CAJA }) => {
   const pending = order.is_paid ? 0 : order.total_price;
 
   return (
-    <div id="printable-receipt-wrapper" className="bg-slate-200 p-4 sm:p-10 min-h-full w-full flex justify-center items-start">
+    <div id="printable-receipt-wrapper" style={{ padding: '20px', backgroundColor: '#eee', minHeight: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'flex-start' }}>
       <div 
-        className={`bg-white ${is58mm ? 'p-4 w-[58mm]' : 'p-8 w-[72mm]'} shadow-2xl font-mono text-slate-900 relative overflow-hidden`} 
+        className="receipt-print"
+        style={{ 
+          backgroundColor: 'white', 
+          width: '72mm', 
+          padding: '10px', 
+          fontFamily: 'monospace', 
+          color: 'black',
+          border: '1px solid #ccc'
+        }} 
         id="printable-invoice"
       >
-       
-        {/* Branded Header */}
-        <div className="flex flex-col items-center mb-6 pb-6 border-b-2 border-slate-900 border-double">
-           <div className="w-16 h-8 bg-slate-950 text-white rounded-lg flex items-center justify-center text-sm font-black mb-2 shadow-lg tracking-widest border-2 border-white/20">
+        <div style={{ textAlign: 'center', marginBottom: '15px', borderBottom: '2px solid black', paddingBottom: '10px' }}>
+           <div style={{ display: 'inline-block', padding: '5px', backgroundColor: 'black', color: 'white', fontWeight: 'bold' }}>
               #{order.ticket_number}
            </div>
-           <h1 className="text-2xl font-black italic tracking-tighter text-slate-900 leading-none uppercase text-center">MANOLO</h1>
-           <h2 className="text-lg font-black uppercase tracking-[0.2em] text-slate-400 mt-1 text-center">FOODTRUCK PARK</h2>
+           <div style={{ fontSize: '20px', fontWeight: 'bold' }}>MANOLO</div>
+           <div style={{ fontSize: '14px', fontWeight: 'bold' }}>FOODTRUCK PARK</div>
         </div>
 
-        {/* Metadata Header */}
-       <div className="space-y-3 mb-6">
-          <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest">
-             <span className="text-slate-400">ESTADO:</span>
-             <span className={`font-black tracking-tighter italic ${is_paid ? "text-emerald-500" : "text-orange-500"}`}>{order.status === 'cancelled' ? 'ANULADO' : (is_paid ? 'PAGADO' : 'PENDIENTE')}</span>
-          </div>
-          <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-slate-400">
-             <span>NO. FACTURA:</span>
-             <span className="text-slate-900 font-mono font-black border-b border-slate-900/10">#FAC-{order.ticket_number}-{order.id?.toString().slice(-3) || '000'}</span>
-          </div>
-          <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-slate-400">
-             <span>FECHA:</span>
-             <span className="text-slate-900">{new Date(order.timestamp).toLocaleString()}</span>
-          </div>
-          <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-slate-400">
-             <span>CLIENTE:</span>
-             <span className="text-slate-900 font-black italic">{order.customer_name}</span>
-          </div>
-          <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-slate-400">
-             <span>ESTACIÓN:</span>
-             <span className="text-slate-900 font-black italic">
-               {getStationDisplay(station, order)}
-             </span>
-          </div>
-       </div>
+        <div style={{ fontSize: '12px', marginBottom: '15px' }}>
+           <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <span>ESTADO:</span>
+              <span>{order.status === 'cancelled' ? 'ANULADO' : (is_paid ? 'PAGADO' : 'PENDIENTE')}</span>
+           </div>
+           <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <span>NO. FACTURA:</span>
+              <span>#FAC-{order.ticket_number}</span>
+           </div>
+           <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <span>FECHA:</span>
+              <span>{new Date(order.timestamp).toLocaleString()}</span>
+           </div>
+           <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <span>CLIENTE:</span>
+              <span>{order.customer_name}</span>
+           </div>
+           <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <span>ESTACION:</span>
+              <span>{getStationDisplay(station, order).toUpperCase()}</span>
+           </div>
+        </div>
 
-       {/* Items Table */}
-       <div className="mb-6 text-slate-900">
-          <table className="w-full text-left">
-             <thead>
-                <tr className="border-b-2 border-slate-900 text-[10px] font-black uppercase tracking-widest text-slate-400">
-                   <th className="py-2">DESCRIPCIÓN</th>
-                   <th className="py-2 text-center">CANT</th>
-                   <th className="py-2 text-right">TOTAL</th>
-                </tr>
-             </thead>
-             <tbody className="divide-y divide-slate-100">
-                {order.items?.filter(item => station === 'CAJA' || item.station === station).map((item, i) => (
-                   <tr key={i} className="text-xs font-bold text-slate-900">
-                      <td className="py-2 uppercase tracking-tighter italic">{item.products?.name || item.product?.name || 'Producto'}</td>
-                      <td className="py-2 text-center font-mono">x{item.quantity}</td>
-                      <td className="py-2 text-right font-mono">${((item.price_at_time || 0) * (item.quantity || 1)).toFixed(2)}</td>
-                   </tr>
-                ))}
-             </tbody>
-          </table>
-       </div>
+        <div style={{ borderTop: '1px solid black', borderBottom: '1px solid black', margin: '10px 0', padding: '5px 0', fontSize: '12px' }}>
+           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <thead>
+                 <tr style={{ borderBottom: '1px solid black' }}>
+                    <th style={{ textAlign: 'left' }}>DESC</th>
+                    <th style={{ textAlign: 'center' }}>CANT</th>
+                    <th style={{ textAlign: 'right' }}>TOTAL</th>
+                 </tr>
+              </thead>
+              <tbody>
+                 {order.items?.filter(item => station === 'CAJA' || item.station === station).map((item, i) => (
+                    <tr key={i}>
+                       <td style={{ textAlign: 'left' }}>{item.products?.name || item.product?.name || 'PRODUCTO'}</td>
+                       <td style={{ textAlign: 'center' }}>x{item.quantity}</td>
+                       <td style={{ textAlign: 'right' }}>${((item.price_at_time || 0) * (item.quantity || 1)).toFixed(2)}</td>
+                    </tr>
+                 ))}
+              </tbody>
+           </table>
+        </div>
 
-        {/* Totals Section */}
-        <div className="space-y-2 pt-4 border-t-2 border-slate-900 border-dashed">
-           <div className="flex justify-between items-center text-xs font-black uppercase tracking-widest text-slate-900">
+        <div style={{ fontSize: '12px', fontWeight: 'bold' }}>
+           <div style={{ display: 'flex', justifyContent: 'space-between' }}>
               <span>TOTAL PEDIDO:</span>
-              <span className="font-mono">${order.total_price.toFixed(2)}</span>
+              <span>${order.total_price.toFixed(2)}</span>
            </div>
            
            {order.payment_details?.[station] && (
              <>
-                <div className="flex justify-between items-center text-[10px] font-bold uppercase tracking-widest text-slate-400">
-                   <span>MÉTODO:</span>
-                   <span className="text-slate-900">{order.payment_details[station].method === 'cash' ? 'EFECTIVO' : 'TARJETA'}</span>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                   <span>METODO:</span>
+                   <span>{order.payment_details[station].method === 'cash' ? 'EFECTIVO' : 'TARJETA'}</span>
                 </div>
                 {order.payment_details[station].method === 'cash' && (
                   <>
-                    <div className="flex justify-between items-center text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                        <span>RECIBIDO:</span>
-                       <span className="text-slate-900 font-mono">${Number(order.payment_details[station].received || 0).toFixed(2)}</span>
+                       <span>${Number(order.payment_details[station].received || 0).toFixed(2)}</span>
                     </div>
-                    <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-emerald-600">
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                        <span>CAMBIO:</span>
-                       <span className="font-mono">${Number(order.payment_details[station].change || 0).toFixed(2)}</span>
+                       <span>${Number(order.payment_details[station].change || 0).toFixed(2)}</span>
                     </div>
                   </>
                 )}
              </>
            )}
 
-           <div className="flex justify-between items-center text-xs font-black uppercase tracking-widest text-emerald-500 border-t border-slate-100 pt-2 mt-2">
+           <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid black', marginTop: '5px', paddingTop: '5px' }}>
               <span>TOTAL PAGADO:</span>
-               <span className="font-mono">${totalPaid.toFixed(2)}</span>
+               <span>${totalPaid.toFixed(2)}</span>
            </div>
            {pending > 0 && (
-             <div className="flex justify-between items-center text-lg font-black uppercase tracking-tighter text-slate-950 pt-2">
+             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '16px', marginTop: '5px' }}>
                 <span>PENDIENTE:</span>
-                <span className="font-mono decoration-slate-950 underline decoration-2">${pending.toFixed(2)}</span>
+                <span>${pending.toFixed(2)}</span>
              </div>
            )}
         </div>
 
-        {/* QR Tracking Section */}
-        <div className="mt-8 mb-4 flex flex-col items-center">
-            <div className="p-2 bg-white border-2 border-slate-900 rounded-2xl mb-2">
-                <img 
-                  src={`https://quickchart.io/qr?text=${encodeURIComponent(`https://manolofoodtruckpark.pages.dev/tracking/${order.id}`)}&size=200&margin=1&ecLevel=M`} 
-                  alt="Seguimiento"
-                  decoding="async"
-                  loading="eager"
-                  className="w-24 h-24"
-                />
-            </div>
-            <p className="text-[10px] font-black uppercase tracking-tighter text-slate-900 text-center leading-tight max-w-[120px]">
-               Escaneame para ver el estado de tu pedido
-            </p>
+        <div style={{ marginTop: '20px', textAlign: 'center', fontSize: '10px' }}>
+           <div style={{ border: '1px solid black', padding: '10px', display: 'inline-block' }}>
+              GRACIAS POR TU COMPRA
+           </div>
+           <p style={{ marginTop: '10px' }}>VISITANOS PRONTO EN MANOLO FOODTRUCK PARK</p>
         </div>
-
-       {/* Footer */}
-       <div className="mt-4 text-center">
-          <div className="inline-block px-4 py-1 bg-slate-900 text-white rounded-full text-[8px] font-black uppercase tracking-[0.4em] mb-2 shadow-lg rotate-1">
-             ¡GRACIAS POR TU COMPRA!
-          </div>
-          <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">VISÍTANOS PRONTO EN MANOLO FOODTRUCK PARK</p>
-       </div>
       </div>
     </div>
   );
