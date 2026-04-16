@@ -13,7 +13,7 @@ const Receipt = ({ order, station = STATIONS.CAJA }) => {
   const pending = order.is_paid ? 0 : order.total_price;
 
   return (
-    <div id="printable-receipt-wrapper" className="print-only bg-slate-200 p-4 sm:p-10 min-h-full w-full flex justify-center items-start print:bg-white print:p-0">
+    <div id="printable-receipt-wrapper" className="bg-slate-200 p-4 sm:p-10 min-h-full w-full flex justify-center items-start print:bg-white print:p-0">
       <div 
         className={`bg-white ${is58mm ? 'p-4 w-[58mm]' : 'p-8 w-[72mm]'} shadow-2xl font-mono text-slate-900 relative overflow-hidden print:shadow-none print:w-[72mm] print:p-0`} 
         id="printable-invoice"
