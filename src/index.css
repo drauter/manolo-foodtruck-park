@@ -55,30 +55,19 @@
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
-
-  /* RESTORE TABLE LAYOUT (CRITICAL) */
-  .receipt-print table { display: table !important; }
-  .receipt-print thead { display: table-header-group !important; }
-  .receipt-print tbody { display: table-row-group !important; }
-  .receipt-print tr { display: table-row !important; }
-  .receipt-print td, .receipt-print th { display: table-cell !important; }
-
-  /* Position receipt in the center of the 80mm paper to avoid clipping */
+    background: white !important;
+  }
+  body * { visibility: hidden !important; }
+  .receipt-print, .receipt-print * { visibility: visible !important; }
   .receipt-print {
-    position: fixed !important;
+    position: absolute !important;
     top: 0 !important;
-    left: 50% !important;
-    transform: translateX(-50%) !important;
-    width: 72mm !important;
-    height: auto !important;
-    background-color: white !important;
-    z-index: 99999 !important;
+    left: 0 !important;
+    width: 80mm !important;
+    margin: 0 !important;
+    padding: 0 !important;
   }
-
-  @page {
-    size: 80mm auto;
-    margin: 0;
-  }
+  @page { size: 80mm auto; margin: 0; }
 }
 
 #print-portal {
