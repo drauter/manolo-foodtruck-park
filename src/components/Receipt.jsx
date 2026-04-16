@@ -23,16 +23,16 @@ const Receipt = ({ order, station = STATIONS.CAJA, isForPrint = false }) => {
   };
 
   return (
-    <div id="printable-receipt-wrapper" style={{ padding: '20px', backgroundColor: '#eee', minHeight: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'flex-start' }}>
+    <div id="printable-receipt-wrapper" className="receipt-wrapper">
       <div 
-        className={isForPrint ? "receipt-print" : ""}
+        className={isForPrint ? "receipt-print" : "receipt-preview"}
         style={{ 
           backgroundColor: 'white', 
           width: '72mm', 
-          padding: '5mm', 
+          padding: isForPrint ? '0' : '5mm', 
           fontFamily: 'monospace', 
           color: 'black',
-          border: '1px solid #ccc',
+          border: isForPrint ? 'none' : '1px solid #ccc',
           lineHeight: '1.2'
         }} 
         id="printable-invoice"
