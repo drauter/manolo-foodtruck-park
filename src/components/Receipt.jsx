@@ -32,7 +32,8 @@ const Receipt = ({ order, station = STATIONS.CAJA, isForPrint = false }) => {
           fontFamily: 'monospace', 
           color: 'black',
           border: isForPrint ? 'none' : '1px solid #ccc',
-          lineHeight: '1.2'
+          lineHeight: '1.2',
+          paddingBottom: isForPrint ? '30mm' : '0'
         }} 
         id="printable-invoice"
       >
