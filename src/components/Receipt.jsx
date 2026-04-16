@@ -21,23 +21,6 @@ const Receipt = ({ order, station = STATIONS.CAJA, isForPrint = false }) => {
       .toUpperCase();
   };
 
-  // BRUTE FORCE InfoLine: Uses multiple breaks and explicit heights to prevent overlapping
-  const InfoLine = ({ label, value, isBold = false }) => (
-    <div style={{ 
-      display: 'block', 
-      width: '100%', 
-      marginBottom: '15px', 
-      clear: 'both',
-      fontSize: '13px',
-      lineHeight: '1.5'
-    }}>
-      <span style={{ float: 'left', fontWeight: 'normal' }}>{label}</span>
-      <span style={{ float: 'right', fontWeight: isBold ? '900' : 'normal' }}>{value}</span>
-      <div style={{ clear: 'both' }}></div>
-      <br />
-    </div>
-  );
-
   return (
     <div id="printable-receipt-wrapper" className="receipt-wrapper">
       <div 
@@ -45,95 +28,118 @@ const Receipt = ({ order, station = STATIONS.CAJA, isForPrint = false }) => {
         style={{ 
           backgroundColor: 'white', 
           width: '72mm', 
-          padding: isForPrint ? '0' : '5mm', 
-          paddingTop: isForPrint ? '25mm' : '5mm', 
+          margin: '0 auto',
+          padding: isForPrint ? '0' : '2mm', 
+          paddingTop: isForPrint ? '20mm' : '5mm', // Buffer to clear previous cut
           fontFamily: 'monospace', 
           color: 'black',
           border: isForPrint ? 'none' : '1px solid #ccc',
-          lineHeight: '1.2', 
-          paddingBottom: isForPrint ? '100mm' : '10mm' // MASSIVE cut buffer
+          lineHeight: '1.4',
+          letterSpacing: '0.2px',
+          paddingBottom: isForPrint ? '50mm' : '10mm' // Safety for cut
         }} 
         id="printable-invoice"
       >
-        {/* Header */}
-        <div style={{ textAlign: 'center', marginBottom: '30px', borderBottom: '3px solid black', paddingBottom: '20px' }}>
-            <div style={{ display: 'inline-block', padding: '10px 15px', backgroundColor: 'black', color: 'white', fontStyle: 'italic', fontWeight: '900', fontSize: '18px', marginBottom: '12px' }}>
+        {/* ORIGINAL PREMIUM HEADER */}
+        <div style={{ textAlign: 'center', marginBottom: '25px', borderBottom: '3px solid black', paddingBottom: '15px' }}>
+            <div style={{ display: 'inline-block', padding: '8px 15px', backgroundColor: 'black', color: 'white', fontStyle: 'italic', fontWeight: '900', fontSize: '16px', marginBottom: '10px' }}>
                TICKET {order.ticket_number}
             </div>
-            <div style={{ fontSize: '32px', fontWeight: '900', marginTop: '10px', letterSpacing: '2px' }}>MANOLO</div>
-            <div style={{ fontSize: '16px', fontWeight: '900', letterSpacing: '4px' }}>FOODTRUCK PARK</div>
+            <div style={{ fontSize: '28px', fontWeight: '900', marginTop: '5px', letterSpacing: '1px' }}>MANOLO</div>
+            <div style={{ fontSize: '14px', fontWeight: '900', letterSpacing: '2px' }}>FOODTRUCK PARK</div>
         </div>
 
-        {/* metadata */}
-        <div style={{ marginBottom: '30px' }}>
-           <InfoLine label="ESTADO:" value={sanitize(order.status === 'cancelled' ? 'ANULADO' : (is_paid ? 'PAGADO' : 'PENDIENTE'))} isBold={true} />
-           <InfoLine label="FACTURA:" value={`FAC-${order.ticket_number}`} />
-           <InfoLine label="FECHA:" value={sanitize(new Date(order.timestamp).toLocaleString())} />
-           <InfoLine label="CLIENTE:" value={sanitize(order.customer_name)} />
-           <InfoLine label="ESTACION:" value={sanitize(getStationDisplay(station, order))} />
+        {/* ORIGINAL METADATA LAYOUT (with better spacing) */}
+        <div style={{ fontSize: '13px', marginBottom: '20px', lineHeight: '1.6' }}>
+           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
+              <span>ESTADO:</span>
+              <span style={{ fontWeight: '900' }}>{sanitize(order.status === 'cancelled' ? 'ANULADO' : (is_paid ? 'PAGADO' : 'PENDIENTE'))}</span>
+           </div>
+           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
+              <span>FACTURA:</span>
+              <span style={{ fontWeight: '700' }}>FAC-{order.ticket_number}</span>
+           </div>
+           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
+              <span>FECHA:</span>
+              <span>{sanitize(new Date(order.timestamp).toLocaleString())}</span>
+           </div>
+           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
+              <span>CLIENTE:</span>
+              <span style={{ fontWeight: '900' }}>{sanitize(order.customer_name)}</span>
+           </div>
+           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
+              <span>ESTACION:</span>
+              <span>{sanitize(getStationDisplay(station, order))}</span>
+           </div>
         </div>
 
-        {/* Table */}
+        {/* ORIGINAL ITEMS TABLE */}
         <div style={{ borderTop: '2px solid black', borderBottom: '2px solid black', margin: '20px 0', padding: '10px 0' }}>
            <table style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed', fontSize: '12px' }}>
               <thead>
                  <tr style={{ borderBottom: '1px solid black' }}>
-                    <th style={{ textAlign: 'left', width: '60%', padding: '8px 0' }}>DESC</th>
-                    <th style={{ textAlign: 'center', width: '15%', padding: '8px 0' }}>CANT</th>
-                    <th style={{ textAlign: 'right', width: '25%', padding: '8px 0' }}>TOTAL</th>
+                    <th style={{ textAlign: 'left', width: '60%', padding: '6px 0' }}>DESC</th>
+                    <th style={{ textAlign: 'center', width: '15%', padding: '6px 0' }}>CANT</th>
+                    <th style={{ textAlign: 'right', width: '25%', padding: '6px 0' }}>TOTAL</th>
                  </tr>
               </thead>
               <tbody>
                  {order.items?.filter(item => station === 'CAJA' || item.station === station).map((item, i) => (
                     <tr key={i}>
-                       <td style={{ textAlign: 'left', padding: '12px 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                       <td style={{ textAlign: 'left', padding: '8px 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                           {sanitize(item.products?.name || item.product?.name || 'PRODUCTO')}
                        </td>
-                       <td style={{ textAlign: 'center', padding: '12px 0' }}>{item.quantity}</td>
-                       <td style={{ textAlign: 'right', padding: '12px 0' }}>${((item.price_at_time || 0) * (item.quantity || 1)).toFixed(2)}</td>
+                       <td style={{ textAlign: 'center', padding: '8px 0' }}>{item.quantity}</td>
+                       <td style={{ textAlign: 'right', padding: '8px 0' }}>${((item.price_at_time || 0) * (item.quantity || 1)).toFixed(2)}</td>
                     </tr>
                  ))}
               </tbody>
            </table>
         </div>
 
-        {/* Totals */}
-        <div style={{ fontSize: '14px', fontWeight: '900' }}>
-           <InfoLine label="TOTAL PEDIDO:" value={`$${order.total_price.toFixed(2)}`} isBold={true} />
+        {/* ORIGINAL TOTALS SECTION */}
+        <div style={{ fontSize: '13px', fontWeight: '900' }}>
+           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+              <span>TOTAL PEDIDO:</span>
+              <span>${order.total_price.toFixed(2)}</span>
+           </div>
            
            {order.payment_details?.[station] && (
-             <div style={{ borderTop: '1px dashed black', paddingTop: '15px', marginTop: '15px' }}>
-                <InfoLine label="METODO:" value={sanitize(order.payment_details[station].method === 'cash' ? 'EFECTIVO' : 'TARJETA')} />
+             <div style={{ borderTop: '1px dashed #000', paddingTop: '10px', marginTop: '10px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: '400' }}>
+                   <span>METODO:</span>
+                   <span>{sanitize(order.payment_details[station].method === 'cash' ? 'EFECTIVO' : 'TARJETA')}</span>
+                </div>
                 {order.payment_details[station].method === 'cash' && (
                   <>
-                    <InfoLine label="RECIBIDO:" value={`$${Number(order.payment_details[station].received || 0).toFixed(2)}`} />
-                    <InfoLine label="CAMBIO:" value={`$${Number(order.payment_details[station].change || 0).toFixed(2)}`} isBold={true} />
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: '400' }}>
+                       <span>RECIBIDO:</span>
+                       <span>${Number(order.payment_details[station].received || 0).toFixed(2)}</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: '900' }}>
+                       <span>CAMBIO:</span>
+                       <span>${Number(order.payment_details[station].change || 0).toFixed(2)}</span>
+                    </div>
                   </>
                 )}
              </div>
            )}
 
-           <div style={{ borderTop: '3px solid black', marginTop: '20px', paddingTop: '20px' }}>
-              <div style={{ display: 'block', width: '100%', fontSize: '20px', fontWeight: '900', height: '30px' }}>
-                 <span style={{ float: 'left' }}>TOTAL PAGADO:</span>
-                 <span style={{ float: 'right' }}>${totalPaid.toFixed(2)}</span>
-                 <div style={{ clear: 'both' }}></div>
-                 <br />
-              </div>
+           <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '3px solid black', marginTop: '15px', paddingTop: '12px', fontSize: '18px' }}>
+              <span>TOTAL PAGADO:</span>
+               <span>${totalPaid.toFixed(2)}</span>
            </div>
            
            {pending > 0 && (
-             <div style={{ display: 'block', width: '100%', fontSize: '20px', fontWeight: '900', backgroundColor: 'black', color: 'white', padding: '12px', marginTop: '15px' }}>
-                <span style={{ float: 'left' }}>PENDIENTE:</span>
-                <span style={{ float: 'right' }}>${pending.toFixed(2)}</span>
-                <div style={{ clear: 'both' }}></div>
-                <br />
+             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '18px', marginTop: '10px', backgroundColor: 'black', color: 'white', padding: '8px' }}>
+                <span>PENDIENTE:</span>
+                <span>${pending.toFixed(2)}</span>
              </div>
            )}
         </div>
 
-        {/* QR Section - Back at the end */}
-        <div style={{ marginTop: '50px', textAlign: 'center', borderTop: '2px dashed black', paddingTop: '30px' }}>
+        {/* ORIGINAL QR SECTION */}
+        <div style={{ marginTop: '40px', textAlign: 'center', borderTop: '2px dashed black', paddingTop: '20px' }}>
            <div style={{ display: 'flex', justifyContent: 'center' }}>
                <div style={{ display: 'inline-block', padding: '10px', backgroundColor: 'white', border: '2px solid black' }}>
                    <img 
@@ -143,22 +149,18 @@ const Receipt = ({ order, station = STATIONS.CAJA, isForPrint = false }) => {
                    />
                </div>
            </div>
-           <div style={{ marginTop: '15px', fontSize: '11px', fontWeight: '900' }}>
+           <div style={{ marginTop: '12px', fontSize: '11px', fontWeight: '900' }}>
               ESCANEAME PARA VER EL<br/>ESTADO DE TU PEDIDO
            </div>
         </div>
 
-        {/* Footer */}
-        <div style={{ marginTop: '50px', textAlign: 'center', fontSize: '14px', borderTop: '2px solid black', paddingTop: '30px' }}>
-           <div style={{ display: 'inline-block', border: '3px solid black', padding: '10px 15px', fontWeight: '900', marginBottom: '15px' }}>
+        {/* ORIGINAL PREMIUM FOOTER */}
+        <div style={{ marginTop: '50px', textAlign: 'center', fontSize: '13px', borderTop: '2px solid black', paddingTop: '25px' }}>
+           <div style={{ display: 'inline-block', border: '3px solid black', padding: '8px 15px', fontWeight: '900', marginBottom: '15px' }}>
               GRACIAS POR TU COMPRA
            </div>
            <div style={{ fontWeight: '900', marginBottom: '6px' }}>VISITANOS PRONTO EN MANOLO</div>
            <div style={{ fontWeight: '900' }}>FOODTRUCK PARK</div>
-           <br />
-           <br />
-           <br />
-           <div style={{ height: '40px' }}>&nbsp;</div>
         </div>
       </div>
     </div>
