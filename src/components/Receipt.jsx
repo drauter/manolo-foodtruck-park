@@ -21,6 +21,22 @@ const Receipt = ({ order, station = STATIONS.CAJA, isForPrint = false }) => {
       .toUpperCase();
   };
 
+  // Helper for Metadata lines with spacing to prevent overlapping
+  const InfoLine = ({ label, value, isBold = false }) => (
+    <div style={{ 
+      display: 'block', 
+      width: '100%', 
+      marginBottom: '10px', // Explicit space between lines
+      clear: 'both',
+      fontSize: '12px',
+      height: '16px' // Explicit height for the row
+    }}>
+      <span style={{ float: 'left', fontWeight: 'normal' }}>{label}</span>
+      <span style={{ float: 'right', fontWeight: isBold ? '900' : 'normal' }}>{value}</span>
+      <div style={{ clear: 'both' }}></div>
+    </div>
+  );
+
   return (
     <div id="printable-receipt-wrapper" className="receipt-wrapper">
       <div 
@@ -29,61 +45,41 @@ const Receipt = ({ order, station = STATIONS.CAJA, isForPrint = false }) => {
           backgroundColor: 'white', 
           width: '72mm', 
           padding: isForPrint ? '0' : '5mm', 
-          paddingTop: isForPrint ? '10mm' : '5mm', // Buffer at the top
+          paddingTop: isForPrint ? '20mm' : '5mm', // Buffer at the top to clear previous ticket
           fontFamily: 'monospace', 
           color: 'black',
           border: isForPrint ? 'none' : '1px solid #ccc',
-          lineHeight: '1.4',
-          letterSpacing: '0.2px',
-          paddingBottom: isForPrint ? '30mm' : '10mm' // Buffer at the bottom for cut
+          lineHeight: '1.2', // Reset line height and use margins instead
+          paddingBottom: isForPrint ? '60mm' : '10mm' // LARGE Buffer at the bottom for cut
         }} 
         id="printable-invoice"
       >
         {/* Header */}
         <div style={{ textAlign: 'center', marginBottom: '35px', borderBottom: '3px solid black', paddingBottom: '20px' }}>
-            <div style={{ display: 'inline-block', padding: '8px 15px', backgroundColor: 'black', color: 'white', fontStyle: 'italic', fontWeight: '900', fontSize: '18px', marginBottom: '12px' }}>
+            <div style={{ display: 'inline-block', padding: '10px 15px', backgroundColor: 'black', color: 'white', fontStyle: 'italic', fontWeight: '900', fontSize: '18px', marginBottom: '12px' }}>
                TICKET {order.ticket_number}
             </div>
             <div style={{ fontSize: '32px', fontWeight: '900', marginTop: '10px', letterSpacing: '2px' }}>MANOLO</div>
             <div style={{ fontSize: '16px', fontWeight: '900', letterSpacing: '4px' }}>FOODTRUCK PARK</div>
         </div>
 
-        {/* STABLE METADATA TABLE - Replaces Flexbox to prevent vertical overlapping */}
-        <div style={{ marginBottom: '30px' }}>
-           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '14px', lineHeight: '2.0', letterSpacing: '0.5px' }}>
-              <tbody>
-                 <tr>
-                    <td style={{ textAlign: 'left', fontWeight: 'normal', width: '40%' }}>ESTADO:</td>
-                    <td style={{ textAlign: 'right', fontWeight: '900' }}>{sanitize(order.status === 'cancelled' ? 'ANULADO' : (is_paid ? 'PAGADO' : 'PENDIENTE'))}</td>
-                 </tr>
-                 <tr>
-                    <td style={{ textAlign: 'left', fontWeight: 'normal' }}>FACTURA:</td>
-                    <td style={{ textAlign: 'right' }}>FAC-{order.ticket_number}</td>
-                 </tr>
-                 <tr>
-                    <td style={{ textAlign: 'left', fontWeight: 'normal' }}>FECHA:</td>
-                    <td style={{ textAlign: 'right' }}>{sanitize(new Date(order.timestamp).toLocaleString())}</td>
-                 </tr>
-                 <tr>
-                    <td style={{ textAlign: 'left', fontWeight: 'normal' }}>CLIENTE:</td>
-                    <td style={{ textAlign: 'right' }}>{sanitize(order.customer_name)}</td>
-                 </tr>
-                 <tr>
-                    <td style={{ textAlign: 'left', fontWeight: 'normal' }}>ESTACION:</td>
-                    <td style={{ textAlign: 'right' }}>{sanitize(getStationDisplay(station, order))}</td>
-                 </tr>
-              </tbody>
-           </table>
+        {/* metadata - Using brute force block separation */}
+        <div style={{ marginBottom: '25px' }}>
+           <InfoLine label="ESTADO:" value={sanitize(order.status === 'cancelled' ? 'ANULADO' : (is_paid ? 'PAGADO' : 'PENDIENTE'))} isBold={true} />
+           <InfoLine label="FACTURA:" value={`FAC-${order.ticket_number}`} />
+           <InfoLine label="FECHA:" value={sanitize(new Date(order.timestamp).toLocaleString())} />
+           <InfoLine label="CLIENTE:" value={sanitize(order.customer_name)} />
+           <InfoLine label="ESTACION:" value={sanitize(getStationDisplay(station, order))} />
         </div>
 
-        {/* Table - FIXED LAYOUT TO PREVENT MASHING */}
-        <div style={{ borderTop: '3px solid black', borderBottom: '3px solid black', margin: '25px 0', padding: '12px 0' }}>
-           <table style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed', fontSize: '13px', letterSpacing: '0.8px' }}>
+        {/* Table - Tables are okay as long as they are simple and have high padding */}
+        <div style={{ borderTop: '2px solid black', borderBottom: '2px solid black', margin: '20px 0', padding: '10px 0' }}>
+           <table style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed', fontSize: '12px' }}>
               <thead>
-                 <tr style={{ borderBottom: '2px solid black' }}>
-                    <th style={{ textAlign: 'left', width: '60%', padding: '8px 0' }}>DESC</th>
-                    <th style={{ textAlign: 'center', width: '15%', padding: '8px 0' }}>CANT</th>
-                    <th style={{ textAlign: 'right', width: '25%', padding: '8px 0' }}>TOTAL</th>
+                 <tr style={{ borderBottom: '1px solid black' }}>
+                    <th style={{ textAlign: 'left', width: '60%', padding: '6px 0' }}>DESC</th>
+                    <th style={{ textAlign: 'center', width: '15%', padding: '6px 0' }}>CANT</th>
+                    <th style={{ textAlign: 'right', width: '25%', padding: '6px 0' }}>TOTAL</th>
                  </tr>
               </thead>
               <tbody>
@@ -100,89 +96,61 @@ const Receipt = ({ order, station = STATIONS.CAJA, isForPrint = false }) => {
            </table>
         </div>
 
-        {/* Totals - Stable Table Layout */}
-        <div style={{ fontSize: '14px', fontWeight: '900', letterSpacing: '0.8px', marginTop: '15px' }}>
-           <table style={{ width: '100%', borderCollapse: 'collapse', lineHeight: '1.8' }}>
-              <tbody>
-                 <tr>
-                    <td style={{ textAlign: 'left' }}>TOTAL PEDIDO:</td>
-                    <td style={{ textAlign: 'right' }}>${order.total_price.toFixed(2)}</td>
-                 </tr>
-              </tbody>
-           </table>
+        {/* Totals */}
+        <div style={{ fontSize: '13px', fontWeight: '900' }}>
+           <InfoLine label="TOTAL PEDIDO:" value={`$${order.total_price.toFixed(2)}`} isBold={true} />
            
            {order.payment_details?.[station] && (
-             <div style={{ borderTop: '1px dashed #000', paddingTop: '10px', marginTop: '10px' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px', lineHeight: '1.8', fontWeight: 'normal' }}>
-                   <tbody>
-                      <tr>
-                         <td style={{ textAlign: 'left' }}>METODO:</td>
-                         <td style={{ textAlign: 'right' }}>{sanitize(order.payment_details[station].method === 'cash' ? 'EFECTIVO' : 'TARJETA')}</td>
-                      </tr>
-                      {order.payment_details[station].method === 'cash' && (
-                        <>
-                           <tr>
-                              <td style={{ textAlign: 'left' }}>RECIBIDO:</td>
-                              <td style={{ textAlign: 'right' }}>${Number(order.payment_details[station].received || 0).toFixed(2)}</td>
-                           </tr>
-                           <tr style={{ fontWeight: '900' }}>
-                              <td style={{ textAlign: 'left' }}>CAMBIO:</td>
-                              <td style={{ textAlign: 'right' }}>${Number(order.payment_details[station].change || 0).toFixed(2)}</td>
-                           </tr>
-                        </>
-                      )}
-                   </tbody>
-                </table>
+             <div style={{ borderTop: '1px dashed black', paddingTop: '10px', marginTop: '10px' }}>
+                <InfoLine label="METODO:" value={sanitize(order.payment_details[station].method === 'cash' ? 'EFECTIVO' : 'TARJETA')} />
+                {order.payment_details[station].method === 'cash' && (
+                  <>
+                    <InfoLine label="RECIBIDO:" value={`$${Number(order.payment_details[station].received || 0).toFixed(2)}`} />
+                    <InfoLine label="CAMBIO:" value={`$${Number(order.payment_details[station].change || 0).toFixed(2)}`} isBold={true} />
+                  </>
+                )}
              </div>
            )}
 
-           <div style={{ borderTop: '4px solid black', marginTop: '20px', paddingTop: '15px' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '20px', fontWeight: '900' }}>
-                 <tbody>
-                    <tr>
-                       <td style={{ textAlign: 'left' }}>TOTAL PAGADO:</td>
-                       <td style={{ textAlign: 'right' }}>${totalPaid.toFixed(2)}</td>
-                    </tr>
-                 </tbody>
-              </table>
+           <div style={{ borderTop: '3px solid black', marginTop: '15px', paddingTop: '15px' }}>
+              <div style={{ display: 'block', width: '100%', fontSize: '18px', fontWeight: '900', height: '24px' }}>
+                 <span style={{ float: 'left' }}>TOTAL PAGADO:</span>
+                 <span style={{ float: 'right' }}>${totalPaid.toFixed(2)}</span>
+                 <div style={{ clear: 'both' }}></div>
+              </div>
            </div>
            
            {pending > 0 && (
-              <div style={{ marginTop: '12px', backgroundColor: 'black', color: 'white', padding: '10px' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '20px', fontWeight: '900', color: 'white' }}>
-                   <tbody>
-                      <tr>
-                         <td style={{ textAlign: 'left' }}>PENDIENTE:</td>
-                         <td style={{ textAlign: 'right' }}>${pending.toFixed(2)}</td>
-                      </tr>
-                   </tbody>
-                </table>
-              </div>
+             <div style={{ display: 'block', width: '100%', fontSize: '18px', fontWeight: '900', height: '24px', backgroundColor: 'black', color: 'white', padding: '10px', marginTop: '10px', marginBottom: '10px' }}>
+                <span style={{ float: 'left' }}>PENDIENTE:</span>
+                <span style={{ float: 'right' }}>${pending.toFixed(2)}</span>
+                <div style={{ clear: 'both' }}></div>
+             </div>
            )}
         </div>
 
-        {/* QR Section */}
+        {/* QR Section - MANTAINED AS PER USER REQUEST */}
         <div style={{ marginTop: '50px', textAlign: 'center', borderTop: '2px dashed black', paddingTop: '30px' }}>
            <div style={{ display: 'flex', justifyContent: 'center' }}>
-               <div style={{ display: 'inline-block', padding: '12px', backgroundColor: 'white', border: '3px solid black' }}>
+               <div style={{ display: 'inline-block', padding: '10px', backgroundColor: 'white', border: '2px solid black' }}>
                    <img 
-                     src={`https://quickchart.io/qr?text=${encodeURIComponent(`https://manolofoodtruckpark.pages.dev/tracking/${order.id}`)}&size=240&margin=0`} 
+                     src={`https://quickchart.io/qr?text=${encodeURIComponent(`https://manolofoodtruckpark.pages.dev/tracking/${order.id}`)}&size=200&margin=0`} 
                      alt="QR"
-                     style={{ width: '150px', height: '150px', display: 'block' }}
+                     style={{ width: '120px', height: '120px', display: 'block' }}
                    />
                </div>
            </div>
-           <div style={{ marginTop: '18px', fontSize: '13px', fontWeight: '900', letterSpacing: '1px' }}>
+           <div style={{ marginTop: '15px', fontSize: '11px', fontWeight: '900' }}>
               ESCANEAME PARA VER EL<br/>ESTADO DE TU PEDIDO
            </div>
         </div>
 
         {/* Footer */}
-        <div style={{ marginTop: '60px', textAlign: 'center', fontSize: '15px', borderTop: '3px solid black', paddingTop: '30px' }}>
-           <div style={{ display: 'inline-block', border: '4px solid black', padding: '12px 20px', fontWeight: '900', marginBottom: '20px' }}>
+        <div style={{ marginTop: '50px', textAlign: 'center', fontSize: '13px', borderTop: '2px solid black', paddingTop: '30px' }}>
+           <div style={{ display: 'inline-block', border: '3px solid black', padding: '8px 15px', fontWeight: '900', marginBottom: '12px' }}>
               GRACIAS POR TU COMPRA
            </div>
-           <div style={{ fontWeight: '900', marginBottom: '8px' }}>VISITANOS PRONTO EN MANOLO</div>
+           <div style={{ fontWeight: '900', marginBottom: '4px' }}>VISITANOS PRONTO EN MANOLO</div>
            <div style={{ fontWeight: '900' }}>FOODTRUCK PARK</div>
         </div>
       </div>
