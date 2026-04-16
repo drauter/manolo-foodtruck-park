@@ -2,7 +2,7 @@ import React from 'react';
 import { useOrder } from '../context/OrderContext';
 import { STATIONS, getStationDisplay } from '../utils/constants';
 
-const Receipt = ({ order, station = STATIONS.CAJA }) => {
+const Receipt = ({ order, station = STATIONS.CAJA, isForPrint = false }) => {
   const { printerConfig } = useOrder();
   if (!order) return null;
   const config = printerConfig[station] || printerConfig[STATIONS.CAJA];
@@ -25,7 +25,7 @@ const Receipt = ({ order, station = STATIONS.CAJA }) => {
   return (
     <div id="printable-receipt-wrapper" style={{ padding: '20px', backgroundColor: '#eee', minHeight: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'flex-start' }}>
       <div 
-        className="receipt-print"
+        className={isForPrint ? "receipt-print" : ""}
         style={{ 
           backgroundColor: 'white', 
           width: '72mm', 

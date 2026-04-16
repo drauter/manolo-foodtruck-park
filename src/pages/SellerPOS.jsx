@@ -757,7 +757,7 @@ const SellerPOS = () => {
 
                 <div className="flex-grow overflow-y-auto w-full flex justify-center pb-20 custom-scrollbar">
                    <div ref={printRef} className="origin-top transition-transform duration-500">
-                      <Receipt order={selectedInvoice} station={currentUser.station || 'CAJA'} />
+                      <Receipt order={selectedInvoice} station={currentUser.station || 'CAJA'} isForPrint={true} />
                    </div>
                 </div>
              </motion.div>

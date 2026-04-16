@@ -216,7 +216,7 @@ const EmployeePanel = () => {
                    <button onClick={() => setPrintingOrder(null)} className="p-4 bg-white/10 text-white rounded-2xl hover:bg-white/20 transition-all"><X size={24} /></button>
                 </div>
                 <div className="flex-grow w-full overflow-y-auto flex justify-center pb-32 custom-scrollbar">
-                   <Receipt order={printingOrder} station={stationKey} />
+                   <Receipt order={printingOrder} station={stationKey} isForPrint={true} />
                 </div>
                 <div className="fixed bottom-10 left-1/2 -translate-x-1/2 z-[110]">
                   <button 

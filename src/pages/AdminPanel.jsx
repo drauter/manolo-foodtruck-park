@@ -108,15 +108,7 @@ const AdminPanel = () => {
 
    const navigate = useNavigate();
 
-   // Auto-print effect when invoice is selected from checkout
-   React.useEffect(() => {
-      if (selectedInvoice && activeTab === 'checkout') {
-         const timer = setTimeout(() => {
-            handlePrint();
-         }, 1000);
-         return () => clearTimeout(timer);
-      }
-   }, [selectedInvoice, activeTab]);
+   // Auto-print effect removed to prevent multiple prints. Printing must be manual.
 
 
 
@@ -1626,7 +1618,7 @@ const AdminPanel = () => {
 
                      <div className="flex-grow w-full overflow-y-auto flex justify-center pb-20 custom-scrollbar rounded-[3rem]">
                         <div className="max-w-[210mm] mx-auto">
-                           <Receipt order={selectedInvoice} station="CAJA" />
+                           <Receipt order={selectedInvoice} station="CAJA" isForPrint={true} />
                         </div>
                      </div>
                   </motion.div>
