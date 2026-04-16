@@ -50,7 +50,7 @@ const Receipt = ({ order, station = STATIONS.CAJA, isForPrint = false }) => {
           letterSpacing: '0.1px',
           overflow: 'hidden'
         }} 
-        id="printable-invoice"
+        id={isForPrint ? "printable-invoice" : undefined}
       >
         {/* HEADER */}
         <div style={{ textAlign: 'center', marginBottom: '15px' }}>
