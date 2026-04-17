@@ -33,13 +33,17 @@ const Receipt = ({ order, station = STATIONS.CAJA, isForPrint = false }) => {
       width: '100%',
       minHeight: '1.2em'
     }}>
-      <div style={{ textAlign: 'left', flexShrink: 0, paddingRight: '4px' }}>{sanitize(label)}</div>
-      <div style={{ textAlign: 'right', flexGrow: 1 }}>{sanitize(value)}</div>
+      <div style={{ textAlign: 'left', flexShrink: 0, paddingRight: '4px' }}>{label}</div>
+      <div style={{ textAlign: 'right', flexGrow: 1 }}>{value}</div>
     </div>
   );
 
   return (
-    <div id="printable-receipt-wrapper" className="receipt-wrapper" style={{ marginTop: 0, paddingTop: 0, overflow: 'visible' }}>
+    <div 
+      id={isForPrint ? "printable-receipt-wrapper" : undefined} 
+      className="receipt-wrapper" 
+      style={{ overflow: 'visible' }}
+    >
       <div 
         className={isForPrint ? "receipt-print" : "receipt-preview"}
         style={{ 
@@ -174,7 +178,7 @@ const Receipt = ({ order, station = STATIONS.CAJA, isForPrint = false }) => {
 
         {/* MINIMAL HARDWARE ADVANCE */}
         <div style={{ borderTop: '2px solid black', marginTop: '8px' }}></div>
-        <div style={{ height: '15mm', backgroundColor: 'white' }}>&nbsp;</div>
+        <div style={{ height: '20mm' }}></div>
       </div>
     </div>
   );

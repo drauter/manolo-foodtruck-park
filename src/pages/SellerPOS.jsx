@@ -228,7 +228,7 @@ const SellerPOS = () => {
   };
 
   const handlePrint = () => {
-    printReceipt('printable-invoice');
+    printReceipt();
   };
 
   const handleWhatsAppShare = (order) => {

@@ -31,23 +31,27 @@
   }
 }
 
-/* THERMAL PRINT FIX: USER DEFINED BLOCK */
 @media print {
+  @page { size: 80mm auto; margin: 0; }
   html, body {
     margin: 0 !important;
     padding: 0 !important;
     background: white !important;
   }
   body * { visibility: hidden !important; }
+  #printable-receipt-wrapper { visibility: visible !important; }
   .receipt-print, .receipt-print * { visibility: visible !important; }
   .receipt-print {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
     display: block !important;
     width: 80mm !important;
     margin: 0 !important;
-    padding: 0 !important;
+    padding-left: 3mm !important;
+    padding-right: 3mm !important;
     background: white !important;
   }
-  @page { size: 80mm auto; margin: 0; }
 }
 
 #print-portal {
