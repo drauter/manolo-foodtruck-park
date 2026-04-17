@@ -21,8 +21,8 @@ const Receipt = ({ order, station = STATIONS.CAJA, isForPrint = false, printId }
       .toUpperCase();
   };
 
-  // FLEX-BASED  // DataRow basado en FLEXBOX con ANCLAJES FÍSICOS para forzar al motor de la impresora
-  const DataRow = ({ label, value, isBold = false, fontSize = '9px', padding = '8px' }) => (
+  // DataRow basado en FLEXBOX estándar (Sin optimizaciones de hardware)
+  const DataRow = ({ label, value, isBold = false, fontSize = '11px', padding = '6px' }) => (
     <div style={{ 
       display: 'flex', 
       justifyContent: 'space-between', 
@@ -31,15 +31,11 @@ const Receipt = ({ order, station = STATIONS.CAJA, isForPrint = false, printId }
       fontSize: fontSize,
       fontWeight: isBold ? '900' : 'normal',
       width: '100%',
-      minHeight: '1.6em',
-      lineHeight: '1.6'
+      minHeight: '1.2em',
+      lineHeight: '1.4'
     }}>
-      <div style={{ textAlign: 'left', flexShrink: 0, paddingRight: '4px' }}>
-        <span style={{ fontSize: '1px', opacity: 0.1 }}>.</span>{label}
-      </div>
-      <div style={{ textAlign: 'right', flexGrow: 1 }}>
-        {value}<span style={{ fontSize: '1px', opacity: 0.1 }}>.</span>
-      </div>
+      <div style={{ textAlign: 'left', flexShrink: 0, paddingRight: '4px' }}>{label}</div>
+      <div style={{ textAlign: 'right', flexGrow: 1 }}>{value}</div>
     </div>
   );
 
@@ -60,10 +56,10 @@ const Receipt = ({ order, station = STATIONS.CAJA, isForPrint = false, printId }
           paddingTop: isForPrint ? '5mm' : '5mm', 
           paddingBottom: '0',
           fontFamily: 'monospace', 
-          fontSize: '9px',
+          fontSize: '11px',
           color: 'black',
           border: isForPrint ? 'none' : '1px solid #ccc',
-          lineHeight: '1.6', 
+          lineHeight: '1.4', 
           letterSpacing: '0.1px',
           overflow: 'hidden' 
         }} 
@@ -71,22 +67,22 @@ const Receipt = ({ order, station = STATIONS.CAJA, isForPrint = false, printId }
       >
         {/* HEADER */}
         <div style={{ textAlign: 'center', marginBottom: '8px' }}>
-            <div style={{ fontSize: '9px', fontWeight: '900', textDecoration: 'underline' }}>
+            <div style={{ fontSize: '11px', fontWeight: '900', textDecoration: 'underline' }}>
                TICKET {order.ticket_number}
             </div>
             <div style={{ fontSize: '24px', fontWeight: '900', marginTop: '6px' }}>MANOLO</div>
-            <div style={{ fontSize: '11px', fontWeight: '700', letterSpacing: '2px' }}>FOODTRUCK PARK</div>
+            <div style={{ fontSize: '12px', fontWeight: '700', letterSpacing: '2px' }}>FOODTRUCK PARK</div>
         </div>
 
         <div style={{ borderTop: '2px solid black', margin: '8px 0' }}></div>
 
         {/* METADATA - REFACTORED TO FLEXBOX */}
         <div style={{ marginBottom: '8px' }}>
-            <DataRow label="ESTADO:" value={order.status === 'cancelled' ? 'ANULADO' : (is_paid ? 'PAGADO' : 'PENDIENTE')} isBold={true} fontSize="9px" />
-            <DataRow label="FACTURA:" value={`FAC-${order.ticket_number}`} fontSize="9px" />
-            <DataRow label="FECHA:" value={new Date(order.timestamp).toLocaleString()} fontSize="9px" />
-            <DataRow label="CLIENTE:" value={order.customer_name} fontSize="9px" />
-            <DataRow label="ESTACION:" value={getStationDisplay(station, order)} fontSize="9px" />
+            <DataRow label="ESTADO:" value={order.status === 'cancelled' ? 'ANULADO' : (is_paid ? 'PAGADO' : 'PENDIENTE')} isBold={true} fontSize="11px" />
+            <DataRow label="FACTURA:" value={`FAC-${order.ticket_number}`} fontSize="11px" />
+            <DataRow label="FECHA:" value={new Date(order.timestamp).toLocaleString()} fontSize="11px" />
+            <DataRow label="CLIENTE:" value={order.customer_name} fontSize="11px" />
+            <DataRow label="ESTACION:" value={getStationDisplay(station, order)} fontSize="11px" />
         </div>
 
         <div style={{ borderTop: '1px solid black', margin: '8px 0' }}></div>
@@ -94,7 +90,7 @@ const Receipt = ({ order, station = STATIONS.CAJA, isForPrint = false, printId }
         {/* ITEMS SECTION - REFACTORED TO FLEXBOX FOR RELIABILITY */}
         <div style={{ margin: '8px 0' }}>
            {/* HEADER */}
-           <div style={{ display: 'flex', borderBottom: '1px solid black', paddingBottom: '4px', fontWeight: '900', fontSize: '9px' }}>
+           <div style={{ display: 'flex', borderBottom: '1px solid black', paddingBottom: '4px', fontWeight: '900', fontSize: '11px' }}>
               <div style={{ width: '55%', textAlign: 'left' }}>DESC</div>
               <div style={{ width: '15%', textAlign: 'center' }}>CANT</div>
               <div style={{ width: '30%', textAlign: 'right' }}>TOTAL</div>
@@ -102,7 +98,7 @@ const Receipt = ({ order, station = STATIONS.CAJA, isForPrint = false, printId }
            
            {/* ROWS */}
            {order.items?.filter(item => station === 'CAJA' || item.station === station).map((item, i) => (
-             <div key={i} style={{ display: 'flex', padding: '6px 0', borderBottom: '1px solid #f0f0f0', fontSize: '9px', alignItems: 'center' }}>
+             <div key={i} style={{ display: 'flex', padding: '6px 0', borderBottom: '1px solid #f0f0f0', fontSize: '11px', alignItems: 'center' }}>
                 <div style={{ width: '55%', textAlign: 'left', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                    {sanitize(item.products?.name || item.product?.name || 'PRODUCTO')}
                 </div>
@@ -116,14 +112,14 @@ const Receipt = ({ order, station = STATIONS.CAJA, isForPrint = false, printId }
 
         {/* TOTALS SECTION - REFACTORED TO FLEXBOX */}
         <div style={{ marginBottom: '8px' }}>
-            <DataRow label="TOTAL PEDIDO:" value={`$${order.total_price.toFixed(2)}`} fontSize="9px" />
+            <DataRow label="TOTAL PEDIDO:" value={`$${order.total_price.toFixed(2)}`} fontSize="11px" />
             {order.payment_details?.[station] && (
               <>
-                <DataRow label="METODO:" value={order.payment_details[station].method === 'cash' ? 'EFECTIVO' : 'TARJETA'} fontSize="9px" />
+                <DataRow label="METODO:" value={order.payment_details[station].method === 'cash' ? 'EFECTIVO' : 'TARJETA'} fontSize="11px" />
                 {order.payment_details[station].method === 'cash' && (
                   <>
-                    <DataRow label="RECIBIDO:" value={`$${Number(order.payment_details[station].received || 0).toFixed(2)}`} fontSize="9px" />
-                    <DataRow label="CAMBIO:" value={`$${Number(order.payment_details[station].change || 0).toFixed(2)}`} fontSize="9px" />
+                    <DataRow label="RECIBIDO:" value={`$${Number(order.payment_details[station].received || 0).toFixed(2)}`} fontSize="11px" />
+                    <DataRow label="CAMBIO:" value={`$${Number(order.payment_details[station].change || 0).toFixed(2)}`} fontSize="11px" />
                   </>
                 )}
               </>
@@ -137,15 +133,15 @@ const Receipt = ({ order, station = STATIONS.CAJA, isForPrint = false, printId }
               borderTop: '2px solid black',
               marginTop: '4px'
             }}>
-               <div style={{ fontSize: '13px', fontWeight: '900' }}>TOTAL PAGADO:</div>
-               <div style={{ fontSize: '13px', fontWeight: '900' }}>${totalPaid.toFixed(2)}</div>
+               <div style={{ fontSize: '15px', fontWeight: '900' }}>TOTAL PAGADO:</div>
+               <div style={{ fontSize: '15px', fontWeight: '900' }}>${totalPaid.toFixed(2)}</div>
             </div>
 
             {pending > 0 && (
               <div style={{ border: '2px solid black', padding: '8px', marginTop: '10px' }}>
                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div style={{ fontSize: '13px', fontWeight: '900' }}>PENDIENTE:</div>
-                    <div style={{ fontSize: '13px', fontWeight: '900' }}>${pending.toFixed(2)}</div>
+                    <div style={{ fontSize: '15px', fontWeight: '900' }}>PENDIENTE:</div>
+                    <div style={{ fontSize: '15px', fontWeight: '900' }}>${pending.toFixed(2)}</div>
                  </div>
               </div>
             )}
