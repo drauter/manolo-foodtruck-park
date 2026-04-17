@@ -22,11 +22,21 @@ export const printReceipt = (contentId = 'printable-receipt-wrapper') => {
     <!DOCTYPE html>
     <html>
       <head>
-        <title>Receipt</title>
         <style>
           @page { size: 80mm auto; margin: 0; }
-          body { margin: 0; padding: 0; width: 80mm; font-family: monospace; }
-          * { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+          html, body { 
+            margin: 0; 
+            padding: 0; 
+            width: 80mm;
+            height: auto;
+            font-family: monospace;
+          }
+          * { -webkit-print-color-adjust: exact; print-color-adjust: exact; box-sizing: border-box; }
+          table { display: table !important; width: 100%; border-collapse: collapse; }
+          thead { display: table-header-group !important; }
+          tbody { display: table-row-group !important; }
+          tr { display: table-row !important; }
+          td, th { display: table-cell !important; }
           .receipt-print { display: block !important; width: 80mm !important; }
         </style>
       </head>
@@ -34,10 +44,12 @@ export const printReceipt = (contentId = 'printable-receipt-wrapper') => {
         ${el.outerHTML}
         <script>
           window.onload = () => {
-            window.print();
             setTimeout(() => {
-              window.frameElement.remove();
-            }, 1000);
+              window.print();
+              setTimeout(() => {
+                window.frameElement.remove();
+              }, 500);
+            }, 100);
           };
         </script>
       </body>
