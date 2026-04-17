@@ -19,31 +19,41 @@ export const printReceipt = (contentId) => {
   const doc = iframe.contentDocument || iframe.contentWindow.document;
   doc.open();
   doc.write(`<!DOCTYPE html><html><head><style>
-    @page { size: 80mm auto; margin: 0; }
+    @page { 
+      size: auto; 
+      margin: 0; 
+    }
     html, body {
       margin: 0;
       padding: 0;
       width: 80mm;
+      height: auto;
       background: white;
       font-family: "Courier New", Courier, monospace;
       -webkit-print-color-adjust: exact;
       print-color-adjust: exact;
     }
+    @media print {
+      html, body {
+        width: 80mm;
+        margin: 0;
+        padding: 0;
+      }
+    }
     * { box-sizing: border-box; }
     pre {
       margin: 0;
-      padding: 0;
+      padding: 2mm;
       white-space: pre;
       word-break: normal;
       overflow-wrap: normal;
-      font-family: "Courier New", Courier, monospace;
+      font-family: inherit;
       font-size: 12px;
       line-height: 1.4;
       font-weight: bold;
       color: black;
-      background: white;
     }
-    img { display: block; max-width: 100%; }
+    img { display: block; max-width: 100%; margin: 0 auto; }
   </style></head><body>${el.outerHTML}</body></html>`);
   doc.close();
 

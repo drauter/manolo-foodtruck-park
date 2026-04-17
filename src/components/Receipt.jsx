@@ -73,17 +73,6 @@ const Receipt = ({ order, station = 'CAJA', isForPrint = false, printId = 'print
     ] : []),
     line('='),
     dual('TOTAL PAGADO:', `$${totalPaid.toFixed(2)}`),
-    blank(),
-    blank(),
-    blank(),
-    blank(),
-    blank(),
-    blank(),
-    blank(),
-    blank(),
-    blank(),
-    blank(),
-    center('ESCANÉAME PARA VER EL'),
     center('ESTADO DE TU PEDIDO'),
     blank(),
   ];
@@ -137,9 +126,15 @@ const Receipt = ({ order, station = 'CAJA', isForPrint = false, printId = 'print
 ${center('GRACIAS POR TU COMPRA')}
 ${center('VISITANOS PRONTO EN MANOLO')}
 ${center('FOODTRUCK PARK')}
-
-
-
+${blank()}
+${blank()}
+${blank()}
+${blank()}
+${blank()}
+${blank()}
+${blank()}
+${blank()}
+${blank()}
 `}</pre>
     </div>
   );
