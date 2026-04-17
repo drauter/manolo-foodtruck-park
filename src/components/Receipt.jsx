@@ -7,8 +7,6 @@ const Receipt = ({ order, station = STATIONS.CAJA, isForPrint = false, printId }
   if (!order) return null;
   
   const is_paid = order.is_paid;
-  const totalPaid = order.is_paid ? order.total_price : 0;
-  const pending = order.is_paid ? 0 : order.total_price;
 
   // Helper to sanitize text for thermal printers (No accents, no special chars)
   const sanitize = (text) => {
@@ -121,73 +119,50 @@ const Receipt = ({ order, station = STATIONS.CAJA, isForPrint = false, printId }
 
         {/* TOTALS SECTION - REFACTORED TO FLEXBOX */}
         <div style={{ marginBottom: '8px' }}>
-            <DataRow label="TOTAL PEDIDO:" value={`$${order.total_price.toFixed(2)}`} fontSize="10px" />
-            {order.payment_details?.[station] && (
-              <>
-                <DataRow label="METODO:" value={order.payment_details[station].method === 'cash' ? 'EFECTIVO' : 'TARJETA'} fontSize="10px" />
-                {order.payment_details[station].method === 'cash' && (
-                  <>
-                    <DataRow label="RECIBIDO:" value={`$${Number(order.payment_details[station].received || 0).toFixed(2)}`} fontSize="10px" />
-                    <DataRow label="CAMBIO:" value={`$${Number(order.payment_details[station].change || 0).toFixed(2)}`} fontSize="10px" />
-                  </>
-                )}
-              </>
-            )}
-
-            <div style={{ 
-              display: 'flex', 
-              justifyContent: 'space-between', 
-              alignItems: 'center', 
-              padding: '10px 0',
-              borderTop: '2px solid black',
-              marginTop: '4px'
-            }}>
-               <div style={{ fontSize: '15px', fontWeight: '900' }}>TOTAL PAGADO:</div>
-               <div style={{ fontSize: '15px', fontWeight: '900' }}>${totalPaid.toFixed(2)}</div>
-            </div>
-
-            {pending > 0 && (
-              <div style={{ border: '2px solid black', padding: '8px', marginTop: '10px' }}>
-                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div style={{ fontSize: '15px', fontWeight: '900' }}>PENDIENTE:</div>
-                    <div style={{ fontSize: '15px', fontWeight: '900' }}>${pending.toFixed(2)}</div>
-                 </div>
-              </div>
-            )}
+          <DataRow label="TOTAL PEDIDO:" value={`$${order.total_price.toFixed(2)}`} fontSize="10px" />
+          {order.payment_details?.[station] && (
+            <>
+              <DataRow label="METODO:" value={order.payment_details[station].method === 'cash' ? 'EFECTIVO' : 'TARJETA'} fontSize="10px" />
+              {order.payment_details[station].method === 'cash' && (
+                <>
+                  <DataRow label="RECIBIDO:" value={`$${Number(order.payment_details[station].received || 0).toFixed(2)}`} fontSize="10px" />
+                  <DataRow label="CAMBIO:" value={`$${Number(order.payment_details[station].change || 0).toFixed(2)}`} fontSize="10px" />
+                </>
+              )}
+            </>
+          )}
+          <div style={{ display:'flex', justifyContent:'space-between', padding:'8px 0', borderTop:'2px solid black', marginTop:'4px', fontSize:'14px', fontWeight:'900' }}>
+            <span>TOTAL PAGADO:</span>
+            <span>${(order.is_paid ? order.total_price : 0).toFixed(2)}</span>
+          </div>
         </div>
 
-        <div style={{ borderTop: '1px dashed black', margin: '15px 0' }}></div>
+        <div style={{ borderTop:'1px dashed black', margin:'12px 0' }}></div>
 
-        {/* QR SECTION */}
-        <div style={{ textAlign: 'center', marginBottom: '15px' }}>
-           <div style={{ display: 'inline-block', padding: '8px', border: '1px solid black', marginBottom: '8px' }}>
-               <img 
-                 src={`https://quickchart.io/qr?text=${encodeURIComponent(`https://manolofoodtruckpark.pages.dev/tracking/${order.id}`)}&size=200&margin=0`} 
-                 alt="QR"
-                 style={{ width: '100px', height: '100px', display: 'block' }}
-               />
-           </div>
-           <div style={{ marginTop: '5px', fontSize: '10px', fontWeight: '700' }}>
-              ESCANÉAME PARA VER EL<br/>ESTADO DE TU PEDIDO
-           </div>
+        {/* QR SECTION COMPLETA */}
+        <div style={{ textAlign:'center', marginBottom:'12px' }}>
+          <div style={{ display:'inline-block', padding:'6px', border:'1px solid black' }}>
+            <img 
+              src={`https://quickchart.io/qr?text=${encodeURIComponent(`https://manolofoodtruckpark.pages.dev/tracking/${order.id}`)}&size=160&margin=0`} 
+              alt="QR" 
+              style={{ width:'90px', height:'90px', display:'block' }} 
+            />
+          </div>
+          <div style={{ marginTop:'6px', fontSize:'10px', fontWeight:'700' }}>
+            ESCANÉAME PARA VER EL<br/>ESTADO DE TU PEDIDO
+          </div>
         </div>
 
-        <div style={{ borderTop: '1px solid black', margin: '15px 0' }}></div>
+        <div style={{ borderTop:'1px solid black', margin:'12px 0' }}></div>
 
-        {/* FOOTER */}
-        <div style={{ textAlign: 'center', marginBottom: '8px' }}>
-           <div style={{ display: 'inline-block', border: '1px solid black', padding: '6px 12px', fontWeight: '900', fontSize: '12px', marginBottom: '4px' }}>
-              GRACIAS POR TU COMPRA
-           </div>
-           <div style={{ fontSize: '10px', fontWeight: '700', marginBottom: '2px' }}>VISITANOS PRONTO EN MANOLO</div>
-           <div style={{ fontSize: '10px', fontWeight: '900' }}>
-              FOODTRUCK PARK
-           </div>
+        {/* FOOTER COMPLETO */}
+        <div style={{ textAlign:'center', paddingBottom:'5mm' }}>
+          <div style={{ display:'inline-block', border:'1px solid black', padding:'5px 10px', fontWeight:'900', fontSize:'11px', marginBottom:'4px' }}>
+            GRACIAS POR TU COMPRA
+          </div>
+          <div style={{ fontSize:'10px', fontWeight:'700' }}>VISITANOS PRONTO EN MANOLO</div>
+          <div style={{ fontSize:'10px', fontWeight:'900' }}>FOODTRUCK PARK</div>
         </div>
-
-        {/* MINIMAL HARDWARE ADVANCE */}
-        <div style={{ borderTop: '2px solid black', marginTop: '8px' }}></div>
-        <div style={{ height: '20mm' }}></div>
       </div>
     </div>
   );
