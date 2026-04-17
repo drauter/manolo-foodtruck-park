@@ -20,7 +20,7 @@ export const printReceipt = (contentId) => {
   doc.open();
   doc.write(`<!DOCTYPE html><html><head><style>
     @page { 
-      size: auto; 
+      size: 80mm 200mm; 
       margin: 0; 
     }
     html, body {

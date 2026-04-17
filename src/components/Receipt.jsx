@@ -3,7 +3,7 @@ import React from 'react';
 const Receipt = ({ order, station = 'CAJA', isForPrint = false, printId = 'printable-invoice' }) => {
   if (!order) return null;
 
-  const WIDTH = 38; // 38 es el ancho ideal para 12px Bold sin que el navegador escale
+  const WIDTH = 36; // 36 es el número exacto para que 12px Bold quepa en Vertical sin comprimirse
 
   const sanitize = (text) => {
     if (!text) return '';
@@ -27,10 +27,10 @@ const Receipt = ({ order, station = 'CAJA', isForPrint = false, printId = 'print
   };
 
   const col3 = (desc, cant, total) => {
-    // Layout: 20 + 5 + 13 = 38
-    const d = sanitize(String(desc)).substring(0, 19).padEnd(20);
-    const c = sanitize(String(cant)).padStart(6);
-    const t = sanitize(String(total)).padStart(12);
+    // Layout: 18 + 5 + 13 = 36
+    const d = sanitize(String(desc)).substring(0, 17).padEnd(18);
+    const c = sanitize(String(cant)).padStart(5);
+    const t = sanitize(String(total)).padStart(13);
     return d + c + t;
   };
 
