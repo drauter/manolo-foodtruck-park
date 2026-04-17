@@ -12,17 +12,13 @@ export const printReceipt = (contentId) => {
   }
 
   const iframe = document.createElement('iframe');
-  // Avoid setting height:1px which might make the browser think it's a landscape page initially
-  iframe.style.cssText = 'position:fixed;top:0;left:-9999px;width:80mm;height:auto;border:none;visibility:hidden;';
+  iframe.style.cssText = 'position:fixed;top:0;left:-9999px;width:80mm;height:1px;border:none;visibility:hidden;';
   document.body.appendChild(iframe);
 
   const doc = iframe.contentDocument || iframe.contentWindow.document;
   doc.open();
   doc.write(`<!DOCTYPE html><html><head><style>
-    @page { 
-      size: 80mm 3276mm; 
-      margin: 0; 
-    }
+    @page { size: 80mm 3276mm; margin: 0; }
     html, body {
       margin: 0;
       padding: 0;
@@ -32,33 +28,29 @@ export const printReceipt = (contentId) => {
       font-family: "Courier New", Courier, monospace;
       -webkit-print-color-adjust: exact;
       print-color-adjust: exact;
-      overflow-x: hidden;
     }
     @media print {
       html, body {
         width: 80mm;
-        max-width: 80mm;
         margin: 0;
         padding: 0;
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
       }
     }
-    pre {
-      font-size: 12px !important;
-      line-height: 1.4 !important;
-      transform: none !important;
-      zoom: 1 !important;
-      margin: 0;
-      white-space: pre !important;
-    }
     * { box-sizing: border-box; }
-    /* The actual content should be slightly narrower than the paper */
-    .receipt-container {
-      width: 72mm;
-      margin: 0 auto;
+    pre {
+      margin: 0;
+      padding: 2mm;
+      white-space: pre;
+      word-break: normal;
+      overflow-wrap: normal;
+      font-family: inherit;
+      font-size: 12px;
+      line-height: 1.4;
+      font-weight: bold;
+      color: black;
     }
-  </style></head><body><div class="receipt-container">${el.innerHTML}</div></body></html>`);
+    img { display: block; max-width: 100%; margin: 0 auto; }
+  </style></head><body>${el.outerHTML}</body></html>`);
   doc.close();
 
   setTimeout(() => {
