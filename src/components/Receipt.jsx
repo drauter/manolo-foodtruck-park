@@ -105,9 +105,7 @@ const Receipt = ({ order, station = 'CAJA', isForPrint = false, printId = 'print
         whiteSpace: 'pre',
         color: 'black',
         backgroundColor: 'white',
-      }}>
-        {text}
-      </pre>
+      }}>{text}</pre>
 
       <div style={{ textAlign: 'center', margin: '15px 0' }}>
         <img 
@@ -127,17 +125,14 @@ const Receipt = ({ order, station = 'CAJA', isForPrint = false, printId = 'print
         whiteSpace: 'pre',
         color: 'black',
         backgroundColor: 'white',
-      }}>
-{line('-')}
-{center('GRACIAS POR TU COMPRA')}
-{center('VISITANOS PRONTO EN MANOLO')}
-{center('FOODTRUCK PARK')}
-{blank()}
-{blank()}
-{blank()}
-{blank()}
-{blank()}
-      </pre>
+      }}>{`${line('-')}
+${center('GRACIAS POR TU COMPRA')}
+${center('VISITANOS PRONTO EN MANOLO')}
+${center('FOODTRUCK PARK')}
+
+
+
+`}</pre>
     </div>
   );
 };

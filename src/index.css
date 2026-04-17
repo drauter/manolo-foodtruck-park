@@ -14,7 +14,7 @@
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
-  
+
   .custom-scrollbar::-webkit-scrollbar {
     width: 6px;
     height: 6px;
@@ -31,7 +31,58 @@
   }
 }
 
-
 #print-portal {
   display: none;
+}
+
+/* ── THERMAL PRINT (80mm) ── */
+@media print {
+  @page {
+    size: 80mm auto;
+    margin: 0;
+  }
+
+  html, body {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: white !important;
+  }
+
+  /* Hide everything, then reveal only the active receipt */
+  body * {
+    visibility: hidden !important;
+  }
+
+  .receipt-print,
+  .receipt-print * {
+    visibility: visible !important;
+  }
+
+  /* Pin the receipt to the top-left so no blank space appears before it */
+  .receipt-print {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 80mm !important;
+    margin: 0 !important;
+    padding: 2mm !important;
+    background: white !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Critical: keep pre-formatted text intact */
+  .receipt-print pre {
+    white-space: pre !important;
+    word-break: normal !important;
+    overflow-wrap: normal !important;
+    font-family: "Courier New", Courier, monospace !important;
+    font-size: 12px !important;
+    line-height: 1.2 !important;
+  }
+
+  /* Images must show */
+  .receipt-print img {
+    display: block !important;
+    visibility: visible !important;
+  }
 }
