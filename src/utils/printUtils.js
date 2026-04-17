@@ -50,23 +50,23 @@ export const printReceipt = (contentId = 'printable-receipt-wrapper') => {
         <div style="break-inside: avoid; page-break-inside: avoid;">
           ${el.outerHTML}
         </div>
-        <script>
-          window.onload = () => {
-            setTimeout(() => {
-              window.print();
-              setTimeout(() => {
-                window.frameElement.remove();
-              }, 500);
-            }, 100);
-          };
-        </script>
       </body>
     </html>
   `);
   doc.close();
 
-  // Reset printing flag after a delay
+  // Disparar impresión desde el contexto principal
   setTimeout(() => {
-    isPrinting = false;
-  }, 3000);
+    if (iframe.contentWindow) {
+      iframe.contentWindow.print();
+      setTimeout(() => {
+        if (document.body.contains(iframe)) {
+          document.body.removeChild(iframe);
+        }
+        isPrinting = false;
+      }, 2000);
+    } else {
+      isPrinting = false;
+    }
+  }, 600);
 };
