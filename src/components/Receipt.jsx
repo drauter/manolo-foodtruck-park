@@ -3,7 +3,7 @@ import React from 'react';
 const Receipt = ({ order, station = 'CAJA', isForPrint = false, printId = 'printable-invoice' }) => {
   if (!order) return null;
 
-  const WIDTH = 42; // Volvemos a 42 para llenar el espacio de 80mm
+  const WIDTH = 38; // 38 es el ancho ideal para 12px Bold sin que el navegador escale
 
   const sanitize = (text) => {
     if (!text) return '';
@@ -27,10 +27,10 @@ const Receipt = ({ order, station = 'CAJA', isForPrint = false, printId = 'print
   };
 
   const col3 = (desc, cant, total) => {
-    // Layout: 22 + 6 + 14 = 42
-    const d = sanitize(String(desc)).substring(0, 21).padEnd(22);
+    // Layout: 20 + 5 + 13 = 38
+    const d = sanitize(String(desc)).substring(0, 19).padEnd(20);
     const c = sanitize(String(cant)).padStart(6);
-    const t = sanitize(String(total)).padStart(14);
+    const t = sanitize(String(total)).padStart(12);
     return d + c + t;
   };
 
@@ -73,7 +73,15 @@ const Receipt = ({ order, station = 'CAJA', isForPrint = false, printId = 'print
     ] : []),
     line('='),
     dual('TOTAL PAGADO:', `$${totalPaid.toFixed(2)}`),
-    line('='),
+    blank(),
+    blank(),
+    blank(),
+    blank(),
+    blank(),
+    blank(),
+    blank(),
+    blank(),
+    blank(),
     blank(),
     center('ESCANÉAME PARA VER EL'),
     center('ESTADO DE TU PEDIDO'),
@@ -99,7 +107,7 @@ const Receipt = ({ order, station = 'CAJA', isForPrint = false, printId = 'print
         fontFamily: '"Courier New", Courier, monospace',
         fontSize: '12px',
         fontWeight: 'bold',
-        lineHeight: '1.2',
+        lineHeight: '1.5',
         margin: 0,
         padding: 0,
         whiteSpace: 'pre',
@@ -119,7 +127,7 @@ const Receipt = ({ order, station = 'CAJA', isForPrint = false, printId = 'print
         fontFamily: '"Courier New", Courier, monospace',
         fontSize: '12px',
         fontWeight: 'bold',
-        lineHeight: '1.2',
+        lineHeight: '1.5',
         margin: 0,
         padding: 0,
         whiteSpace: 'pre',

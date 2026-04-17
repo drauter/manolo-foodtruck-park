@@ -22,7 +22,7 @@ export const printReceipt = (contentId) => {
     @page { size: 80mm auto; margin: 0; }
     html, body {
       margin: 0;
-      padding: 2mm;
+      padding: 0;
       width: 80mm;
       background: white;
       font-family: "Courier New", Courier, monospace;
@@ -38,7 +38,7 @@ export const printReceipt = (contentId) => {
       overflow-wrap: normal;
       font-family: "Courier New", Courier, monospace;
       font-size: 12px;
-      line-height: 1.2;
+      line-height: 2;
       font-weight: bold;
       color: black;
       background: white;
