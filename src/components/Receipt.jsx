@@ -3,7 +3,7 @@ import React from 'react';
 const Receipt = ({ order, station = 'CAJA', isForPrint = false, printId = 'printable-invoice' }) => {
   if (!order) return null;
 
-  const WIDTH = 42; // caracteres por línea en 80mm con Courier New 10px
+  const WIDTH = 32; // caracteres por línea en 80mm con Courier New 10px
 
   const sanitize = (text) => {
     if (!text) return '';
@@ -27,9 +27,9 @@ const Receipt = ({ order, station = 'CAJA', isForPrint = false, printId = 'print
   };
 
   const col3 = (desc, cant, total) => {
-    const d = sanitize(String(desc)).substring(0, 20).padEnd(20);
-    const c = sanitize(String(cant)).padStart(6);
-    const t = sanitize(String(total)).padStart(10);
+    const d = sanitize(String(desc)).substring(0, 14).padEnd(14);
+    const c = sanitize(String(cant)).padStart(4);
+    const t = sanitize(String(total)).padStart(8);
     return d + c + t;
   };
 
@@ -87,10 +87,10 @@ const Receipt = ({ order, station = 'CAJA', isForPrint = false, printId = 'print
       className={isForPrint ? "receipt-print" : "receipt-preview"}
       style={{
         backgroundColor: 'white',
-        width: '76mm',
+        width: '72mm',
         margin: '0 auto',
         border: isForPrint ? 'none' : '1px solid #ccc',
-        padding: '4mm',
+        padding: '2mm 3mm',
         boxSizing: 'border-box',
       }}
     >
