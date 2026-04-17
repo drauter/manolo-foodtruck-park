@@ -3,7 +3,7 @@ import React from 'react';
 const Receipt = ({ order, station = 'CAJA', isForPrint = false, printId = 'printable-invoice' }) => {
   if (!order) return null;
 
-  const WIDTH = 32; // caracteres por línea en 80mm con Courier New 10px
+  const WIDTH = 42; // Volvemos a 42 para llenar el espacio de 80mm
 
   const sanitize = (text) => {
     if (!text) return '';
@@ -27,9 +27,10 @@ const Receipt = ({ order, station = 'CAJA', isForPrint = false, printId = 'print
   };
 
   const col3 = (desc, cant, total) => {
-    const d = sanitize(String(desc)).substring(0, 14).padEnd(14);
-    const c = sanitize(String(cant)).padStart(4);
-    const t = sanitize(String(total)).padStart(8);
+    // Layout: 22 + 6 + 14 = 42
+    const d = sanitize(String(desc)).substring(0, 21).padEnd(22);
+    const c = sanitize(String(cant)).padStart(6);
+    const t = sanitize(String(total)).padStart(14);
     return d + c + t;
   };
 
@@ -87,17 +88,18 @@ const Receipt = ({ order, station = 'CAJA', isForPrint = false, printId = 'print
       className={isForPrint ? "receipt-print" : "receipt-preview"}
       style={{
         backgroundColor: 'white',
-        width: '72mm',
-        margin: '0 auto',
-        border: isForPrint ? 'none' : '1px solid #ccc',
-        padding: '2mm 3mm',
+        width: '100%',
+        margin: '0',
+        border: 'none',
+        padding: '0',
         boxSizing: 'border-box',
       }}
     >
       <pre style={{
         fontFamily: '"Courier New", Courier, monospace',
-        fontSize: '10px',
-        lineHeight: '1.4',
+        fontSize: '12px',
+        fontWeight: 'bold',
+        lineHeight: '1.2',
         margin: 0,
         padding: 0,
         whiteSpace: 'pre',
@@ -107,18 +109,19 @@ const Receipt = ({ order, station = 'CAJA', isForPrint = false, printId = 'print
         {text}
       </pre>
 
-      <div style={{ textAlign: 'center', margin: '8px 0' }}>
+      <div style={{ textAlign: 'center', margin: '15px 0' }}>
         <img 
-          src={`https://quickchart.io/qr?text=${encodeURIComponent(`https://manolofoodtruckpark.pages.dev/tracking/${order.id}`)}&size=140&margin=0`} 
-          style={{ width: '80px', height: '80px', display: 'inline-block' }} 
+          src={`https://quickchart.io/qr?text=${encodeURIComponent(`https://manolofoodtruckpark.pages.dev/tracking/${order.id}`)}&size=180&margin=0`} 
+          style={{ width: '100px', height: '100px', display: 'inline-block' }} 
           alt="QR"
         />
       </div>
 
       <pre style={{
         fontFamily: '"Courier New", Courier, monospace',
-        fontSize: '10px',
-        lineHeight: '1.4',
+        fontSize: '12px',
+        fontWeight: 'bold',
+        lineHeight: '1.2',
         margin: 0,
         padding: 0,
         whiteSpace: 'pre',
