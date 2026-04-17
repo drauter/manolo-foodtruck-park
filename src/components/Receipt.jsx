@@ -2,7 +2,7 @@ import React from 'react';
 import { useOrder } from '../context/OrderContext';
 import { STATIONS, getStationDisplay } from '../utils/constants';
 
-const Receipt = ({ order, station = STATIONS.CAJA, isForPrint = false }) => {
+const Receipt = ({ order, station = STATIONS.CAJA, isForPrint = false, printId }) => {
   const { printerConfig } = useOrder();
   if (!order) return null;
   
@@ -43,11 +43,8 @@ const Receipt = ({ order, station = STATIONS.CAJA, isForPrint = false }) => {
     </div>
   );
 
-  const printableId = isForPrint ? (order.id === 'preview' ? 'printable-receipt-preview' : 'printable-receipt-payment') : undefined;
-
-  return (
     <div 
-      id={printableId} 
+      id={isForPrint ? printId : undefined} 
       className="receipt-wrapper" 
       style={{ overflow: 'hidden' }}
     >

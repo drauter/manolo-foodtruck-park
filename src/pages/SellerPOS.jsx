@@ -753,11 +753,9 @@ const SellerPOS = () => {
                    >
                       CERRAR
                    </button>
-                </div>
-
-                <div className="flex-grow overflow-y-auto w-full flex justify-center pb-20 custom-scrollbar">
+                   <div className="flex-grow overflow-y-auto w-full flex justify-center pb-20 custom-scrollbar">
                    <div ref={printRef} className="origin-top transition-transform duration-500">
-                      <Receipt order={selectedInvoice} station={currentUser.station || 'CAJA'} isForPrint={true} />
+                      <Receipt order={selectedInvoice} station={currentUser.station || 'CAJA'} isForPrint={true} printId="printable-receipt-preview" />
                    </div>
                 </div>
              </motion.div>
@@ -778,8 +776,8 @@ const SellerPOS = () => {
                   {paymentSuccess ? (
                     <div className="space-y-8 animate-in fade-in zoom-in-95 duration-500">
                        <div className="max-h-[60vh] overflow-y-auto rounded-[3rem] no-scrollbar">
-                          <Receipt order={orders.find(o => o.id === paymentOrderId)} station={paymentStation} isForPrint={true} />
-                       </div>
+                          <Receipt order={orders.find(o => o.id === paymentOrderId)} station={paymentStation} isForPrint={true} printId="printable-receipt-payment" />
+                       </div>                  </div>
                        <div className="grid grid-cols-2 gap-4">
                           <button 
                             onClick={() => handlePrint('printable-receipt-payment')} 
