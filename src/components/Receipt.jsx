@@ -86,10 +86,12 @@ const Receipt = ({ order, station = 'CAJA', isForPrint = false, printId = 'print
       style={{
         backgroundColor: 'white',
         width: '72mm',
-        margin: '0',
+        maxWidth: '72mm',
+        margin: '0 auto',
         border: 'none',
         padding: '0',
-        boxSizing: 'border-box'
+        boxSizing: 'border-box',
+        overflow: 'hidden'
       }}
     >
       <pre style={{

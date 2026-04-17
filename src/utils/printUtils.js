@@ -12,14 +12,18 @@ export const printReceipt = (contentId) => {
   }
 
   const iframe = document.createElement('iframe');
-  // height:1px forces the browser to calculate layout; visibility:hidden keeps it off-screen
-  iframe.style.cssText = 'position:fixed;top:0;left:-9999px;width:80mm;height:1px;border:none;visibility:hidden;';
+  // Avoid setting height:1px which might make the browser think it's a landscape page initially
+  iframe.style.cssText = 'position:fixed;top:0;left:-9999px;width:80mm;height:auto;border:none;visibility:hidden;';
   document.body.appendChild(iframe);
 
   const doc = iframe.contentDocument || iframe.contentWindow.document;
   doc.open();
   doc.write(`<!DOCTYPE html><html><head><style>
-    @page { size: 80mm auto portrait; margin: 0; }
+    /* Simplest rule for thermal printers: width and auto height */
+    @page { 
+      size: 80mm auto; 
+      margin: 0; 
+    }
     html, body {
       margin: 0;
       padding: 0;
@@ -29,6 +33,7 @@ export const printReceipt = (contentId) => {
       font-family: "Courier New", Courier, monospace;
       -webkit-print-color-adjust: exact;
       print-color-adjust: exact;
+      overflow-x: hidden; /* Prevent horizontal scroll triggers rotation */
     }
     @media print {
       html, body {
@@ -38,20 +43,12 @@ export const printReceipt = (contentId) => {
       }
     }
     * { box-sizing: border-box; }
-    pre {
-      margin: 0;
-      padding: 2mm;
-      white-space: pre;
-      word-break: normal;
-      overflow-wrap: normal;
-      font-family: inherit;
-      font-size: 12px;
-      line-height: 1.4;
-      font-weight: bold;
-      color: black;
+    /* The actual content should be slightly narrower than the paper */
+    .receipt-container {
+      width: 72mm;
+      margin: 0 auto;
     }
-    img { display: block; max-width: 100%; margin: 0 auto; }
-  </style></head><body>${el.outerHTML}</body></html>`);
+  </style></head><body><div class="receipt-container">${el.innerHTML}</div></body></html>`);
   doc.close();
 
   setTimeout(() => {
