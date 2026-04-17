@@ -228,7 +228,7 @@ const SellerPOS = () => {
   };
 
   const handlePrint = () => {
-    printReceipt();
+    printReceipt('printable-receipt-wrapper');
   };
 
   const handleWhatsAppShare = (order) => {

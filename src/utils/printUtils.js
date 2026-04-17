@@ -1,6 +1,6 @@
 let isPrinting = false;
 
-export const printReceipt = (contentId) => {
+export const printReceipt = (contentId = 'printable-receipt-wrapper') => {
   if (isPrinting) return;
   isPrinting = true;
 
