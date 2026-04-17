@@ -38,7 +38,7 @@ export const printReceipt = (contentId) => {
       overflow-wrap: normal;
       font-family: "Courier New", Courier, monospace;
       font-size: 12px;
-      line-height: 2;
+      line-height: 1.4;
       font-weight: bold;
       color: black;
       background: white;

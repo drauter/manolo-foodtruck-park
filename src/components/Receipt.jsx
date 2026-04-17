@@ -100,14 +100,14 @@ const Receipt = ({ order, station = 'CAJA', isForPrint = false, printId = 'print
         margin: '0',
         border: 'none',
         padding: '0',
-        boxSizing: 'border-box',
+        boxSizing: 'border-box'
       }}
     >
       <pre style={{
         fontFamily: '"Courier New", Courier, monospace',
         fontSize: '12px',
         fontWeight: 'bold',
-        lineHeight: '1.5',
+        lineHeight: '1.4',
         margin: 0,
         padding: 0,
         whiteSpace: 'pre',
@@ -127,7 +127,7 @@ const Receipt = ({ order, station = 'CAJA', isForPrint = false, printId = 'print
         fontFamily: '"Courier New", Courier, monospace',
         fontSize: '12px',
         fontWeight: 'bold',
-        lineHeight: '1.5',
+        lineHeight: '1.4',
         margin: 0,
         padding: 0,
         whiteSpace: 'pre',
