@@ -61,7 +61,7 @@ const Receipt = ({ order, station = STATIONS.CAJA, isForPrint = false }) => {
           border: isForPrint ? 'none' : '1px solid #ccc',
           lineHeight: '1.2', 
           letterSpacing: '0.1px',
-          overflow: 'visible' 
+          overflow: 'hidden' 
         }} 
         id={isForPrint ? "printable-invoice" : undefined}
       >
