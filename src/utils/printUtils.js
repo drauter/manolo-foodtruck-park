@@ -37,11 +37,19 @@ export const printReceipt = (contentId = 'printable-receipt-wrapper') => {
           tbody { display: table-row-group !important; }
           tr { display: table-row !important; }
           td, th { display: table-cell !important; }
-          .receipt-print { display: block !important; width: 80mm !important; }
+          .receipt-print { 
+            display: block !important; 
+            width: 80mm !important; 
+            break-inside: avoid !important;
+            page-break-after: avoid !important;
+            page-break-inside: avoid !important;
+          }
         </style>
       </head>
-      <body>
-        ${el.outerHTML}
+      <body style="overflow: hidden;">
+        <div style="break-inside: avoid; page-break-inside: avoid;">
+          ${el.outerHTML}
+        </div>
         <script>
           window.onload = () => {
             setTimeout(() => {
