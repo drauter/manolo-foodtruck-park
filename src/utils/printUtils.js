@@ -19,9 +19,8 @@ export const printReceipt = (contentId) => {
   const doc = iframe.contentDocument || iframe.contentWindow.document;
   doc.open();
   doc.write(`<!DOCTYPE html><html><head><style>
-    /* Simplest rule for thermal printers: width and auto height */
     @page { 
-      size: 80mm auto; 
+      size: 80mm 3276mm; 
       margin: 0; 
     }
     html, body {
@@ -33,14 +32,25 @@ export const printReceipt = (contentId) => {
       font-family: "Courier New", Courier, monospace;
       -webkit-print-color-adjust: exact;
       print-color-adjust: exact;
-      overflow-x: hidden; /* Prevent horizontal scroll triggers rotation */
+      overflow-x: hidden;
     }
     @media print {
       html, body {
         width: 80mm;
+        max-width: 80mm;
         margin: 0;
         padding: 0;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
       }
+    }
+    pre {
+      font-size: 12px !important;
+      line-height: 1.4 !important;
+      transform: none !important;
+      zoom: 1 !important;
+      margin: 0;
+      white-space: pre !important;
     }
     * { box-sizing: border-box; }
     /* The actual content should be slightly narrower than the paper */
