@@ -22,8 +22,8 @@ export const printReceipt = (contentId) => {
     html, body {
       margin: 0;
       padding: 0;
-      width: 80mm;
-      height: auto;
+      width: auto;
+      height: 80mm;
       background: white;
       font-family: "Courier New", Courier, monospace;
       -webkit-print-color-adjust: exact;
