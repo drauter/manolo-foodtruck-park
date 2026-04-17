@@ -29,14 +29,15 @@ export const printReceipt = (contentId = 'printable-receipt-wrapper') => {
             padding: 0; 
             width: 80mm;
             height: auto;
-            font-family: monospace;
+            font-family: "Courier New", Courier, monospace;
           }
           * { -webkit-print-color-adjust: exact; print-color-adjust: exact; box-sizing: border-box; }
-          table { display: table !important; width: 100%; border-collapse: collapse; }
-          thead { display: table-header-group !important; }
-          tbody { display: table-row-group !important; }
-          tr { display: table-row !important; }
-          td, th { display: table-cell !important; }
+          pre { 
+            margin: 0; 
+            white-space: pre-wrap; 
+            font-family: inherit;
+            word-break: break-all;
+          }
           .receipt-print { 
             display: block !important; 
             width: 80mm !important; 

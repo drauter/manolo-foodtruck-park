@@ -7,6 +7,7 @@ const Receipt = ({ order, station = STATIONS.CAJA, isForPrint = false, printId }
   if (!order) return null;
   
   const is_paid = order.is_paid;
+  const lineWidth = 42; // Estándar para impresoras térmicas de 80mm
 
   // Helper to sanitize text for thermal printers (No accents, no special chars)
   const sanitize = (text) => {
@@ -19,30 +20,31 @@ const Receipt = ({ order, station = STATIONS.CAJA, isForPrint = false, printId }
       .toUpperCase();
   };
 
-  // DataRow basado en FLEXBOX estándar (Sin optimizaciones de hardware)
-  const DataRow = ({ label, value, isBold = false, fontSize = '10px', padding = '6px' }) => (
-    <div style={{ 
-      display: 'flex', 
-      justifyContent: 'space-between', 
-      alignItems: 'center', 
-      padding: `${padding} 0`,
-      fontSize: fontSize,
-      fontWeight: isBold ? '900' : 'normal',
-      width: '100%',
-      minHeight: '1.2em',
-      lineHeight: '1.4'
-    }}>
-      <div style={{ textAlign: 'left', flexShrink: 0, paddingRight: '4px' }}>{label}</div>
-      <div style={{ 
-        textAlign: 'right', 
-        flexGrow: 1, 
-        overflow: 'hidden', 
-        whiteSpace: 'nowrap', 
-        textOverflow: 'ellipsis', 
-        maxWidth: '55%' 
-      }}>{value}</div>
-    </div>
-  );
+  // MONOSPACE HELPERS
+  const center = (text) => {
+    const s = sanitize(text);
+    if (s.length >= lineWidth) return s.substring(0, lineWidth);
+    const leftPad = Math.floor((lineWidth - s.length) / 2);
+    return ' '.repeat(leftPad) + s;
+  };
+
+  const dual = (label, value) => {
+    const l = sanitize(label);
+    const v = sanitize(value);
+    const spaces = lineWidth - l.length - v.length;
+    if (spaces <= 0) return (l + ' ' + v).substring(0, lineWidth);
+    return l + ' '.repeat(spaces) + v;
+  };
+
+  const col3 = (c1, c2, c3) => {
+    // Layout: DESC(22) | CANT(6) | TOTAL(14) = 42
+    const s1 = sanitize(c1).substring(0, 21).padEnd(22);
+    const s2 = sanitize(c2).substring(0, 5).padStart(6);
+    const s3 = sanitize(c3).substring(0, 13).padStart(14);
+    return s1 + s2 + s3;
+  };
+
+  const line = (char = '-') => char.repeat(lineWidth);
 
   return (
     <div 
@@ -60,109 +62,79 @@ const Receipt = ({ order, station = STATIONS.CAJA, isForPrint = false, printId }
           boxSizing: 'border-box',
           paddingLeft: '2mm',
           paddingRight: '2mm',
-          paddingTop: isForPrint ? '5mm' : '5mm', 
-          paddingBottom: '0',
-          fontFamily: 'monospace', 
-          fontSize: '10px',
+          paddingTop: '5mm', 
+          paddingBottom: '5mm',
+          fontFamily: '"Courier New", Courier, monospace', 
+          fontSize: '11px', // Mono font needs to be slightly larger for legibility
           color: 'black',
           border: isForPrint ? 'none' : '1px solid #ccc',
-          lineHeight: '1.4', 
-          letterSpacing: '0.1px',
+          lineHeight: '1.2', 
+          letterSpacing: '0',
           overflow: 'hidden'
         }} 
         id={isForPrint ? "printable-invoice" : undefined}
       >
-        {/* HEADER */}
-        <div style={{ textAlign: 'center', marginBottom: '8px' }}>
-            <div style={{ fontSize: '10px', fontWeight: '900', textDecoration: 'underline' }}>
-               TICKET {order.ticket_number}
-            </div>
-            <div style={{ fontSize: '24px', fontWeight: '900', marginTop: '6px' }}>MANOLO</div>
-            <div style={{ fontSize: '11px', fontWeight: '700', letterSpacing: '2px' }}>FOODTRUCK PARK</div>
-        </div>
+        <pre style={{ 
+          margin: 0, 
+          whiteSpace: 'pre-wrap', 
+          wordBreak: 'break-all', 
+          fontFamily: 'inherit',
+          fontSize: 'inherit'
+        }}>
+{center(`TICKET ${order.ticket_number}`)}
+{center("MANOLO")}
+{center("FOODTRUCK PARK")}
+{line('=')}
+{dual("ESTADO:", order.status === 'cancelled' ? 'ANULADO' : (is_paid ? 'PAGADO' : 'PENDIENTE'))}
+{dual("FACTURA:", `FAC-${order.ticket_number}`)}
+{dual("FECHA:", new Date(order.timestamp).toLocaleString())}
+{dual("CLIENTE:", order.customer_name)}
+{dual("ESTACION:", getStationDisplay(station, order))}
+{line('-')}
+{col3("DESC", "CANT", "TOTAL")}
+{line('-')}
+{order.items?.filter(item => station === 'CAJA' || item.station === station).map((item, i) => (
+  col3(item.products?.name || item.product?.name || 'PRODUCTO', item.quantity.toString(), `$${((item.price_at_time || 0) * (item.quantity || 1)).toFixed(2)}`)
+)).join('\n')}
+{line('-')}
+{dual("TOTAL PEDIDO:", `$${order.total_price.toFixed(2)}`)}
+{order.payment_details?.[station] && (
+  <>
+{dual("METODO:", order.payment_details[station].method === 'cash' ? 'EFECTIVO' : 'TARJETA')}
+{order.payment_details[station].method === 'cash' && (
+  <>
+{dual("RECIBIDO:", `$${Number(order.payment_details[station].received || 0).toFixed(2)}`)}
+{dual("CAMBIO:", `$${Number(order.payment_details[station].change || 0).toFixed(2)}`)}
+  </>
+)}
+  </>
+)}
+{line('=')}
+{dual("TOTAL PAGADO:", `$${(order.is_paid ? order.total_price : 0).toFixed(2)}`)}
+        </pre>
 
-        <div style={{ borderTop: '2px solid black', margin: '8px 0' }}></div>
-
-        {/* METADATA - REFACTORED TO FLEXBOX */}
-        <div style={{ marginBottom: '8px' }}>
-            <DataRow label="ESTADO:" value={order.status === 'cancelled' ? 'ANULADO' : (is_paid ? 'PAGADO' : 'PENDIENTE')} isBold={true} fontSize="10px" />
-            <DataRow label="FACTURA:" value={`FAC-${order.ticket_number}`} fontSize="10px" />
-            <DataRow label="FECHA:" value={new Date(order.timestamp).toLocaleString()} fontSize="10px" />
-            <DataRow label="CLIENTE:" value={order.customer_name} fontSize="10px" />
-            <DataRow label="ESTACION:" value={getStationDisplay(station, order)} fontSize="10px" />
-        </div>
-
-        <div style={{ borderTop: '1px solid black', margin: '8px 0' }}></div>
-
-        {/* ITEMS SECTION - REFACTORED TO FLEXBOX FOR RELIABILITY */}
-        <div style={{ margin: '8px 0' }}>
-           {/* HEADER */}
-           <div style={{ display: 'flex', borderBottom: '1px solid black', paddingBottom: '4px', fontWeight: '900', fontSize: '10px' }}>
-              <div style={{ width: '48%', textAlign: 'left' }}>DESC</div>
-              <div style={{ width: '15%', textAlign: 'center' }}>CANT</div>
-              <div style={{ width: '32%', textAlign: 'right' }}>TOTAL</div>
-           </div>
-           
-           {/* ROWS */}
-           {order.items?.filter(item => station === 'CAJA' || item.station === station).map((item, i) => (
-             <div key={i} style={{ display: 'flex', padding: '6px 0', borderBottom: '1px solid #f0f0f0', fontSize: '10px', alignItems: 'center' }}>
-                <div style={{ width: '48%', textAlign: 'left', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                   {sanitize(item.products?.name || item.product?.name || 'PRODUCTO')}
-                </div>
-                <div style={{ width: '15%', textAlign: 'center' }}>{item.quantity}</div>
-                <div style={{ width: '32%', textAlign: 'right' }}>${((item.price_at_time || 0) * (item.quantity || 1)).toFixed(2)}</div>
-             </div>
-           ))}
-        </div>
-
-        <div style={{ borderTop: '1px solid black', margin: '8px 0' }}></div>
-
-        {/* TOTALS SECTION - REFACTORED TO FLEXBOX */}
-        <div style={{ marginBottom: '8px' }}>
-          <DataRow label="TOTAL PEDIDO:" value={`$${order.total_price.toFixed(2)}`} fontSize="10px" />
-          {order.payment_details?.[station] && (
-            <>
-              <DataRow label="METODO:" value={order.payment_details[station].method === 'cash' ? 'EFECTIVO' : 'TARJETA'} fontSize="10px" />
-              {order.payment_details[station].method === 'cash' && (
-                <>
-                  <DataRow label="RECIBIDO:" value={`$${Number(order.payment_details[station].received || 0).toFixed(2)}`} fontSize="10px" />
-                  <DataRow label="CAMBIO:" value={`$${Number(order.payment_details[station].change || 0).toFixed(2)}`} fontSize="10px" />
-                </>
-              )}
-            </>
-          )}
-          <div style={{ display:'flex', justifyContent:'space-between', padding:'8px 0', borderTop:'2px solid black', marginTop:'4px', fontSize:'14px', fontWeight:'900' }}>
-            <span>TOTAL PAGADO:</span>
-            <span>${(order.is_paid ? order.total_price : 0).toFixed(2)}</span>
-          </div>
-        </div>
-
-        <div style={{ borderTop:'1px dashed black', margin:'12px 0' }}></div>
-
-        {/* QR SECTION COMPLETA */}
-        <div style={{ textAlign:'center', marginBottom:'12px' }}>
-          <div style={{ display:'inline-block', padding:'6px', border:'1px solid black' }}>
+        {/* QR SECTION (HÍBRIDA) */}
+        <div style={{ textAlign: 'center', margin: '15px 0' }}>
+          <div style={{ display: 'inline-block', padding: '6px', border: '1px solid black' }}>
             <img 
               src={`https://quickchart.io/qr?text=${encodeURIComponent(`https://manolofoodtruckpark.pages.dev/tracking/${order.id}`)}&size=160&margin=0`} 
               alt="QR" 
-              style={{ width:'90px', height:'90px', display:'block' }} 
+              style={{ width: '90px', height: '90px', display: 'block' }} 
             />
           </div>
-          <div style={{ marginTop:'6px', fontSize:'10px', fontWeight:'700' }}>
-            ESCANÉAME PARA VER EL<br/>ESTADO DE TU PEDIDO
-          </div>
+          <pre style={{ margin: '6px 0 0 0', whiteSpace: 'pre', fontFamily: 'inherit', fontSize: '9px', fontWeight: 'bold' }}>
+{center("ESCANÉAME PARA VER EL")}
+{center("ESTADO DE TU PEDIDO")}
+          </pre>
         </div>
 
-        <div style={{ borderTop:'1px solid black', margin:'12px 0' }}></div>
-
-        {/* FOOTER COMPLETO */}
-        <div style={{ textAlign:'center', paddingBottom:'5mm' }}>
-          <div style={{ display:'inline-block', border:'1px solid black', padding:'5px 10px', fontWeight:'900', fontSize:'11px', marginBottom:'4px' }}>
-            GRACIAS POR TU COMPRA
-          </div>
-          <div style={{ fontSize:'10px', fontWeight:'700' }}>VISITANOS PRONTO EN MANOLO</div>
-          <div style={{ fontSize:'10px', fontWeight:'900' }}>FOODTRUCK PARK</div>
-        </div>
+        {/* FOOTER */}
+        <pre style={{ margin: 0, whiteSpace: 'pre', fontFamily: 'inherit', fontSize: '10px' }}>
+{line('-')}
+{center("GRACIAS POR TU COMPRA")}
+{center("VISITANOS PRONTO EN MANOLO")}
+{center("FOODTRUCK PARK")}
+        </pre>
       </div>
     </div>
   );
