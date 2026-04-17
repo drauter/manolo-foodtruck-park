@@ -18,7 +18,7 @@ export const printReceipt = (contentId) => {
   const doc = iframe.contentDocument || iframe.contentWindow.document;
   doc.open();
   doc.write(`<!DOCTYPE html><html><head><style>
-    @page { size: 80mm 3276mm; margin: 0; }
+    @page { size: 80mm auto; margin: 0; }
     html, body {
       margin: 0;
       padding: 0;
