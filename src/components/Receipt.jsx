@@ -21,8 +21,8 @@ const Receipt = ({ order, station = STATIONS.CAJA, isForPrint = false }) => {
       .toUpperCase();
   };
 
-  // FLEX-BASED DataRow (More reliable on some thermal drivers)
-  const DataRow = ({ label, value, isBold = false, fontSize = '11px', padding = '6px' }) => (
+  // FLEX-BASED  // DataRow basado en FLEXBOX con ANCLAJES FÍSICOS para forzar al motor de la impresora
+  const DataRow = ({ label, value, isBold = false, fontSize = '9px', padding = '8px' }) => (
     <div style={{ 
       display: 'flex', 
       justifyContent: 'space-between', 
@@ -31,18 +31,25 @@ const Receipt = ({ order, station = STATIONS.CAJA, isForPrint = false }) => {
       fontSize: fontSize,
       fontWeight: isBold ? '900' : 'normal',
       width: '100%',
-      minHeight: '1.2em'
+      minHeight: '1.6em',
+      lineHeight: '1.6'
     }}>
-      <div style={{ textAlign: 'left', flexShrink: 0, paddingRight: '4px' }}>{label}</div>
-      <div style={{ textAlign: 'right', flexGrow: 1 }}>{value}</div>
+      <div style={{ textAlign: 'left', flexShrink: 0, paddingRight: '4px' }}>
+        <span style={{ fontSize: '1px', opacity: 0.1 }}>.</span>{label}
+      </div>
+      <div style={{ textAlign: 'right', flexGrow: 1 }}>
+        {value}<span style={{ fontSize: '1px', opacity: 0.1 }}>.</span>
+      </div>
     </div>
   );
 
+  const printableId = isForPrint ? (order.id === 'preview' ? 'printable-receipt-preview' : 'printable-receipt-payment') : undefined;
+
   return (
     <div 
-      id={isForPrint ? "printable-receipt-wrapper" : undefined} 
+      id={printableId} 
       className="receipt-wrapper" 
-      style={{ overflow: 'visible' }}
+      style={{ overflow: 'hidden' }}
     >
       <div 
         className={isForPrint ? "receipt-print" : "receipt-preview"}
@@ -59,7 +66,7 @@ const Receipt = ({ order, station = STATIONS.CAJA, isForPrint = false }) => {
           fontSize: '9px',
           color: 'black',
           border: isForPrint ? 'none' : '1px solid #ccc',
-          lineHeight: '1.2', 
+          lineHeight: '1.6', 
           letterSpacing: '0.1px',
           overflow: 'hidden' 
         }} 

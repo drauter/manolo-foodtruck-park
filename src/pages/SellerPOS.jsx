@@ -227,8 +227,8 @@ const SellerPOS = () => {
     }
   };
 
-  const handlePrint = () => {
-    printReceipt('printable-receipt-wrapper');
+  const handlePrint = (id = 'printable-receipt-wrapper') => {
+    printReceipt(id);
   };
 
   const handleWhatsAppShare = (order) => {
@@ -727,14 +727,14 @@ const SellerPOS = () => {
                 <div className="w-20 h-1.5 bg-slate-300 rounded-full mb-10 flex-shrink-0" />
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10 w-full max-w-[440px]">
                    <button 
-                      onClick={() => handlePrint()}
+                      onClick={() => handlePrint('printable-receipt-preview')}
                       className="flex flex-col items-center justify-center gap-2 p-6 bg-white border border-slate-100 text-slate-900 rounded-[2rem] font-black uppercase text-[10px] shadow-lg hover:shadow-xl transition-all"
                    >
                       <Printer size={20} />
                       <span>TICKET</span>
                    </button>
                    <button 
-                      onClick={() => handlePrint()}
+                      onClick={() => handlePrint('printable-receipt-preview')}
                       className="flex flex-col items-center justify-center gap-2 p-6 bg-[#C29F5C] text-white rounded-[2rem] font-black uppercase text-[10px] shadow-lg hover:opacity-90 transition-all"
                    >
                       <FileText size={20} />
@@ -782,7 +782,7 @@ const SellerPOS = () => {
                        </div>
                        <div className="grid grid-cols-2 gap-4">
                           <button 
-                            onClick={() => handlePrint()} 
+                            onClick={() => handlePrint('printable-receipt-payment')} 
                             className="flex-grow bg-emerald-600 text-white py-6 rounded-[2.5rem] font-black text-xl hover:bg-emerald-500 transition-all shadow-2xl uppercase tracking-[0.2em] flex items-center justify-center gap-3"
                           >
                             <Printer size={24} /> Imprimir
