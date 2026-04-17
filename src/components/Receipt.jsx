@@ -85,7 +85,7 @@ const Receipt = ({ order, station = 'CAJA', isForPrint = false, printId = 'print
       className={isForPrint ? "receipt-print" : "receipt-preview"}
       style={{
         backgroundColor: 'white',
-        width: '100%',
+        width: '72mm',
         margin: '0',
         border: 'none',
         padding: '0',
