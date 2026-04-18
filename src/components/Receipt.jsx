@@ -38,7 +38,9 @@ export const buildReceiptText = (order, station = 'CAJA') => {
   if (!order) return { header: '', brand: '', body: '', thanks: '' };
   
   const is_paid = order.is_paid;
-  const totalPaid = is_paid ? order.total_price : 0;
+  // Si hay detalles de pago, asumimos que está pagado para propósitos del recibo
+  const hasPayment = order.payment_details && Object.keys(order.payment_details).length > 0;
+  const totalPaid = (is_paid || hasPayment) ? order.total_price : 0;
   const payment = order.payment_details?.[station];
 
   // Texto puro para centrado por hardware
