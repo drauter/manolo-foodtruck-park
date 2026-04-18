@@ -1,14 +1,6 @@
-import qz from 'qz-tray';
-
 let isPrinting = false;
 
-const connectQZ = async () => {
-  if (!qz.websocket.isActive()) {
-    await qz.websocket.connect();
-  }
-};
-
-export const printReceipt = async (contentId) => {
+export const printReceipt = (contentId) => {
   if (isPrinting) return;
   isPrinting = true;
 
@@ -18,33 +10,43 @@ export const printReceipt = async (contentId) => {
     return;
   }
 
-  try {
-    await connectQZ();
+  const win = window.open('', '_blank', 'width=320,height=600,toolbar=0,scrollbars=0,status=0');
 
-    const config = qz.configs.create('80mm Series Printer', {
-      size: { width: 80, height: null },
-      units: 'mm',
-      orientation: 'portrait',
-      margins: 0,
-      scaleContent: false,
-    });
+  win.document.write(`<!DOCTYPE html><html><head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+      @page { size: 72mm auto; margin: 0; }
+      html, body {
+        margin: 0;
+        padding: 0;
+        width: 72mm;
+        height: auto;
+        background: white;
+        font-family: "Courier New", Courier, monospace;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      pre {
+        margin: 0;
+        padding: 0;
+        font-size: 12px;
+        font-weight: bold;
+        line-height: 1.4;
+        white-space: pre;
+        color: black;
+      }
+      img { display: block; max-width: 100%; margin: 0 auto; }
+    </style>
+  </head><body>${el.outerHTML}</body></html>`);
 
-    const data = [{
-      type: 'pixel',
-      format: 'html',
-      flavor: 'plain',
-      data: `<!DOCTYPE html><html><head><style>
-        html, body { margin: 0; padding: 0; width: 80mm; font-family: "Courier New", Courier, monospace; }
-        pre { margin: 0; padding: 2mm; font-size: 10px; line-height: 1.4; font-weight: bold; white-space: pre !important; }
-        img { display: block; max-width: 100%; margin: 0 auto; }
-      </style></head><body>${el.outerHTML}</body></html>`
-    }];
+  win.document.close();
 
-    await qz.print(config, data);
-
-  } catch (err) {
-    console.error('QZ Tray error:', err);
-  } finally {
-    isPrinting = false;
-  }
+  win.onload = () => {
+    win.focus();
+    win.print();
+    setTimeout(() => {
+      win.close();
+      isPrinting = false;
+    }, 2000);
+  };
 };
