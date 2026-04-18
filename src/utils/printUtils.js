@@ -64,50 +64,47 @@ export const printReceipt = async (contentId) => {
   try {
     await connectQZ();
     const config = qz.configs.create('80mm Series Printer');
+    const commands = ['\x1B@', '\x1B!\x08'];
+    const nodes = Array.from(el.children);
 
-    const preElements = el.querySelectorAll('pre');
-    const text = Array.from(preElements).map(p => p.textContent).join('\n');
+    for (const node of nodes) {
+      // Si es un pre, añadir el texto
+      if (node.tagName === 'PRE') {
+        commands.push(node.textContent + '\n');
+      } 
+      // Si contiene una imagen (QR)
+      else if (node.querySelector('img') || node.tagName === 'IMG') {
+        const qrImg = node.tagName === 'IMG' ? node : node.querySelector('img');
+        const canvas = document.createElement('canvas');
+        canvas.width = 200;
+        canvas.height = 200;
+        const ctx = canvas.getContext('2d');
+        
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.src = qrImg.src;
+        
+        await new Promise((resolve) => {
+          img.onload = () => {
+            ctx.drawImage(img, 0, 0, 200, 200);
+            resolve();
+          };
+        });
 
-    await qz.print(config, [
-      '\x1B@',
-      '\x1B!\x08',
-      text,
-      '\n\n\n\n',
-    ]);
-
-    // Imprimir QR como imagen
-    const qrImg = el.querySelector('img');
-    if (qrImg) {
-      const canvas = document.createElement('canvas');
-      canvas.width = 200;
-      canvas.height = 200;
-      const ctx = canvas.getContext('2d');
-      
-      const img = new Image();
-      img.crossOrigin = 'anonymous';
-      img.src = qrImg.src;
-      
-      await new Promise((resolve) => {
-        img.onload = () => {
-          ctx.drawImage(img, 0, 0, 200, 200);
-          resolve();
-        };
-      });
-
-      const imageData = canvas.toDataURL('image/png').replace(/^data:image\/png;base64,/, '');
-      
-      await qz.print(config, [{
-        type: 'pixel',
-        format: 'image',
-        flavor: 'base64',
-        data: imageData,
-        options: { language: 'ESCPOS', dotDensity: 'double' }
-      }]);
+        const imageData = canvas.toDataURL('image/png').replace(/^data:image\/png;base64,/, '');
+        commands.push({
+          type: 'pixel',
+          format: 'image',
+          flavor: 'base64',
+          data: imageData,
+          options: { language: 'ESCPOS', dotDensity: 'double' }
+        });
+        commands.push('\n'); // Salto de línea después de la imagen
+      }
     }
 
-    await qz.print(config, [
-      '\x1DVA\x03',
-    ]);
+    commands.push('\n\n\n\n', '\x1DVA\x03');
+    await qz.print(config, commands);
 
   } catch (err) {
     console.error('QZ Tray error:', err);

@@ -103,23 +103,28 @@ const Receipt = ({ order, station = 'CAJA', printId = 'printable-invoice' }) => 
   const text = buildReceiptText(order, station);
   const trackingUrl = `${window.location.origin}/tracking/${order.id}`;
 
+  const parts = text.split('GRACIAS POR TU COMPRA');
+  const mainText = parts[0];
+  const thanksText = 'GRACIAS POR TU COMPRA' + (parts[1] || '');
+
   useEffect(() => {
     const canvas = document.getElementById(`qr-gen-${order.id}`);
     if (canvas) {
       setQrBase64(canvas.toDataURL('image/png'));
     }
-  }, [order.id]);
+  }, [order.id, text]);
 
   return (
     <div id={printId} style={{ 
       backgroundColor: 'white', 
-      padding: '24px 8px', 
+      padding: '20px 0', 
       display: 'flex', 
       flexDirection: 'column', 
       alignItems: 'center', 
       width: '100%',
       boxSizing: 'border-box'
     }}>
+      {/* Cuerpo del pedido */}
       <pre style={{
         fontFamily: '"Courier New", Courier, monospace',
         fontSize: '12px',
@@ -130,28 +135,32 @@ const Receipt = ({ order, station = 'CAJA', printId = 'printable-invoice' }) => 
         color: 'black',
         textAlign: 'center',
         width: '100%'
-      }}>{text.split('GRACIAS POR TU COMPRA')[0]}</pre>
+      }}>{mainText}</pre>
       
+      {/* Sección QR y Eslogan */}
       <div style={{ 
         textAlign: 'center', 
-        margin: '25px 0', 
+        margin: '20px 0', 
         width: '100%', 
         display: 'flex', 
         flexDirection: 'column', 
         alignItems: 'center',
         justifyContent: 'center'
       }}>
-        <div style={{ 
-          fontSize: '10px', 
+        <pre style={{ 
+          fontFamily: '"Courier New", Courier, monospace',
+          fontSize: '11px', 
           fontWeight: '900', 
-          marginBottom: '12px', 
-          fontFamily: '"Courier New", Courier, monospace', 
+          margin: '0 0 10px 0',
           width: '100%',
           textAlign: 'center',
-          letterSpacing: '0.05em'
+          color: 'black',
+          whiteSpace: 'pre-wrap'
         }}>
-          ¡ESCANEAME PARA VER EL ESTADO DE TU PEDIDO!
-        </div>
+          {center("¡ESCANEAME PARA SEGUIR")}
+          {center("EL ESTADO DE DE TU PEDIDO!")}
+        </pre>
+        
         <div style={{ display: 'none' }}>
           <QRCodeCanvas 
             id={`qr-gen-${order.id}`}
@@ -160,11 +169,22 @@ const Receipt = ({ order, station = 'CAJA', printId = 'printable-invoice' }) => 
             level="H"
           />
         </div>
+        
         {qrBase64 && (
-          <img src={qrBase64} alt="QR Tracking" style={{ width: '130px', height: '130px', display: 'block' }} />
+          <img 
+            src={qrBase64} 
+            alt="QR Tracking" 
+            style={{ 
+              width: '100px', 
+              height: '100px', 
+              display: 'block',
+              margin: '0 auto'
+            }} 
+          />
         )}
       </div>
 
+      {/* Agradecimiento Final */}
       <pre style={{
         fontFamily: '"Courier New", Courier, monospace',
         fontSize: '12px',
@@ -175,7 +195,7 @@ const Receipt = ({ order, station = 'CAJA', printId = 'printable-invoice' }) => 
         color: 'black',
         textAlign: 'center',
         width: '100%'
-      }}>{'GRACIAS POR TU COMPRA\n' + text.split('GRACIAS POR TU COMPRA')[1].trim()}</pre>
+      }}>{thanksText.trim()}</pre>
     </div>
   );
 };
