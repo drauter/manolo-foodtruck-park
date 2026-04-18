@@ -4,21 +4,43 @@ let isPrinting = false;
 
 // Configurar certificado para evitar el popup de permisos
 qz.security.setCertificatePromise((resolve) => {
+  console.log("QZ Tray: Cargando certificado...");
   fetch('/certificates/digital-certificate')
-    .then(r => r.text())
-    .then(resolve);
+    .then(r => {
+      if (!r.ok) throw new Error("Fallo al cargar digital-certificate");
+      return r.text();
+    })
+    .then(cert => {
+      console.log("QZ Tray: Certificado cargado con éxito.");
+      resolve(cert);
+    })
+    .catch(err => console.error("QZ Tray Certificate Error:", err));
 });
 
 qz.security.setSignatureAlgorithm('SHA512');
 qz.security.setSignaturePromise((toSign) => {
   return (resolve, reject) => {
+    console.log("QZ Tray: Firmando datos...");
     fetch('/certificates/private-key.pem')
-      .then(r => r.text())
-      .then(key => {
-        const pk = qz.api.getRSAKey(key);
-        resolve(qz.api.signData(pk, toSign));
+      .then(r => {
+        if (!r.ok) throw new Error("Fallo al cargar private-key.pem");
+        return r.text();
       })
-      .catch(reject);
+      .then(key => {
+        try {
+          const pk = qz.api.getRSAKey(key);
+          const sig = qz.api.signData(pk, toSign);
+          console.log("QZ Tray: Firma generada con éxito.");
+          resolve(sig);
+        } catch (e) {
+          console.error("QZ Tray Signing Logic Error:", e);
+          reject(e);
+        }
+      })
+      .catch(err => {
+        console.error("QZ Tray Signature Fetch Error:", err);
+        reject(err);
+      });
   };
 });
 
