@@ -7,7 +7,7 @@ const sanitize = (text) => {
   if (!text) return '';
   return text.toString().normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
-    .replace(/[#]/g, "") // No quitamos ¡!¿? ya que se ven bien en CP850
+    .replace(/[¡!¿?#]/g, "") // Volvemos a limpiar signos para evitar el error de letras faltantes
     .toUpperCase();
 };
 
@@ -41,10 +41,10 @@ export const buildReceiptText = (order, station = 'CAJA') => {
   const totalPaid = is_paid ? order.total_price : 0;
   const payment = order.payment_details?.[station];
 
-  // Agregamos espacios para que el bloque negro sea más ancho que el texto
-  const header = sanitize(`  TICKET ${order.ticket_number}  `);
+  // Texto puro para centrado por hardware
+  const header = sanitize(`TICKET ${order.ticket_number}`);
   const brand = sanitize('MANOLO');
-  const park = center('FOODTRUCK PARK');
+  const park = sanitize('FOODTRUCK PARK');
 
   const ts = new Date(order.timestamp);
   const ampm = ts.getHours() >= 12 ? 'PM' : 'AM';
@@ -87,9 +87,9 @@ export const buildReceiptText = (order, station = 'CAJA') => {
   ];
 
   const thanksLines = [
-    center('¡GRACIAS POR TU COMPRA!'),
-    center('VISITANOS PRONTO EN MANOLO'),
-    center('FOODTRUCK PARK'),
+    sanitize('GRACIAS POR TU COMPRA'),
+    sanitize('VISITANOS PRONTO EN MANOLO'),
+    sanitize('FOODTRUCK PARK'),
     '',
     '',
     '',
@@ -180,7 +180,7 @@ const Receipt = ({ order, station = 'CAJA', printId = 'printable-invoice' }) => 
           whiteSpace: 'pre-wrap'
         }}
       >
-        {"¡ESCANEAME PARA SEGUIR!" + "\n" + "EL ESTADO DE TU PEDIDO!"}
+        {"ESCANEAME PARA SEGUIR" + "\n" + "EL ESTADO DE TU PEDIDO"}
       </pre>
 
       <div style={{ display: 'none' }}>

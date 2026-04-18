@@ -75,7 +75,7 @@ export const printReceipt = async (contentId, copies = 1) => {
         const style = node.dataset.style;
         if (style === 'inverse') {
           commands.push('\x1D\x42\x01'); // White/Black Reverse ON
-          commands.push(node.textContent + '\n');
+          commands.push('  ' + node.textContent + '  ' + '\n'); // Padding manual para la caja negra
           commands.push('\x1D\x42\x00'); // White/Black Reverse OFF
         } else if (style === 'large') {
           commands.push('\x1B!\x20');   // Solo Doble Ancho
