@@ -35,7 +35,7 @@ export const printReceipt = async (contentId) => {
       flavor: 'plain',
       data: `<!DOCTYPE html><html><head><style>
         html, body { margin: 0; padding: 0; width: 80mm; font-family: "Courier New", Courier, monospace; }
-        pre { margin: 0; padding: 2mm; font-size: 12px; line-height: 1.4; font-weight: bold; white-space: pre !important; }
+        pre { margin: 0; padding: 2mm; font-size: 10px; line-height: 1.4; font-weight: bold; white-space: pre !important; }
         img { display: block; max-width: 100%; margin: 0 auto; }
       </style></head><body>${el.outerHTML}</body></html>`
     }];
