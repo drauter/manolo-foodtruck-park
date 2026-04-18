@@ -14,14 +14,22 @@ export const printReceipt = (contentId) => {
   const doc = iframe.contentDocument || iframe.contentWindow.document;
   doc.open();
   doc.write(`<!DOCTYPE html><html><head><style>
-    @page { size: 297mm 80mm landscape; margin: 0; }
+    @page { size: 297mm 80mm; margin: 0; }
     html, body {
       margin: 0; padding: 0;
       width: 297mm; height: 80mm;
       background: white;
-      font-family: "Courier New", Courier, monospace;
       -webkit-print-color-adjust: exact;
       print-color-adjust: exact;
+    }
+    .rotate-wrap {
+      transform: rotate(-90deg);
+      transform-origin: left top;
+      width: 80mm;
+      position: absolute;
+      top: 80mm;
+      left: 0;
+      font-family: "Courier New", Courier, monospace;
     }
     pre {
       margin: 0; padding: 2mm;
@@ -30,7 +38,7 @@ export const printReceipt = (contentId) => {
       color: black;
     }
     img { display: block; max-width: 100%; margin: 0 auto; }
-  </style></head><body>${el.outerHTML}</body></html>`);
+  </style></head><body><div class="rotate-wrap">${el.outerHTML}</div></body></html>`);
   doc.close();
 
   setTimeout(() => {
@@ -39,6 +47,6 @@ export const printReceipt = (contentId) => {
     setTimeout(() => {
       if (document.body.contains(iframe)) document.body.removeChild(iframe);
       isPrinting = false;
-    }, 2000);
+    }, 800);
   }, 800);
 };
