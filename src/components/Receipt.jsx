@@ -33,28 +33,20 @@ const col3 = (desc, cant, total) => {
 
 const line = (char = '-') => char.repeat(WIDTH);
 
+// Función que construye el contenido en texto plano (ahora separada para estilos)
 export const buildReceiptText = (order, station = 'CAJA') => {
-  if (!order) {
-    return [
-      center('TICKET DE PRUEBA'),
-      center('MANOLO FOODTRUCK'),
-      line('='),
-      center('IMPRESORA CONFIGURADA'),
-      center('EXITOSAMENTE'),
-      line('='),
-      '',
-      '',
-      '',
-    ].join('\n');
-  }
+  if (!order) return { header: '', brand: '', body: '', thanks: '' };
+  
   const is_paid = order.is_paid;
   const totalPaid = is_paid ? order.total_price : 0;
   const payment = order.payment_details?.[station];
 
-  const lines = [
-    center(`TICKET ${order.ticket_number}`),
-    center('MANOLO'),
-    center('FOODTRUCK PARK'),
+  const header = center(`TICKET ${order.ticket_number}`);
+  const brand = center('MANOLO');
+  const park = center('FOODTRUCK PARK');
+
+  const bodyLines = [
+    park,
     line('='),
     dual('ESTADO:', is_paid ? 'PAGADO' : 'PENDIENTE'),
     dual('FACTURA:', `FAC-${order.ticket_number}`),
@@ -85,6 +77,9 @@ export const buildReceiptText = (order, station = 'CAJA') => {
     dual('TOTAL PAGADO:', `$${totalPaid.toFixed(2)}`),
     line('='),
     '',
+  ];
+
+  const thanksLines = [
     center('GRACIAS POR TU COMPRA'),
     center('VISITANOS PRONTO EN MANOLO'),
     center('FOODTRUCK PARK'),
@@ -93,25 +88,38 @@ export const buildReceiptText = (order, station = 'CAJA') => {
     '',
   ];
 
-  return lines.join('\n');
+  return {
+    header,
+    brand,
+    body: bodyLines.join('\n'),
+    thanks: thanksLines.join('\n')
+  };
 };
 
 const Receipt = ({ order, station = 'CAJA', printId = 'printable-invoice' }) => {
   if (!order) return null;
   const [qrBase64, setQrBase64] = useState('');
-  const text = buildReceiptText(order, station);
+  const { header, brand, body, thanks } = buildReceiptText(order, station);
   const trackingUrl = `${window.location.origin}/tracking/${order.id}`;
-
-  const parts = text.split('GRACIAS POR TU COMPRA');
-  const mainText = parts[0];
-  const thanksText = 'GRACIAS POR TU COMPRA' + (parts[1] || '');
 
   useEffect(() => {
     const canvas = document.getElementById(`qr-gen-${order.id}`);
     if (canvas) {
       setQrBase64(canvas.toDataURL('image/png'));
     }
-  }, [order.id, text]);
+  }, [order.id, header, brand, body]);
+
+  const preStyle = {
+    fontFamily: '"Courier New", Courier, monospace',
+    fontSize: '12px',
+    fontWeight: 'bold',
+    lineHeight: '1.4',
+    margin: 0,
+    whiteSpace: 'pre',
+    color: 'black',
+    textAlign: 'center',
+    width: '100%'
+  };
 
   return (
     <div id={printId} style={{
@@ -123,35 +131,47 @@ const Receipt = ({ order, station = 'CAJA', printId = 'printable-invoice' }) => 
       width: '100%',
       boxSizing: 'border-box'
     }}>
+      {/* TICKET ID - Modo Inverso (Blanco sobre Negro) */}
+      <pre 
+        data-style="inverse"
+        style={{
+          ...preStyle,
+          backgroundColor: 'black',
+          color: 'white',
+          padding: '4px 0',
+          marginBottom: '8px'
+        }}
+      >
+        {header}
+      </pre>
+
+      {/* MARCA - Tamaño Grande */}
+      <pre 
+        data-style="large"
+        style={{
+          ...preStyle,
+          fontSize: '24px',
+          padding: '4px 0'
+        }}
+      >
+        {brand}
+      </pre>
+
       {/* Cuerpo del pedido */}
-      <pre style={{
-        fontFamily: '"Courier New", Courier, monospace',
-        fontSize: '12px',
-        fontWeight: 'bold',
-        lineHeight: '1.4',
-        margin: 0,
-        whiteSpace: 'pre',
-        color: 'black',
-        textAlign: 'center',
-        width: '100%'
-      }}>{mainText}</pre>
+      <pre style={preStyle}>{body}</pre>
 
       {/* Eslogan de Seguimiento */}
       <pre style={{
-        fontFamily: '"Courier New", Courier, monospace',
+        ...preStyle,
         fontSize: '11px',
         fontWeight: '900',
         margin: '20px 0 10px 0',
-        width: '100%',
-        textAlign: 'center',
-        color: 'black',
         whiteSpace: 'pre-wrap'
       }}>
         {center("¡ESCANEAME PARA SEGUIR")}
-        {center("EL ESTADO DE TU PEDIDO!")}
+        {center("EL ESTADO DE DE TU PEDIDO!")}
       </pre>
 
-      {/* QR Code Canvas (Oculto) */}
       <div style={{ display: 'none' }}>
         <QRCodeCanvas
           id={`qr-gen-${order.id}`}
@@ -161,7 +181,6 @@ const Receipt = ({ order, station = 'CAJA', printId = 'printable-invoice' }) => 
         />
       </div>
 
-      {/* QR Image para la Impresora */}
       {qrBase64 && (
         <img
           src={qrBase64}
@@ -176,17 +195,7 @@ const Receipt = ({ order, station = 'CAJA', printId = 'printable-invoice' }) => 
       )}
 
       {/* Agradecimiento Final */}
-      <pre style={{
-        fontFamily: '"Courier New", Courier, monospace',
-        fontSize: '12px',
-        fontWeight: 'bold',
-        lineHeight: '1.4',
-        margin: 0,
-        whiteSpace: 'pre',
-        color: 'black',
-        textAlign: 'center',
-        width: '100%'
-      }}>{thanksText.trim()}</pre>
+      <pre style={preStyle}>{thanks.trim()}</pre>
     </div>
   );
 };

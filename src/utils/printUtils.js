@@ -69,7 +69,20 @@ export const printReceipt = async (contentId, copies = 1) => {
 
     for (const node of nodes) {
       if (node.tagName === 'PRE') {
-        commands.push(node.textContent + '\n');
+        const style = node.dataset.style;
+        if (style === 'inverse') {
+          commands.push('\x1D\x42\x01'); // White/Black Reverse ON
+          commands.push(node.textContent + '\n');
+          commands.push('\x1D\x42\x00'); // White/Black Reverse OFF
+        } else if (style === 'large') {
+          commands.push('\x1B\x61\x01'); // Center alignment
+          commands.push('\x1B!\x30');   // Double Height + Double Width
+          commands.push(node.textContent + '\n');
+          commands.push('\x1B!\x08');   // Reset to standard font
+          commands.push('\x1B\x61\x00'); // Back to Left alignment (handled by spaces usually)
+        } else {
+          commands.push(node.textContent + '\n');
+        }
       } 
       else if (node.querySelector('img') || node.tagName === 'IMG') {
         const qrImg = node.tagName === 'IMG' ? node : node.querySelector('img');
