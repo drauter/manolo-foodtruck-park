@@ -41,8 +41,8 @@ export const buildReceiptText = (order, station = 'CAJA') => {
   const totalPaid = is_paid ? order.total_price : 0;
   const payment = order.payment_details?.[station];
 
-  const header = center(`TICKET ${order.ticket_number}`);
-  const brand = center('MANOLO');
+  const header = sanitize(`TICKET ${order.ticket_number}`);
+  const brand = sanitize('MANOLO');
   const park = center('FOODTRUCK PARK');
 
   const bodyLines = [
@@ -161,15 +161,17 @@ const Receipt = ({ order, station = 'CAJA', printId = 'printable-invoice' }) => 
       <pre style={preStyle}>{body}</pre>
 
       {/* Eslogan de Seguimiento */}
-      <pre style={{
-        ...preStyle,
-        fontSize: '11px',
-        fontWeight: '900',
-        margin: '20px 0 10px 0',
-        whiteSpace: 'pre-wrap'
-      }}>
-        {center("¡ESCANEAME PARA SEGUIR")}
-        {center("EL ESTADO DE DE TU PEDIDO!")}
+      <pre 
+        data-style="center"
+        style={{
+          ...preStyle,
+          fontSize: '11px',
+          fontWeight: '900',
+          margin: '20px 0 10px 0',
+          whiteSpace: 'pre-wrap'
+        }}
+      >
+        {"¡ESCANEAME PARA SEGUIR" + "\n" + "EL ESTADO DE TU PEDIDO!"}
       </pre>
 
       <div style={{ display: 'none' }}>
