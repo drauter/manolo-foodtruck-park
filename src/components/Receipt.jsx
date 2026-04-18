@@ -136,52 +136,44 @@ const Receipt = ({ order, station = 'CAJA', printId = 'printable-invoice' }) => 
         width: '100%'
       }}>{mainText}</pre>
 
-      {/* Sección QR y Eslogan */}
-      <div style={{
-        textAlign: 'center',
-        margin: '20px 0',
+      {/* Eslogan de Seguimiento */}
+      <pre style={{
+        fontFamily: '"Courier New", Courier, monospace',
+        fontSize: '11px',
+        fontWeight: '900',
+        margin: '20px 0 10px 0',
         width: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center'
+        textAlign: 'center',
+        color: 'black',
+        whiteSpace: 'pre-wrap'
       }}>
-        <pre style={{
-          fontFamily: '"Courier New", Courier, monospace',
-          fontSize: '11px',
-          fontWeight: '900',
-          margin: '0 0 10px 0',
-          width: '100%',
-          textAlign: 'center',
-          color: 'black',
-          whiteSpace: 'pre-wrap'
-        }}>
-          {center("¡ESCANEAME PARA SEGUIR")}
-          {center("EL ESTADO DE DE TU PEDIDO!")}
-        </pre>
+        {center("¡ESCANEAME PARA SEGUIR")}
+        {center("EL ESTADO DE TU PEDIDO!")}
+      </pre>
 
-        <div style={{ display: 'none' }}>
-          <QRCodeCanvas
-            id={`qr-gen-${order.id}`}
-            value={trackingUrl}
-            size={200}
-            level="H"
-          />
-        </div>
-
-        {qrBase64 && (
-          <img
-            src={qrBase64}
-            alt="QR Tracking"
-            style={{
-              width: '100px',
-              height: '100px',
-              display: 'block',
-              margin: '0 auto'
-            }}
-          />
-        )}
+      {/* QR Code Canvas (Oculto) */}
+      <div style={{ display: 'none' }}>
+        <QRCodeCanvas
+          id={`qr-gen-${order.id}`}
+          value={trackingUrl}
+          size={200}
+          level="H"
+        />
       </div>
+
+      {/* QR Image para la Impresora */}
+      {qrBase64 && (
+        <img
+          src={qrBase64}
+          alt="QR Tracking"
+          style={{
+            width: '100px',
+            height: '100px',
+            display: 'block',
+            margin: '0 auto 20px auto'
+          }}
+        />
+      )}
 
       {/* Agradecimiento Final */}
       <pre style={{

@@ -90,6 +90,9 @@ export const printReceipt = async (contentId, copies = 1) => {
         });
 
         const imageData = canvas.toDataURL('image/png').replace(/^data:image\/png;base64,/, '');
+        
+        // Centrar imagen físicamente en el papel
+        commands.push('\x1Ba\x01'); 
         commands.push({
           type: 'pixel',
           format: 'image',
@@ -97,6 +100,7 @@ export const printReceipt = async (contentId, copies = 1) => {
           data: imageData,
           options: { language: 'ESCPOS', dotDensity: 'double' }
         });
+        commands.push('\x1Ba\x00'); // Volver a alineación izquierda
         commands.push('\n'); 
       }
     }
