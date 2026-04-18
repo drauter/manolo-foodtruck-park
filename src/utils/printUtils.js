@@ -54,7 +54,7 @@ const connectQZ = async () => {
   }
 };
 
-export const printReceipt = async (contentId) => {
+export const printReceipt = async (contentId, copies = 1) => {
   if (isPrinting) return;
   isPrinting = true;
 
@@ -68,11 +68,9 @@ export const printReceipt = async (contentId) => {
     const nodes = Array.from(el.children);
 
     for (const node of nodes) {
-      // Si es un pre, añadir el texto
       if (node.tagName === 'PRE') {
         commands.push(node.textContent + '\n');
       } 
-      // Si contiene una imagen (QR)
       else if (node.querySelector('img') || node.tagName === 'IMG') {
         const qrImg = node.tagName === 'IMG' ? node : node.querySelector('img');
         const canvas = document.createElement('canvas');
@@ -99,12 +97,16 @@ export const printReceipt = async (contentId) => {
           data: imageData,
           options: { language: 'ESCPOS', dotDensity: 'double' }
         });
-        commands.push('\n'); // Salto de línea después de la imagen
+        commands.push('\n'); 
       }
     }
 
     commands.push('\n\n\n\n', '\x1DVA\x03');
-    await qz.print(config, commands);
+
+    // Imprimir el número de copias solicitado
+    for (let i = 0; i < copies; i++) {
+        await qz.print(config, commands);
+    }
 
   } catch (err) {
     console.error('QZ Tray error:', err);

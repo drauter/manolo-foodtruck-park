@@ -227,9 +227,18 @@ const SellerPOS = () => {
     }
   };
 
-  const handlePrint = (id = 'printable-receipt-wrapper') => {
-    printReceipt(id);
+  const handlePrint = (id = 'printable-receipt-wrapper', copies = 1) => {
+    printReceipt(id, copies);
   };
+
+  useEffect(() => {
+    if (paymentSuccess && paymentOrderId) {
+      const timer = setTimeout(() => {
+        handlePrint('printable-receipt-payment', 2);
+      }, 500); // 500ms para asegurar que el modal y el Receipt estén renderizados
+      return () => clearTimeout(timer);
+    }
+  }, [paymentSuccess, paymentOrderId]);
 
   const handleWhatsAppShare = (order) => {
     if (!order) return;
@@ -781,7 +790,7 @@ const SellerPOS = () => {
                        </div>
                        <div className="grid grid-cols-2 gap-4">
                           <button 
-                            onClick={() => handlePrint('printable-receipt-payment')} 
+                            onClick={() => handlePrint('printable-receipt-payment', 2)} 
                             className="flex-grow bg-emerald-600 text-white py-6 rounded-[2.5rem] font-black text-xl hover:bg-emerald-500 transition-all shadow-2xl uppercase tracking-[0.2em] flex items-center justify-center gap-3"
                           >
                             <Printer size={24} /> Imprimir
