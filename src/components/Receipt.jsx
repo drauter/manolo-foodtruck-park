@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { QRCodeCanvas } from 'qrcode.react';
 
 const WIDTH = 42;
 
@@ -96,9 +97,19 @@ export const buildReceiptText = (order, station = 'CAJA') => {
 
 const Receipt = ({ order, station = 'CAJA', printId = 'printable-invoice' }) => {
   if (!order) return null;
+  const [qrBase64, setQrBase64] = useState('');
   const text = buildReceiptText(order, station);
+  const trackingUrl = `${window.location.origin}/tracking/${order.id}`;
+
+  useEffect(() => {
+    const canvas = document.getElementById(`qr-gen-${order.id}`);
+    if (canvas) {
+      setQrBase64(canvas.toDataURL('image/png'));
+    }
+  }, [order.id]);
+
   return (
-    <div id={printId} style={{ backgroundColor: 'white', padding: '8px' }}>
+    <div id={printId} style={{ backgroundColor: 'white', padding: '16px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
       <pre style={{
         fontFamily: '"Courier New", Courier, monospace',
         fontSize: '12px',
@@ -107,7 +118,36 @@ const Receipt = ({ order, station = 'CAJA', printId = 'printable-invoice' }) => 
         margin: 0,
         whiteSpace: 'pre',
         color: 'black',
-      }}>{text}</pre>
+        alignSelf: 'flex-start'
+      }}>{text.split('GRACIAS POR TU COMPRA')[0]}</pre>
+      
+      <div style={{ textAlign: 'center', margin: '20px 0' }}>
+        <div style={{ fontSize: '12px', fontWeight: '900', marginBottom: '10px', fontFamily: '"Courier New", Courier, monospace' }}>
+          ¡ESCANEAME PARA VER EL ESTADO DE TU PEDIDO!
+        </div>
+        <div style={{ display: 'none' }}>
+          <QRCodeCanvas 
+            id={`qr-gen-${order.id}`}
+            value={trackingUrl}
+            size={200}
+            level="H"
+          />
+        </div>
+        {qrBase64 && (
+          <img src={qrBase64} alt="QR Tracking" style={{ width: '150px', height: '150px' }} />
+        )}
+      </div>
+
+      <pre style={{
+        fontFamily: '"Courier New", Courier, monospace',
+        fontSize: '12px',
+        fontWeight: 'bold',
+        lineHeight: '1.4',
+        margin: 0,
+        whiteSpace: 'pre',
+        color: 'black',
+        alignSelf: 'flex-start'
+      }}>{'GRACIAS POR TU COMPRA' + text.split('GRACIAS POR TU COMPRA')[1]}</pre>
     </div>
   );
 };
