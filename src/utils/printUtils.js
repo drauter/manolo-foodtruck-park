@@ -5,48 +5,40 @@ export const printReceipt = (contentId) => {
   isPrinting = true;
 
   const el = document.getElementById(contentId);
-  if (!el) {
-    isPrinting = false;
-    return;
-  }
+  if (!el) { isPrinting = false; return; }
 
-  const win = window.open('', '_blank', 'width=320,height=600,toolbar=0,scrollbars=0,status=0');
+  const iframe = document.createElement('iframe');
+  iframe.style.cssText = 'position:fixed;top:0;left:-9999px;width:297mm;height:80mm;border:none;visibility:hidden;';
+  document.body.appendChild(iframe);
 
-  win.document.write(`<!DOCTYPE html><html><head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-      @page { size: 72mm auto; margin: 0; }
-      html, body {
-        margin: 0;
-        padding: 0;
-        width: 72mm;
-        height: auto;
-        background: white;
-        font-family: "Courier New", Courier, monospace;
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
-      }
-      pre {
-        margin: 0;
-        padding: 0;
-        font-size: 12px;
-        font-weight: bold;
-        line-height: 1.4;
-        white-space: pre;
-        color: black;
-      }
-      img { display: block; max-width: 100%; margin: 0 auto; }
-    </style>
-  </head><body>${el.outerHTML}</body></html>`);
+  const doc = iframe.contentDocument || iframe.contentWindow.document;
+  doc.open();
+  doc.write(`<!DOCTYPE html><html><head><style>
+    @page { size: 297mm 80mm landscape; margin: 0; }
+    html, body {
+      margin: 0; padding: 0;
+      width: 297mm; height: 80mm;
+      background: white;
+      font-family: "Courier New", Courier, monospace;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    pre {
+      margin: 0; padding: 2mm;
+      font-size: 12px; font-weight: bold;
+      line-height: 1.4; white-space: pre;
+      color: black;
+    }
+    img { display: block; max-width: 100%; margin: 0 auto; }
+  </style></head><body>${el.outerHTML}</body></html>`);
+  doc.close();
 
-  win.document.close();
-
-  win.onload = () => {
-    win.focus();
-    win.print();
+  setTimeout(() => {
+    if (!iframe.contentWindow) { isPrinting = false; return; }
+    iframe.contentWindow.print();
     setTimeout(() => {
-      win.close();
+      if (document.body.contains(iframe)) document.body.removeChild(iframe);
       isPrinting = false;
     }, 2000);
-  };
+  }, 800);
 };
