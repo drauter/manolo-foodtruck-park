@@ -380,9 +380,9 @@ const AdminPanel = () => {
       window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
    };
 
-   const handlePrint = () => {
-      printReceipt('printable-invoice');
-   };
+    const handlePrint = (id = 'printable-invoice') => {
+       printReceipt(id);
+    };
 
    const menuItems = [
       { id: 'dashboard', label: 'Ventas', icon: TrendingUp, roles: ['admin', 'contador'] },
@@ -1588,14 +1588,14 @@ const AdminPanel = () => {
 
                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10 w-full max-w-[440px]">
                         <button
-                           onClick={handlePrint}
+                           onClick={() => handlePrint('printable-invoice')}
                            className="flex flex-col items-center justify-center gap-2 p-6 bg-white border border-slate-100 text-slate-900 rounded-[2rem] font-black uppercase text-[10px] shadow-lg hover:shadow-xl transition-all"
                         >
                            <Printer size={20} />
                            <span>TICKET</span>
                         </button>
                         <button
-                           onClick={handlePrint}
+                           onClick={() => handlePrint('printable-invoice')}
                            className="flex flex-col items-center justify-center gap-2 p-6 bg-[#C29F5C] text-white rounded-[2rem] font-black uppercase text-[10px] shadow-lg hover:opacity-90 transition-all"
                         >
                            <FileText size={20} />
