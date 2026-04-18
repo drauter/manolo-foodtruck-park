@@ -84,7 +84,6 @@ export const buildReceiptText = (order, station = 'CAJA') => {
     line('='),
     dual('TOTAL PAGADO:', `$${totalPaid.toFixed(2)}`),
     line('='),
-    line('='),
     '',
     center('GRACIAS POR TU COMPRA'),
     center('VISITANOS PRONTO EN MANOLO'),
@@ -115,12 +114,12 @@ const Receipt = ({ order, station = 'CAJA', printId = 'printable-invoice' }) => 
   }, [order.id, text]);
 
   return (
-    <div id={printId} style={{ 
-      backgroundColor: 'white', 
-      padding: '20px 0', 
-      display: 'flex', 
-      flexDirection: 'column', 
-      alignItems: 'center', 
+    <div id={printId} style={{
+      backgroundColor: 'white',
+      padding: '20px 0',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
       width: '100%',
       boxSizing: 'border-box'
     }}>
@@ -136,21 +135,21 @@ const Receipt = ({ order, station = 'CAJA', printId = 'printable-invoice' }) => 
         textAlign: 'center',
         width: '100%'
       }}>{mainText}</pre>
-      
+
       {/* Sección QR y Eslogan */}
-      <div style={{ 
-        textAlign: 'center', 
-        margin: '20px 0', 
-        width: '100%', 
-        display: 'flex', 
-        flexDirection: 'column', 
+      <div style={{
+        textAlign: 'center',
+        margin: '20px 0',
+        width: '100%',
+        display: 'flex',
+        flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center'
       }}>
-        <pre style={{ 
+        <pre style={{
           fontFamily: '"Courier New", Courier, monospace',
-          fontSize: '11px', 
-          fontWeight: '900', 
+          fontSize: '11px',
+          fontWeight: '900',
           margin: '0 0 10px 0',
           width: '100%',
           textAlign: 'center',
@@ -160,26 +159,26 @@ const Receipt = ({ order, station = 'CAJA', printId = 'printable-invoice' }) => 
           {center("¡ESCANEAME PARA SEGUIR")}
           {center("EL ESTADO DE DE TU PEDIDO!")}
         </pre>
-        
+
         <div style={{ display: 'none' }}>
-          <QRCodeCanvas 
+          <QRCodeCanvas
             id={`qr-gen-${order.id}`}
             value={trackingUrl}
             size={200}
             level="H"
           />
         </div>
-        
+
         {qrBase64 && (
-          <img 
-            src={qrBase64} 
-            alt="QR Tracking" 
-            style={{ 
-              width: '100px', 
-              height: '100px', 
+          <img
+            src={qrBase64}
+            alt="QR Tracking"
+            style={{
+              width: '100px',
+              height: '100px',
               display: 'block',
               margin: '0 auto'
-            }} 
+            }}
           />
         )}
       </div>
