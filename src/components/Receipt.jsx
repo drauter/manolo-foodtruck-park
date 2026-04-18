@@ -111,7 +111,15 @@ const Receipt = ({ order, station = 'CAJA', printId = 'printable-invoice' }) => 
   }, [order.id]);
 
   return (
-    <div id={printId} style={{ backgroundColor: 'white', padding: '16px', display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
+    <div id={printId} style={{ 
+      backgroundColor: 'white', 
+      padding: '24px 8px', 
+      display: 'flex', 
+      flexDirection: 'column', 
+      alignItems: 'center', 
+      width: '100%',
+      boxSizing: 'border-box'
+    }}>
       <pre style={{
         fontFamily: '"Courier New", Courier, monospace',
         fontSize: '12px',
@@ -120,11 +128,28 @@ const Receipt = ({ order, station = 'CAJA', printId = 'printable-invoice' }) => 
         margin: 0,
         whiteSpace: 'pre',
         color: 'black',
-        textAlign: 'center'
+        textAlign: 'center',
+        width: '100%'
       }}>{text.split('GRACIAS POR TU COMPRA')[0]}</pre>
       
-      <div style={{ textAlign: 'center', margin: '15px 0', width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-        <div style={{ fontSize: '11px', fontWeight: '900', marginBottom: '8px', fontFamily: '"Courier New", Courier, monospace', width: '100%' }}>
+      <div style={{ 
+        textAlign: 'center', 
+        margin: '25px 0', 
+        width: '100%', 
+        display: 'flex', 
+        flexDirection: 'column', 
+        alignItems: 'center',
+        justifyContent: 'center'
+      }}>
+        <div style={{ 
+          fontSize: '10px', 
+          fontWeight: '900', 
+          marginBottom: '12px', 
+          fontFamily: '"Courier New", Courier, monospace', 
+          width: '100%',
+          textAlign: 'center',
+          letterSpacing: '0.05em'
+        }}>
           ¡ESCANEAME PARA VER EL ESTADO DE TU PEDIDO!
         </div>
         <div style={{ display: 'none' }}>
@@ -136,7 +161,7 @@ const Receipt = ({ order, station = 'CAJA', printId = 'printable-invoice' }) => 
           />
         </div>
         {qrBase64 && (
-          <img src={qrBase64} alt="QR Tracking" style={{ width: '140px', height: '140px', margin: '0 auto' }} />
+          <img src={qrBase64} alt="QR Tracking" style={{ width: '130px', height: '130px', display: 'block' }} />
         )}
       </div>
 
@@ -148,8 +173,9 @@ const Receipt = ({ order, station = 'CAJA', printId = 'printable-invoice' }) => 
         margin: 0,
         whiteSpace: 'pre',
         color: 'black',
-        textAlign: 'center'
-      }}>{'GRACIAS POR TU COMPRA' + text.split('GRACIAS POR TU COMPRA')[1]}</pre>
+        textAlign: 'center',
+        width: '100%'
+      }}>{'GRACIAS POR TU COMPRA\n' + text.split('GRACIAS POR TU COMPRA')[1].trim()}</pre>
     </div>
   );
 };

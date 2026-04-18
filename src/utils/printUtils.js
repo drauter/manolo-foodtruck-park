@@ -1,4 +1,5 @@
 import qz from 'qz-tray';
+import { KEYUTIL, KJUR, hextob64 } from 'jsrsasign';
 
 let isPrinting = false;
 
@@ -28,10 +29,13 @@ qz.security.setSignaturePromise((toSign) => {
       })
       .then(key => {
         try {
-          const pk = qz.api.getRSAKey(key);
-          const sig = qz.api.signData(pk, toSign);
+          const pk = KEYUTIL.getKey(key);
+          const sig = new KJUR.crypto.Signature({ alg: 'SHA512withRSA' });
+          sig.init(pk);
+          sig.updateString(toSign);
+          const signature = hextob64(sig.sign());
           console.log("QZ Tray: Firma generada con éxito.");
-          resolve(sig);
+          resolve(signature);
         } catch (e) {
           console.error("QZ Tray Signing Logic Error:", e);
           reject(e);
