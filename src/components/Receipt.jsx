@@ -7,7 +7,7 @@ const sanitize = (text) => {
   if (!text) return '';
   return text.toString().normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
-    .replace(/[¡!¿?#]/g, "")
+    .replace(/[#]/g, "") // No quitamos ¡!¿? ya que se ven bien en CP850
     .toUpperCase();
 };
 
@@ -41,17 +41,24 @@ export const buildReceiptText = (order, station = 'CAJA') => {
   const totalPaid = is_paid ? order.total_price : 0;
   const payment = order.payment_details?.[station];
 
-  const header = sanitize(`TICKET ${order.ticket_number}`);
+  // Agregamos espacios para que el bloque negro sea más ancho que el texto
+  const header = sanitize(`  TICKET ${order.ticket_number}  `);
   const brand = sanitize('MANOLO');
   const park = center('FOODTRUCK PARK');
+
+  const ts = new Date(order.timestamp);
+  const ampm = ts.getHours() >= 12 ? 'PM' : 'AM';
+  const hours = ts.getHours() % 12 || 12;
+  const minutes = ts.getMinutes().toString().padStart(2, '0');
+  const cleanTime = `${hours}:${minutes} ${ampm}`;
 
   const bodyLines = [
     park,
     line('='),
     dual('ESTADO:', is_paid ? 'PAGADO' : 'PENDIENTE'),
     dual('FACTURA:', `FAC-${order.ticket_number}`),
-    dual('FECHA:', new Date(order.timestamp).toLocaleDateString()),
-    dual('HORA:', new Date(order.timestamp).toLocaleTimeString()),
+    dual('FECHA:', ts.toLocaleDateString()),
+    dual('HORA:', cleanTime),
     dual('CLIENTE:', order.customer_name || ''),
     dual('ESTACION:', station),
     line('-'),
@@ -80,7 +87,7 @@ export const buildReceiptText = (order, station = 'CAJA') => {
   ];
 
   const thanksLines = [
-    center('GRACIAS POR TU COMPRA'),
+    center('¡GRACIAS POR TU COMPRA!'),
     center('VISITANOS PRONTO EN MANOLO'),
     center('FOODTRUCK PARK'),
     '',
@@ -138,19 +145,21 @@ const Receipt = ({ order, station = 'CAJA', printId = 'printable-invoice' }) => 
           ...preStyle,
           backgroundColor: 'black',
           color: 'white',
-          padding: '4px 0',
-          marginBottom: '8px'
+          padding: '6px 12px',
+          marginBottom: '10px',
+          width: 'auto',
+          display: 'inline-block'
         }}
       >
         {header}
       </pre>
 
-      {/* MARCA - Tamaño Grande */}
+      {/* MARCA - Tamaño un poco más pequeño */}
       <pre 
         data-style="large"
         style={{
           ...preStyle,
-          fontSize: '24px',
+          fontSize: '20px',
           padding: '4px 0'
         }}
       >
@@ -171,7 +180,7 @@ const Receipt = ({ order, station = 'CAJA', printId = 'printable-invoice' }) => 
           whiteSpace: 'pre-wrap'
         }}
       >
-        {"¡ESCANEAME PARA SEGUIR" + "\n" + "EL ESTADO DE TU PEDIDO!"}
+        {"¡ESCANEAME PARA SEGUIR!" + "\n" + "EL ESTADO DE TU PEDIDO!"}
       </pre>
 
       <div style={{ display: 'none' }}>

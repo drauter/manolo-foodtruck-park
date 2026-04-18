@@ -64,28 +64,23 @@ export const printReceipt = async (contentId, copies = 1) => {
   try {
     await connectQZ();
     const config = qz.configs.create('80mm Series Printer');
-    const commands = ['\x1B@', '\x1B!\x08'];
+    
+    // Comandos iniciales: Inicializar + Modo Fuente + CENTRADO GLOBAL
+    const commands = ['\x1B@', '\x1B!\x08', '\x1B\x61\x01'];
+    
     const nodes = Array.from(el.children);
 
     for (const node of nodes) {
       if (node.tagName === 'PRE') {
         const style = node.dataset.style;
         if (style === 'inverse') {
-          commands.push('\x1B\x61\x01'); // Centrar físicamente
           commands.push('\x1D\x42\x01'); // White/Black Reverse ON
           commands.push(node.textContent + '\n');
           commands.push('\x1D\x42\x00'); // White/Black Reverse OFF
-          commands.push('\x1B\x61\x00'); // Volver a Izquierda
         } else if (style === 'large') {
-          commands.push('\x1B\x61\x01'); // Centrar físicamente
-          commands.push('\x1B!\x30');   // Double Height + Double Width
+          commands.push('\x1B!\x20');   // Solo Doble Ancho
           commands.push(node.textContent + '\n');
-          commands.push('\x1B!\x08');   // Reset to standard font
-          commands.push('\x1B\x61\x00'); // Volver a Izquierda
-        } else if (style === 'center') {
-          commands.push('\x1B\x61\x01'); // Centrar físicamente
-          commands.push(node.textContent + '\n');
-          commands.push('\x1B\x61\x00'); // Volver a Izquierda
+          commands.push('\x1B!\x08');   // Volver a normal
         } else {
           commands.push(node.textContent + '\n');
         }
@@ -110,8 +105,7 @@ export const printReceipt = async (contentId, copies = 1) => {
 
         const imageData = canvas.toDataURL('image/png').replace(/^data:image\/png;base64,/, '');
         
-        // Centrar imagen físicamente en el papel
-        commands.push('\x1Ba\x01'); 
+        // El QR ya se centrará por el comando global \x1B\x61\x01
         commands.push({
           type: 'pixel',
           format: 'image',
@@ -119,7 +113,6 @@ export const printReceipt = async (contentId, copies = 1) => {
           data: imageData,
           options: { language: 'ESCPOS', dotDensity: 'double' }
         });
-        commands.push('\x1Ba\x00'); // Volver a alineación izquierda
         commands.push('\n'); 
       }
     }
