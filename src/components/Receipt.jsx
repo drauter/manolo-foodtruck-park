@@ -67,14 +67,14 @@ export const buildReceiptText = (order, station = 'CAJA') => {
   const bodyLines = [
     park,
     line('='),
-    dual('ESTADO:', is_paid ? 'PAGADO' : 'PENDIENTE'),
-    dual('FACTURA:', `FAC-${order.ticket_number}`),
-    dual('FECHA:', ts.toLocaleDateString()),
-    dual('HORA:', cleanTime),
-    dual('CLIENTE:', order.customer_name || ''),
-    dual('ESTACION:', station),
+    dual('ESTADO / STATUS:', is_paid ? 'PAGADO / PAID' : 'PENDIENTE / PENDING'),
+    dual('FACTURA / INVOICE:', `FAC-${order.ticket_number}`),
+    dual('FECHA / DATE:', ts.toLocaleDateString()),
+    dual('HORA / TIME:', cleanTime),
+    dual('CLIENTE / CUSTOMER:', order.customer_name || ''),
+    dual('ESTACION / STATION:', station),
     line('-'),
-    col3('DESC', 'CANT', 'TOTAL'),
+    col3('DESC', 'QTY', 'TOTAL'),
     line('-'),
     ...(order.items || [])
       .filter(i => station === 'CAJA' || i.station === station)
@@ -84,23 +84,26 @@ export const buildReceiptText = (order, station = 'CAJA') => {
         `$${((i.price_at_time || 0) * (i.quantity || 1)).toFixed(2)}`
       )),
     line('-'),
-    dual('TOTAL PEDIDO:', `$${order.total_price.toFixed(2)}`),
+    dual('TOTAL PEDIDO / ORDER:', `$${order.total_price.toFixed(2)}`),
     ...(payment ? [
-      dual('METODO:', payment.method === 'cash' ? 'EFECTIVO' : 'TARJETA'),
+      dual('METODO / METHOD:', payment.method === 'cash' ? 'EFECTIVO / CASH' : 'TARJETA / CARD'),
       ...(payment.method === 'cash' ? [
-        dual('RECIBIDO:', `$${Number(payment.received || 0).toFixed(2)}`),
-        dual('CAMBIO:', `$${Number(payment.change || 0).toFixed(2)}`),
+        dual('RECIBIDO / RECEIVED:', `$${Number(payment.received || 0).toFixed(2)}`),
+        dual('CAMBIO / CHANGE:', `$${Number(payment.change || 0).toFixed(2)}`),
       ] : []),
     ] : []),
     line('='),
-    dual('TOTAL PAGADO:', `$${totalPaid.toFixed(2)}`),
+    dual('TOTAL PAGADO / PAID:', `$${totalPaid.toFixed(2)}`),
     line('='),
     '',
   ];
 
   const thanksLines = [
     sanitize('GRACIAS POR TU COMPRA'),
+    sanitize('THANK YOU FOR YOUR PURCHASE'),
     sanitize('VISITANOS PRONTO EN MANOLO'),
+    sanitize('VISIT US SOON'),
+    line('-'),
     sanitize('FOOD AND DRINKS TRUCK PARK'),
     '',
     '',
@@ -192,7 +195,7 @@ const Receipt = ({ order, station = 'CAJA', printId = 'printable-invoice' }) => 
           whiteSpace: 'pre-wrap'
         }}
       >
-        {"ESCANEAME PARA SEGUIR" + "\n" + "EL ESTADO DE TU PEDIDO"}
+        {"ESCANEAME PARA SEGUIR / SCAN TO TRACK" + "\n" + "EL ESTADO DE TU PEDIDO / STATUS"}
       </pre>
 
       <div style={{ display: 'none' }}>
