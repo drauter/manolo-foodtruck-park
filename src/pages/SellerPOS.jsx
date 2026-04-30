@@ -266,7 +266,7 @@ const SellerPOS = ({ isEmbedded = false, embeddedStation = null }) => {
              <img src="/logo.jpg" alt="Logo" className="w-14 h-14 sm:w-16 sm:h-16 object-cover rounded-full shadow-xl border border-white/10" />
              <div>
                 <h1 className="text-lg sm:text-xl font-black italic tracking-tighter uppercase leading-none">MANOLO FOOD AND DRINKS TRUCK PARK</h1>
-                <p className="text-[8px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Terminal: {currentUser.station}</p>
+                <p className="text-[8px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Terminal: {getStationDisplay(currentUser.station)}</p>
              </div>
           </div>
 
@@ -342,7 +342,7 @@ const SellerPOS = ({ isEmbedded = false, embeddedStation = null }) => {
                           <button onClick={() => setHistoryTab('cobros')} className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${historyTab === 'cobros' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-400'}`}>Cobros</button>
                        </div>
                     </div>
-                    <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest leading-none bg-white/5 px-4 py-2 rounded-full">Estación: {currentUser.station}</div>
+                    <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest leading-none bg-white/5 px-4 py-2 rounded-full">Estación: {getStationDisplay(currentUser.station)}</div>
                  </div>
 
                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -395,7 +395,7 @@ const SellerPOS = ({ isEmbedded = false, embeddedStation = null }) => {
                            <button onClick={() => setHistoryTab('cobros')} className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${historyTab === 'cobros' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-400'}`}>Cobros</button>
                         </div>
                      </div>
-                     <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest leading-none bg-white/5 px-4 py-2 rounded-full">Recaudador: {currentUser.station}</div>
+                     <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest leading-none bg-white/5 px-4 py-2 rounded-full">Recaudador: {getStationDisplay(currentUser.station)}</div>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -443,7 +443,7 @@ const SellerPOS = ({ isEmbedded = false, embeddedStation = null }) => {
                  <div className="flex justify-between items-center border-b border-slate-200 pb-8 mb-8">
                     <div>
                        <h2 className="text-4xl font-black uppercase italic tracking-tighter text-slate-900">Control de Cobros</h2>
-                       <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-2">{currentUser.station}</p>
+                       <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-2">{getStationDisplay(currentUser.station)}</p>
                     </div>
                  </div>
 
@@ -506,7 +506,7 @@ const SellerPOS = ({ isEmbedded = false, embeddedStation = null }) => {
                   <div className="flex justify-between items-center border-b border-slate-200 pb-8 mb-8">
                      <div>
                         <h2 className="text-4xl font-black uppercase italic tracking-tighter text-slate-900">Despacho de Pedidos</h2>
-                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-2">Terminal: {currentUser.station}</p>
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-2">Terminal: {getStationDisplay(currentUser.station)}</p>
                      </div>
                   </div>
 
@@ -876,7 +876,7 @@ const SellerPOS = ({ isEmbedded = false, embeddedStation = null }) => {
                     <div className="w-20 h-20 bg-amber-500/10 text-amber-500 rounded-full flex items-center justify-center border border-amber-500/30"><Wallet size={40} /></div>
                     <div>
                        <h2 className="text-3xl font-black uppercase italic tracking-tighter text-white leading-none">Cierre de Caja</h2>
-                       <p className="text-[10px] font-black text-amber-500/60 uppercase tracking-widest mt-2">Turno: {currentUser.station}</p>
+                       <p className="text-[10px] font-black text-amber-500/60 uppercase tracking-widest mt-2">Turno: {getStationDisplay(currentUser.station)}</p>
                     </div>
 
                     {/* Stats Panel */}

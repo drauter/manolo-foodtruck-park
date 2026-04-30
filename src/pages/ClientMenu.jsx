@@ -3,6 +3,7 @@ import { useOrder } from '../context/OrderContext';
 import { ShoppingCart, Plus, Minus, X, CheckCircle, Trash2, Clock } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import { STATIONS, getStationDisplay } from '../utils/constants';
 
 const ProductItem = ({ product, addToCart }) => {
   const [qty, setQty] = useState(1);
@@ -56,8 +57,8 @@ const ClientMenu = () => {
   const activeOrder = orders.find(o => o.id === activeOrderId && o.status !== 'delivered');
 
   const total = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
-  const menuStations = ['COMIDA RAPIDA', 'BAR', 'DULCES/POSTRES'];
-  const [activeStation, setActiveStation] = useState('COMIDA RAPIDA');
+  const menuStations = [STATIONS.COMIDA_RAPIDA, STATIONS.BAR, STATIONS.POSTRES];
+  const [activeStation, setActiveStation] = useState(STATIONS.COMIDA_RAPIDA);
   const [activeCategory, setActiveCategory] = useState('Todos');
 
   const handlePlaceOrder = async () => {
@@ -119,7 +120,7 @@ const ClientMenu = () => {
                 }} 
                 className={`px-8 py-5 rounded-[2rem] font-black uppercase text-[10px] tracking-widest transition-all whitespace-nowrap border-2 ${activeStation === station ? 'bg-emerald-600 border-emerald-500 text-white shadow-[0_0_20px_rgba(16,185,129,0.3)] scale-105' : 'bg-slate-900 border-slate-800 text-slate-400 hover:border-slate-700'}`}
               >
-                {station === 'COMIDA RAPIDA' ? 'COCINA' : station}
+                {getStationDisplay(station)}
               </button>
             ))}
           </nav>
@@ -159,7 +160,7 @@ const ClientMenu = () => {
               <section className="mb-12">
                 <div className="flex items-center gap-6 mb-10">
                     <div className="w-4 h-4 rounded-full bg-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.5)]" />
-                    <h2 className="text-4xl font-black uppercase italic tracking-tighter text-white">{activeStation === 'COMIDA RAPIDA' ? 'COMIDA RAPIDA' : activeStation}</h2>
+                    <h2 className="text-4xl font-black uppercase italic tracking-tighter text-white">{getStationDisplay(activeStation)}</h2>
                     <div className="flex-grow h-px bg-gradient-to-r from-slate-800 to-transparent" />
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">

@@ -6,9 +6,9 @@ export const STATIONS = {
 };
 
 export const STATION_LABELS = {
-  [STATIONS.BAR]: 'BAR',
-  [STATIONS.COMIDA_RAPIDA]: 'COMIDA RAPIDA',
-  [STATIONS.POSTRES]: 'POSTRES',
+  [STATIONS.BAR]: "Bar la barra del Manolo's",
+  [STATIONS.COMIDA_RAPIDA]: "Manolo's estación salada",
+  [STATIONS.POSTRES]: "Manolo's estación dulce",
   [STATIONS.CAJA]: 'CAJA GENERAL'
 };
 

@@ -534,7 +534,7 @@ const AdminPanel = () => {
                            <h3 className="text-xl font-black uppercase italic tracking-tighter text-white">Pendientes por Estación</h3>
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 relative z-10">
-                           {['BAR', 'COMIDA RAPIDA', 'DULCES/POSTRES'].map(st => {
+                           {['BAR', 'COMIDA RAPIDA', 'POSTRES'].map(st => {
                               const pendingAmt = orders.filter(o => !o.is_paid && o.station_statuses?.[st] && o.station_statuses[st] !== 'delivered')
                                  .reduce((sum, o) => sum + (o.items?.filter(i => i.station === st).reduce((s, i) => s + ((Number(i.price_at_time) || 0) * (Number(i.quantity) || 0)), 0) || 0), 0);
 
