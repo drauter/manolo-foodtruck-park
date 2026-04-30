@@ -47,7 +47,7 @@ const ProductItem = ({ product, addToCart }) => {
   );
 };
 
-const SellerPOS = () => {
+const SellerPOS = ({ isEmbedded = false }) => {
   const { products, addToCart, cart, removeFromCart, clearCart, placeOrder, currentUser, logout, closeShift, orders, updateStationStatus, cancelOrder, deleteOrder, deletePayment, announceOrder, verifyAdminPin, getShiftTotals, users } = useOrder();
   const [selectedInvoice, setSelectedInvoice] = useState(null);
   const [activeTab, setActiveTab] = useState('ventas'); // 'ventas', 'cobros', 'despacho', 'historial'
@@ -250,7 +250,7 @@ const SellerPOS = () => {
   if (!currentUser) return null;
   
   return (
-    <div className="min-h-screen lg:h-screen bg-slate-50 text-slate-900 flex flex-col lg:flex-row overflow-x-hidden lg:overflow-hidden font-sans no-print">
+    <div className={`${isEmbedded ? 'h-full absolute inset-0' : 'min-h-screen lg:h-screen'} bg-slate-50 text-slate-900 flex flex-col lg:flex-row overflow-x-hidden lg:overflow-hidden font-sans no-print`}>
       
       <div className="flex-grow flex flex-col h-full bg-slate-50 relative overflow-hidden">
         <header className="bg-white border-b border-slate-200 p-4 sm:p-6 flex justify-between items-center shadow-sm z-30 sticky top-0">

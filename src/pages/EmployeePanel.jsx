@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Receipt from '../components/Receipt';
 import { printReceipt } from '../utils/printUtils';
 import { STATIONS } from '../utils/constants';
+import SellerPOS from './SellerPOS';
 
 const EmployeePanel = () => {
   const { station } = useParams();
@@ -64,8 +65,8 @@ const EmployeePanel = () => {
         <div className="flex gap-4 items-center w-full md:w-auto">
           <div className="flex gap-1 sm:gap-2 bg-slate-950 p-1.5 sm:p-2 rounded-2xl sm:rounded-[2rem] border border-slate-800 flex-grow sm:flex-grow-0 overflow-x-auto no-scrollbar">
             <button 
-              onClick={() => window.location.href = '/pos'}
-              className={`flex-grow sm:flex-grow-0 px-4 sm:px-8 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl font-black text-[10px] sm:text-xs uppercase tracking-widest transition-all text-emerald-500 hover:bg-emerald-500 hover:text-white border border-emerald-500/20 whitespace-nowrap`}
+              onClick={() => setActiveTab('caja')}
+              className={`flex-grow sm:flex-grow-0 px-4 sm:px-8 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl font-black text-[10px] sm:text-xs uppercase tracking-widest transition-all ${activeTab === 'caja' ? currentStation.bg + ' ' + currentStation.color : 'text-slate-500 hover:text-slate-300'} whitespace-nowrap`}
             >
               Caja
             </button>
@@ -106,7 +107,11 @@ const EmployeePanel = () => {
         </div>
       </header>
 
-      {stationOrders.length === 0 ? (
+      {activeTab === 'caja' ? (
+        <div className="bg-white rounded-[3rem] overflow-hidden shadow-2xl h-[calc(100vh-200px)] border border-slate-800/50 relative">
+           <SellerPOS isEmbedded={true} />
+        </div>
+      ) : stationOrders.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-40 bg-slate-900/30 rounded-[3rem] border border-dashed border-slate-800">
            <Package size={64} className="text-slate-800 mb-6" />
            <h2 className="text-2xl font-bold text-slate-600 uppercase tracking-widest">Sin pedidos pendientes</h2>
