@@ -145,7 +145,7 @@ const OrderTracking = () => {
       <header className="max-w-md mx-auto flex items-center justify-between mb-10 relative z-10">
          <div className="flex items-center gap-4">
             <button onClick={() => navigate('/menu')} className="p-4 bg-slate-900/50 backdrop-blur-xl border border-white/5 rounded-2xl text-slate-400 hover:text-white transition-all shadow-lg active:scale-95"><ChevronLeft size={24} /></button>
-            <img src="/logo.png" alt="Logo" className="w-12 h-12 object-cover rounded-full border border-white/5" />
+            <img src="/logo.jpg" alt="Logo" className="w-12 h-12 object-cover rounded-full border border-white/5" />
          </div>
          <div className="text-right">
             <div className="text-[10px] font-black uppercase text-emerald-500 tracking-[0.4em] mb-1">MANOLO FOOD AND DRINKS TRUCK PARK • LIVE TRACKING</div>
