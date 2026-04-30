@@ -54,7 +54,8 @@ const SellerPOS = ({ isEmbedded = false, embeddedStation = null }) => {
     : orderContext.currentUser;
     
   const { products, addToCart, cart, removeFromCart, clearCart, placeOrder, logout, closeShift, orders, updateStationStatus, cancelOrder, deleteOrder, deletePayment, announceOrder, verifyAdminPin, getShiftTotals, users } = orderContext;
-  const [selectedInvoice, setSelectedInvoice] = useState(null);
+  const [selectedInvoiceId, setSelectedInvoiceId] = useState(null);
+  const selectedInvoice = useMemo(() => orders.find(o => o.id === selectedInvoiceId), [orders, selectedInvoiceId]);
   const [activeTab, setActiveTab] = useState('ventas'); // 'ventas', 'cobros', 'despacho', 'historial'
   const [isCartOpen, setIsCartOpen] = useState(false);
   
@@ -183,7 +184,7 @@ const SellerPOS = ({ isEmbedded = false, embeddedStation = null }) => {
       .reduce((sum, i) => sum + ((Number(i.price_at_time) || Number(i.price) || 0) * (Number(i.quantity) || 0)), 0);
   }, [paymentOrder, paymentStation]);
 
-  const handleFinalizePayment = () => {
+  const handleFinalizePayment = async () => {
     const received = Number(amountReceived) || 0;
     const isInsufficient = paymentMethod === 'cash' && received < amountToPay;
 
@@ -193,7 +194,7 @@ const SellerPOS = ({ isEmbedded = false, embeddedStation = null }) => {
     }
 
     const currentStatus = paymentOrder.station_statuses?.[paymentStation] || 'received';
-    updateStationStatus(paymentOrder.id, paymentStation, currentStatus, {
+    await updateStationStatus(paymentOrder.id, paymentStation, currentStatus, {
       method: paymentMethod,
       received: received || amountToPay,
       change: (received || amountToPay) - amountToPay,
@@ -240,7 +241,7 @@ const SellerPOS = ({ isEmbedded = false, embeddedStation = null }) => {
     if (paymentSuccess && paymentOrderId) {
       const timer = setTimeout(() => {
         handlePrint('printable-receipt-payment', 2);
-      }, 500); // 500ms para asegurar que el modal y el Receipt estén renderizados
+      }, 1000); // 1000ms para asegurar que el estado de 'orders' se haya sincronizado y el Receipt renderizado con datos nuevos
       return () => clearTimeout(timer);
     }
   }, [paymentSuccess, paymentOrderId]);
@@ -367,7 +368,7 @@ const SellerPOS = ({ isEmbedded = false, embeddedStation = null }) => {
                            </div>
 
                            <div className="grid grid-cols-2 gap-3 pt-6 border-t border-white/5">
-                              <button onClick={() => setSelectedInvoice(order)} title="Imprimir" className="p-4 bg-slate-800 rounded-2xl flex items-center justify-center text-slate-400 hover:text-white transition-all"><Printer size={20} /></button>
+                              <button onClick={() => setSelectedInvoiceId(order.id)} title="Imprimir" className="p-4 bg-slate-800 rounded-2xl flex items-center justify-center text-slate-400 hover:text-white transition-all"><Printer size={20} /></button>
                                <button onClick={() => { 
                                  requireAdminAuth(() => {
                                    if(confirm("¿Seguro que desea anular su venta? Las existencias regresarán al inventario.")) cancelOrder(order.id); 
@@ -483,7 +484,7 @@ const SellerPOS = ({ isEmbedded = false, embeddedStation = null }) => {
                               </button>
                             )}
                             <div className="flex gap-3">
-                               <button onClick={() => setSelectedInvoice(order)} className="p-5 bg-slate-50 text-slate-400 rounded-[2rem] border border-slate-100 flex items-center justify-center hover:bg-slate-900 hover:text-white transition-all"><FileText size={20} /></button>
+                               <button onClick={() => setSelectedInvoiceId(order.id)} className="p-5 bg-slate-50 text-slate-400 rounded-[2rem] border border-slate-100 flex items-center justify-center hover:bg-slate-900 hover:text-white transition-all"><FileText size={20} /></button>
                                <button 
                                   onClick={() => {
                                      if (confirm(`¿ELIMINAR TICKET #${order.ticket_number} DE ${order.customer_name}?`)) {
@@ -564,7 +565,7 @@ const SellerPOS = ({ isEmbedded = false, embeddedStation = null }) => {
                                    <span>LLAMAR CLIENTE</span>
                                 </button>
                                 <button 
-                                   onClick={() => setSelectedInvoice(order)}
+                                   onClick={() => setSelectedInvoiceId(order.id)}
                                    className="py-5 bg-white text-slate-400 rounded-[2rem] border border-slate-200 font-black text-[10px] uppercase tracking-widest hover:bg-slate-50 transition-all flex flex-col items-center justify-center gap-1"
                                 >
                                    <FileText size={18} />
@@ -738,9 +739,9 @@ const SellerPOS = ({ isEmbedded = false, embeddedStation = null }) => {
            </>
          )}
 
-         {selectedInvoice && (
+         {selectedInvoiceId && (
            <>
-             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setSelectedInvoice(null)} className="fixed inset-0 bg-slate-950/90 backdrop-blur-md z-[600]" />
+             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setSelectedInvoiceId(null)} className="fixed inset-0 bg-slate-950/90 backdrop-blur-md z-[600]" />
              <motion.div initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }} className="fixed bottom-0 left-0 right-0 h-[92vh] bg-slate-50/50 rounded-t-[5rem] z-[601] p-12 flex flex-col items-center shadow-2xl max-w-5xl mx-auto overflow-hidden">
                 <div className="w-20 h-1.5 bg-slate-300 rounded-full mb-10 flex-shrink-0" />
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10 w-full max-w-[440px]">
@@ -766,7 +767,7 @@ const SellerPOS = ({ isEmbedded = false, embeddedStation = null }) => {
                       <span>WHATSAPP</span>
                    </button>
                    <button 
-                      onClick={() => setSelectedInvoice(null)}
+                      onClick={() => setSelectedInvoiceId(null)}
                       className="p-6 bg-slate-100 text-slate-400 rounded-[2rem] hover:bg-slate-200 transition-all font-black uppercase text-[10px]"
                    >
                       CERRAR

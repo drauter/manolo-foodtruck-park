@@ -37,11 +37,21 @@ const line = (char = '-') => char.repeat(WIDTH);
 export const buildReceiptText = (order, station = 'CAJA') => {
   if (!order) return { header: '', brand: '', body: '', thanks: '' };
   
-  const is_paid = order.is_paid;
-  // Si hay detalles de pago, asumimos que está pagado para propósitos del recibo
-  const hasPayment = order.payment_details && Object.keys(order.payment_details).length > 0;
-  const totalPaid = (is_paid || hasPayment) ? order.total_price : 0;
-  const payment = order.payment_details?.[station];
+  const norm = (t) => (t || '').toString().normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().trim();
+  const targetStation = norm(station);
+  
+  const is_paid = !!order.is_paid;
+  const paymentDetails = order.payment_details || {};
+  const hasAnyPayment = Object.keys(paymentDetails).length > 0;
+  
+  // Si es CAJA, el total pagado es el total de la orden si ya se registró algún pago o está marcada como paga
+  // Si es una estación específica, buscamos su pago puntual o el global
+  const totalPaid = (is_paid || hasAnyPayment) ? order.total_price : 0;
+  
+  // Buscar el pago específico de esta estación (o CAJA si es el general)
+  // Normalizamos las llaves de payment_details para la búsqueda
+  const paymentKey = Object.keys(paymentDetails).find(k => norm(k) === targetStation) || (targetStation === 'CAJA' ? 'CAJA' : null);
+  const payment = paymentDetails[paymentKey];
 
   // Texto puro para centrado por hardware
   const header = sanitize(`TICKET ${order.ticket_number}`);
