@@ -116,7 +116,7 @@ const PublicDisplay = () => {
       {/* Dynamic Header */}
       <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-4 border-b border-slate-900 gap-4">
         <div className="flex items-center gap-6">
-          <img src="/logo.jpg" alt="Logo" className="w-24 h-24 sm:w-32 sm:h-32 object-contain rounded-3xl shadow-2xl border-4 border-white/5" />
+          <img src="/logo.png" alt="Logo" className="w-24 h-24 sm:w-32 sm:h-32 object-cover rounded-full shadow-2xl border-4 border-white/5" />
           <div>
             <div className="flex items-center gap-3 mb-1">
                <div className="w-8 h-1 bg-emerald-500 rounded-full" />

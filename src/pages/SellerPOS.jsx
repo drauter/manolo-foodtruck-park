@@ -59,6 +59,9 @@ const SellerPOS = ({ isEmbedded = false, embeddedStation = null }) => {
   const [activeTab, setActiveTab] = useState('ventas'); // 'ventas', 'cobros', 'despacho', 'historial'
   const [isCartOpen, setIsCartOpen] = useState(false);
   
+  const normalize = (s) => s ? s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().replace(/-/g, " ") : "";
+  const isCaja = normalize(currentUser?.station) === 'CAJA';
+  
   const [customerName, setCustomerName] = useState('');
   const [isClosingShift, setIsClosingShift] = useState(false);
   const [actualCash, setActualCash] = useState('');
@@ -109,16 +112,15 @@ const SellerPOS = ({ isEmbedded = false, embeddedStation = null }) => {
     }
   }, [currentUser, navigate]);
 
-  const isCajeroGeneral = currentUser && currentUser.station === 'CAJA';
   const total = (cart || []).reduce((acc, item) => acc + (item.price * item.quantity), 0);
   
   if (!Array.isArray(products)) {
     console.error("Products is not an array:", products);
   }
 
-  const filteredProducts = (isCajeroGeneral || !currentUser || !currentUser.station)
+  const filteredProducts = (isCaja || !currentUser || !currentUser.station)
     ? (Array.isArray(products) ? products : [])
-    : (Array.isArray(products) ? products.filter(p => p.station === currentUser.station) : []);
+    : (Array.isArray(products) ? products.filter(p => normalize(p.station) === normalize(currentUser.station)) : []);
     
   const categories = [...new Set(filteredProducts.map(p => p.category || 'Varios'))];
 
@@ -131,7 +133,7 @@ const SellerPOS = ({ isEmbedded = false, embeddedStation = null }) => {
         setPaymentStation(currentUser.station || Object.keys(order.station_statuses || {})[0]);
         setPaymentSuccess(false);
       } else {
-        setSelectedInvoice(order);
+        setSelectedInvoiceId(order.id);
       }
       setIsCartOpen(false);
       setCustomerName('');
@@ -165,20 +167,20 @@ const SellerPOS = ({ isEmbedded = false, embeddedStation = null }) => {
   const amountToPay = useMemo(() => {
     if (!paymentOrder || !paymentStation) return 0;
     
-    const isCaja = paymentStation.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase() === 'CAJA';
+    const isCajaVal = normalize(paymentStation) === 'CAJA';
     const items = paymentOrder.items || paymentOrder.order_items || [];
 
-    if (isCaja) {
+    if (isCajaVal) {
       // Prioritize calculating from items to ensure accuracy, then fallback to total_price
       const itemsSum = items.reduce((sum, i) => sum + ((Number(i.price_at_time) || Number(i.price) || 0) * (Number(i.quantity) || 0)), 0);
       return itemsSum > 0 ? itemsSum : (Number(paymentOrder.total_price) || 0);
     }
     
     // For specific stations, filter items
-    const normalizedStation = paymentStation.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase();
+    const normalizedStation = normalize(paymentStation);
     return items
       .filter(i => {
-        const itemStation = i.station?.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase();
+        const itemStation = normalize(i.station);
         return itemStation === normalizedStation;
       })
       .reduce((sum, i) => sum + ((Number(i.price_at_time) || Number(i.price) || 0) * (Number(i.quantity) || 0)), 0);
@@ -241,7 +243,7 @@ const SellerPOS = ({ isEmbedded = false, embeddedStation = null }) => {
     if (paymentSuccess && paymentOrderId) {
       const timer = setTimeout(() => {
         handlePrint('printable-receipt-payment', 2);
-      }, 1000); // 1000ms para asegurar que el estado de 'orders' se haya sincronizado y el Receipt renderizado con datos nuevos
+      }, 1000); 
       return () => clearTimeout(timer);
     }
   }, [paymentSuccess, paymentOrderId]);
@@ -261,10 +263,10 @@ const SellerPOS = ({ isEmbedded = false, embeddedStation = null }) => {
       <div className="flex-grow flex flex-col h-full bg-slate-50 relative overflow-hidden">
         <header className="bg-white border-b border-slate-200 p-4 sm:p-6 flex justify-between items-center shadow-sm z-30 sticky top-0">
           <div className="flex items-center gap-5">
-             <img src="/logo.jpg" alt="Logo" className="w-14 h-14 sm:w-16 sm:h-16 object-contain rounded-2xl shadow-xl border border-white/10" />
+             <img src="/logo.png" alt="Logo" className="w-14 h-14 sm:w-16 sm:h-16 object-cover rounded-full shadow-xl border border-white/10" />
              <div>
                 <h1 className="text-lg sm:text-xl font-black italic tracking-tighter uppercase leading-none">MANOLO FOOD AND DRINKS TRUCK PARK</h1>
-                <p className="text-[8px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Terminal: {currentUser.station === 'COMIDA RAPIDA' ? 'COMIDA RAPIDA' : (currentUser.station === 'COMIDA RAPIDA' ? 'COMIDA RAPIDA' : currentUser.station)}</p>
+                <p className="text-[8px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Terminal: {currentUser.station}</p>
              </div>
           </div>
 
@@ -293,43 +295,43 @@ const SellerPOS = ({ isEmbedded = false, embeddedStation = null }) => {
 
         <main className="flex-grow overflow-y-auto p-4 sm:p-8 lg:p-10 custom-scrollbar">
            {activeTab === 'ventas' ? (
-             <div className="space-y-12">
-                {parkedCarts.length > 0 && (
-                  <div className="flex gap-4 overflow-x-auto pb-6 no-scrollbar">
-                     {parkedCarts.map(p => (
-                       <button key={p.id} onClick={() => resumeCart(p)} className="px-6 py-4 bg-amber-500 text-white rounded-3xl text-[10px] font-black uppercase tracking-widest shadow-lg flex items-center gap-3 animate-pulse hover:animate-none group">
-                          <Clock size={14} />
-                          <span>Mesa: {p.name} ({p.items.length} ítems)</span>
-                          <X size={14} className="opacity-40 group-hover:opacity-100" onClick={(e) => { e.stopPropagation(); setParkedCarts(prev => prev.filter(c => c.id !== p.id)); }} />
-                       </button>
-                     ))}
-                  </div>
-                )}
-                
-                <div className="flex gap-3 overflow-x-auto pb-4 no-scrollbar">
-                   {['Todos', ...categories].map(c => (
-                     <button key={c} className="px-8 py-4 bg-white rounded-3xl text-[10px] font-black uppercase tracking-widest shadow-sm border border-slate-100 hover:border-emerald-500 transition-all whitespace-nowrap">
-                        {c}
-                     </button>
-                   ))}
-                </div>
+              <div className="space-y-12">
+                 {parkedCarts.length > 0 && (
+                   <div className="flex gap-4 overflow-x-auto pb-6 no-scrollbar">
+                      {parkedCarts.map(p => (
+                        <button key={p.id} onClick={() => resumeCart(p)} className="px-6 py-4 bg-amber-500 text-white rounded-3xl text-[10px] font-black uppercase tracking-widest shadow-lg flex items-center gap-3 animate-pulse hover:animate-none group">
+                           <Clock size={14} />
+                           <span>Mesa: {p.name} ({p.items.length} ítems)</span>
+                           <X size={14} className="opacity-40 group-hover:opacity-100" onClick={(e) => { e.stopPropagation(); setParkedCarts(prev => prev.filter(c => c.id !== p.id)); }} />
+                        </button>
+                      ))}
+                   </div>
+                 )}
+                 
+                 <div className="flex gap-3 overflow-x-auto pb-4 no-scrollbar">
+                    {['Todos', ...categories].map(c => (
+                      <button key={c} className="px-8 py-4 bg-white rounded-3xl text-[10px] font-black uppercase tracking-widest shadow-sm border border-slate-100 hover:border-emerald-500 transition-all whitespace-nowrap">
+                         {c}
+                      </button>
+                    ))}
+                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 sm:gap-8">
-                   {filteredProducts.map(product => (
-                     <div key={product.id} onClick={() => addToCart(product, 1)} className="bg-white p-5 rounded-[2.5rem] border border-slate-100 shadow-md hover:shadow-2xl hover:border-emerald-500 transition-all group flex flex-col items-center cursor-pointer active:scale-95 text-center relative overflow-hidden">
-                        <div className="absolute top-4 right-4 bg-slate-900 text-white w-10 h-10 rounded-full flex items-center justify-center scale-0 group-hover:scale-100 transition-transform shadow-lg z-10">
-                           <Plus size={20} />
-                        </div>
-                        <div className="w-full aspect-square bg-slate-50 rounded-[2rem] overflow-hidden mb-6 relative">
-                           <img src={product.image_url} alt={product.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-                        </div>
-                        <h3 className="font-black text-xs uppercase italic tracking-tighter text-slate-400 mb-1">{product.station}</h3>
-                        <h4 className="font-black text-lg uppercase tracking-tight text-slate-900 mb-3">{product.name}</h4>
-                        <div className="mt-auto px-6 py-2 bg-slate-50 rounded-2xl group-hover:bg-emerald-600 group-hover:text-white transition-all font-black font-mono text-xl">${product.price}</div>
-                     </div>
-                   ))}
-                </div>
-             </div>
+                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 sm:gap-8">
+                    {filteredProducts.map(product => (
+                      <div key={product.id} onClick={() => addToCart(product, 1)} className="bg-white p-5 rounded-[2.5rem] border border-slate-100 shadow-md hover:shadow-2xl hover:border-emerald-500 transition-all group flex flex-col items-center cursor-pointer active:scale-95 text-center relative overflow-hidden">
+                         <div className="absolute top-4 right-4 bg-slate-900 text-white w-10 h-10 rounded-full flex items-center justify-center scale-0 group-hover:scale-100 transition-transform shadow-lg z-10">
+                            <Plus size={20} />
+                         </div>
+                         <div className="w-full aspect-square bg-slate-50 rounded-[2rem] overflow-hidden mb-6 relative">
+                            <img src={product.image_url} alt={product.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                         </div>
+                         <h3 className="font-black text-xs uppercase italic tracking-tighter text-slate-400 mb-1">{product.station}</h3>
+                         <h4 className="font-black text-lg uppercase tracking-tight text-slate-900 mb-3">{product.name}</h4>
+                         <div className="mt-auto px-6 py-2 bg-slate-50 rounded-2xl group-hover:bg-emerald-600 group-hover:text-white transition-all font-black font-mono text-xl">${product.price}</div>
+                      </div>
+                    ))}
+                 </div>
+              </div>
             ) : (activeTab === 'historial' && historyTab === 'ventas') ? (
               <motion.div key="historial-ventas" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-8">
                  <div className="flex justify-between items-center border-b border-white/10 pb-6 mb-8">
@@ -344,13 +346,13 @@ const SellerPOS = ({ isEmbedded = false, embeddedStation = null }) => {
                  </div>
 
                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {orders.filter(o => (isCajeroGeneral || o.origin_station === currentUser.station || (o.items || []).some(i => i.station === currentUser.station))).length === 0 ? (
+                    {orders.filter(o => (isCaja || o.origin_station === currentUser.station || (o.items || []).some(i => i.station === currentUser.station))).length === 0 ? (
                       <div className="col-span-full py-40 text-center opacity-20 flex flex-col items-center border border-dashed border-white/10 rounded-[4rem]">
                          <FileText size={64} className="mb-4 text-slate-400" />
                          <p className="font-black uppercase tracking-widest text-sm">No has realizado ventas aún</p>
                       </div>
                     ) : (
-                      orders.filter(o => (isCajeroGeneral || o.origin_station === currentUser.station || (o.items || []).some(i => i.station === currentUser.station))).map(order => (
+                      orders.filter(o => (isCaja || o.origin_station === currentUser.station || (o.items || []).some(i => i.station === currentUser.station))).map(order => (
                         <div key={order.id} className={`bg-slate-900/50 p-8 rounded-[3rem] border border-white/5 hover:border-emerald-500/30 transition-all group relative shadow-2xl overflow-hidden ${order.status === 'cancelled' ? 'opacity-50 grayscale' : ''}`}>
                            <div className="absolute top-0 right-0 w-20 h-20 bg-white/5 rounded-bl-[3rem]" />
                            <div className="flex justify-between items-start mb-2 leading-none">
@@ -407,7 +409,7 @@ const SellerPOS = ({ isEmbedded = false, embeddedStation = null }) => {
                          const tx = order.payment_details[currentUser.station];
                          if (!tx) return null;
                          const stationAmt = (order.items || [])
-                           .filter(i => currentUser.station === 'CAJA' || i.station === currentUser.station)
+                           .filter(i => isCaja || i.station === currentUser.station)
                            .reduce((s, i) => s + ((Number(i.price_at_time) || 0) * (Number(i.quantity) || 0)), 0) || 0;
                          return (
                            <div key={`${order.id}-${idx}`} className="bg-slate-900/50 p-8 rounded-[3rem] border border-white/5 hover:border-emerald-500/30 transition-all group relative shadow-2xl overflow-hidden">
@@ -661,7 +663,7 @@ const SellerPOS = ({ isEmbedded = false, embeddedStation = null }) => {
                  />
                  <Search size={16} className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-emerald-500 transition-all" />
               </div>
-              <div className="grid grid-cols-3 gap-2">
+              <div className={`grid ${isCaja ? 'grid-cols-3' : 'grid-cols-1'} gap-2`}>
                  <button 
                    onClick={() => handlePlaceOrder(false)}
                    disabled={cart.length === 0}
@@ -670,22 +672,26 @@ const SellerPOS = ({ isEmbedded = false, embeddedStation = null }) => {
                     <FileText size={16} />
                     <span>REGISTRAR</span>
                  </button>
-                 <button 
-                   onClick={() => handlePlaceOrder(true)}
-                   disabled={cart.length === 0}
-                   className="py-6 bg-emerald-600 text-white rounded-[1.5rem] font-black text-[10px] uppercase tracking-[0.1em] shadow-2xl hover:bg-emerald-500 shadow-emerald-500/20 disabled:opacity-20 transition-all flex flex-col items-center justify-center gap-1"
-                 >
-                    <Wallet size={16} />
-                    <span>COBRAR</span>
-                 </button>
-                 <button 
-                   onClick={parkCart}
-                   disabled={cart.length === 0}
-                   className="py-6 bg-amber-500 text-white rounded-[1.5rem] font-black text-[10px] uppercase tracking-[0.1em] shadow-2xl hover:bg-amber-400 shadow-amber-500/20 disabled:opacity-20 transition-all flex flex-col items-center justify-center gap-1"
-                 >
-                    <Clock size={16} />
-                    <span>ESPERA</span>
-                 </button>
+                 {isCaja && (
+                   <>
+                     <button 
+                       onClick={() => handlePlaceOrder(true)}
+                       disabled={cart.length === 0}
+                       className="py-6 bg-emerald-600 text-white rounded-[1.5rem] font-black text-[10px] uppercase tracking-[0.1em] shadow-2xl hover:bg-emerald-500 shadow-emerald-500/20 disabled:opacity-20 transition-all flex flex-col items-center justify-center gap-1"
+                     >
+                        <Wallet size={16} />
+                        <span>COBRAR</span>
+                     </button>
+                     <button 
+                       onClick={parkCart}
+                       disabled={cart.length === 0}
+                       className="py-6 bg-amber-500 text-white rounded-[1.5rem] font-black text-[10px] uppercase tracking-[0.1em] shadow-2xl hover:bg-amber-400 shadow-amber-500/20 disabled:opacity-20 transition-all flex flex-col items-center justify-center gap-1"
+                     >
+                        <Clock size={16} />
+                        <span>ESPERA</span>
+                     </button>
+                   </>
+                 )}
               </div>
            </div>
         </div>
@@ -724,11 +730,13 @@ const SellerPOS = ({ isEmbedded = false, embeddedStation = null }) => {
                       <input type="text" value={customerName} onChange={e => setCustomerName(e.target.value)} placeholder="..." className="w-full bg-slate-900 p-4 rounded-3xl font-black text-xl sm:text-4xl italic text-center text-white border border-white/5 outline-none focus:ring-4 focus:ring-emerald-500/20" />
                       <div className="flex flex-col sm:flex-row justify-between items-center gap-6 sm:gap-4 pt-4">
                          <span className="text-4xl font-black font-mono tracking-tighter text-white">${total}</span>
-                         <div className="flex gap-3 sm:gap-4 w-full sm:w-auto">
-                            <button onClick={() => handlePlaceOrder(false)} className="flex-1 px-8 py-5 bg-slate-900 text-slate-400 font-black rounded-3xl uppercase tracking-widest text-[10px] border border-white/5 h-[60px] flex items-center justify-center">Registrar</button>
-                            <button onClick={() => handlePlaceOrder(true)} className="flex-1 px-8 py-5 bg-emerald-600 text-white font-black rounded-3xl uppercase tracking-widest text-[10px] sm:text-sm shadow-xl shadow-emerald-900/40 hover:bg-emerald-500 transition-all flex items-center justify-center gap-3 h-[60px]">
-                               <Banknote size={20} /> Pagado
-                            </button>
+                         <div className={`flex ${isCaja ? 'gap-3 sm:gap-4' : ''} w-full sm:w-auto`}>
+                            <button onClick={() => handlePlaceOrder(false)} className={`flex-1 px-8 py-5 bg-slate-900 text-slate-400 font-black rounded-3xl uppercase tracking-widest text-[10px] border border-white/5 h-[60px] flex items-center justify-center ${!isCaja ? 'w-full' : ''}`}>Registrar</button>
+                            {isCaja && (
+                              <button onClick={() => handlePlaceOrder(true)} className="flex-1 px-8 py-5 bg-emerald-600 text-white font-black rounded-3xl uppercase tracking-widest text-[10px] sm:text-sm shadow-xl shadow-emerald-900/40 hover:bg-emerald-500 transition-all flex items-center justify-center gap-3 h-[60px]">
+                                 <Banknote size={20} /> Pagado
+                              </button>
+                            )}
                          </div>
                       </div>
                    </div>
@@ -967,7 +975,7 @@ const SellerPOS = ({ isEmbedded = false, embeddedStation = null }) => {
           {isAuthModalOpen && (
             <>
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsAuthModalOpen(false)} className="fixed inset-0 bg-slate-950/90 backdrop-blur-xl z-[5000]" />
-              <motion.div initial={{ scale: 0.9, y: 50 }} animate={{ scale: 1, y: 0 }} className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-sm bg-slate-900 p-12 rounded-[4rem] shadow-2xl z-[5001] border border-white/5 text-center">
+              <motion.div initial={{ scale: 0.9, y: 50 }} animate={{ scale: 1, y: 0 }} className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-sm bg-slate-900 p-12 rounded-[4rem] shadow-2xl z-[5001] border border-white/5 text-center">
                 <div className="w-16 h-16 bg-slate-800 rounded-3xl flex items-center justify-center mx-auto mb-6 text-slate-400">
                   <Shield size={32} />
                 </div>

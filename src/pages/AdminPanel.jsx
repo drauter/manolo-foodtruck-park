@@ -413,7 +413,7 @@ const AdminPanel = () => {
          {/* Sidebar - Desktop */}
          <aside className="hidden lg:flex w-72 bg-slate-900 text-white p-6 flex-col gap-8 sticky top-0 h-screen overflow-y-auto z-50">
             <div className="flex flex-col items-center gap-4">
-               <img src="/logo.jpg" alt="Logo" className="w-24 h-24 object-contain rounded-2xl shadow-2xl border border-white/5" />
+               <img src="/logo.png" alt="Logo" className="w-24 h-24 object-cover rounded-full shadow-2xl border border-white/5" />
                <div className="text-xl font-black italic text-emerald-500 tracking-tighter uppercase leading-none text-center">Manolo <br/><span className="text-white text-xs">FOOD AND DRINKS Truck Park</span></div>
             </div>
             <nav className="space-y-1 flex-grow">
