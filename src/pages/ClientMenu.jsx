@@ -118,7 +118,7 @@ const ClientMenu = () => {
                   setActiveStation(station);
                   setActiveCategory('Todos');
                 }} 
-                className={`px-8 py-5 rounded-[2rem] font-black uppercase text-[10px] tracking-widest transition-all whitespace-nowrap border-2 ${activeStation === station ? 'bg-emerald-600 border-emerald-500 text-white shadow-[0_0_20px_rgba(16,185,129,0.3)] scale-105' : 'bg-slate-900 border-slate-800 text-slate-400 hover:border-slate-700'}`}
+                className={`px-5 py-4 rounded-[1.5rem] font-black uppercase text-[9px] tracking-widest transition-all whitespace-nowrap border-2 ${activeStation === station ? 'bg-emerald-600 border-emerald-500 text-white shadow-[0_0_20px_rgba(16,185,129,0.3)] scale-105' : 'bg-slate-900 border-slate-800 text-slate-400 hover:border-slate-700'}`}
               >
                 {getStationDisplay(station)}
               </button>
@@ -160,7 +160,7 @@ const ClientMenu = () => {
               <section className="mb-12">
                 <div className="flex items-center gap-6 mb-10">
                     <div className="w-4 h-4 rounded-full bg-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.5)]" />
-                    <h2 className="text-4xl font-black uppercase italic tracking-tighter text-white">{getStationDisplay(activeStation)}</h2>
+                    <h2 className="text-2xl sm:text-4xl font-black uppercase italic tracking-tighter text-white">{getStationDisplay(activeStation)}</h2>
                     <div className="flex-grow h-px bg-gradient-to-r from-slate-800 to-transparent" />
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">

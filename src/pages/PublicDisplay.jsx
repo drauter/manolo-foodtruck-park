@@ -20,7 +20,7 @@ const StationColumn = ({ label, icon: IconComponent, color, orders, stationKey }
             <div className={`p-2 rounded-xl bg-${color}-500/10 text-${color}-500 border border-${color}-500/20`}>
                <IconComponent size={20} />
             </div>
-            <h2 className="text-lg font-black uppercase tracking-tighter italic">{label}</h2>
+            <h2 className="text-sm sm:text-base font-black uppercase tracking-tighter italic leading-none">{label}</h2>
          </div>
          <div className="bg-slate-950 px-3 py-0.5 rounded-full text-[9px] font-black text-slate-500 uppercase tracking-widest border border-slate-800">
             {stationOrders.length}
