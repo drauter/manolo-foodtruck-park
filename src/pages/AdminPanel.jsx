@@ -430,6 +430,9 @@ const AdminPanel = () => {
                <button onClick={() => window.open('/menu', '_blank')} className="w-full text-left p-4 rounded-2xl flex items-center gap-3 hover:bg-slate-800 text-slate-400 transition-all">
                   <Coffee size={18} /> <span className="font-bold text-sm tracking-tight text-white/50">Menú Digital</span>
                </button>
+               <button onClick={() => window.open('/pos', '_blank')} className="w-full text-left p-4 rounded-2xl flex items-center gap-3 hover:bg-slate-800 text-slate-400 transition-all">
+                  <ShoppingCart size={18} /> <span className="font-bold text-sm tracking-tight text-white/50">Caja / POS</span>
+               </button>
             </div>
             <button onClick={() => { logout(); navigate('/login'); }} className="p-4 bg-slate-800 rounded-2xl flex items-center gap-3 text-red-400 font-bold hover:bg-red-500/10 transition-all text-sm">
                <LogOut size={18} /> Salir
