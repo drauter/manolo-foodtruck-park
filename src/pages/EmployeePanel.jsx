@@ -64,7 +64,7 @@ const EmployeePanel = () => {
         <div className="flex gap-4 items-center w-full md:w-auto">
           <div className="flex gap-1 sm:gap-2 bg-slate-950 p-1.5 sm:p-2 rounded-2xl sm:rounded-[2rem] border border-slate-800 flex-grow sm:flex-grow-0 overflow-x-auto no-scrollbar">
             <button 
-              onClick={() => window.open('/pos', '_blank')}
+              onClick={() => window.location.href = '/pos'}
               className={`flex-grow sm:flex-grow-0 px-4 sm:px-8 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl font-black text-[10px] sm:text-xs uppercase tracking-widest transition-all text-emerald-500 hover:bg-emerald-500 hover:text-white border border-emerald-500/20 whitespace-nowrap`}
             >
               Caja
