@@ -68,7 +68,7 @@ const EmployeePanel = () => {
               onClick={() => setActiveTab('caja')}
               className={`flex-grow sm:flex-grow-0 px-4 sm:px-8 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl font-black text-[10px] sm:text-xs uppercase tracking-widest transition-all ${activeTab === 'caja' ? currentStation.bg + ' ' + currentStation.color : 'text-slate-500 hover:text-slate-300'} whitespace-nowrap`}
             >
-              Caja
+              Nuevo Pedido
             </button>
             <button 
               onClick={() => setActiveTab('prep')}
