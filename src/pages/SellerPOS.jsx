@@ -110,9 +110,9 @@ const SellerPOS = ({ isEmbedded = false }) => {
     console.error("Products is not an array:", products);
   }
 
-  const filteredProducts = (isCajeroGeneral || (currentUser && !currentUser.station))
+  const filteredProducts = (isCajeroGeneral || !currentUser || !currentUser.station)
     ? (Array.isArray(products) ? products : [])
-    : (Array.isArray(products) ? products.filter(p => p.station === currentUser.station) : []);
+    : (Array.isArray(products) ? products.filter(p => p.station === currentUser?.station) : []);
     
   const categories = [...new Set(filteredProducts.map(p => p.category || 'Varios'))];
 
@@ -122,7 +122,7 @@ const SellerPOS = ({ isEmbedded = false }) => {
     if (order) {
       if (directPayment) {
         setPaymentOrderId(order.id);
-        setPaymentStation(currentUser.station || Object.keys(order.station_statuses || {})[0]);
+        setPaymentStation(currentUser?.station || Object.keys(order.station_statuses || {})[0]);
         setPaymentSuccess(false);
       } else {
         setSelectedInvoice(order);
