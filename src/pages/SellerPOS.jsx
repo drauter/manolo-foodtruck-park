@@ -751,13 +751,15 @@ const SellerPOS = ({ isEmbedded = false, embeddedStation = null }) => {
              <motion.div initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }} className="fixed bottom-0 left-0 right-0 h-[92vh] bg-slate-50/50 rounded-t-[5rem] z-[601] p-12 flex flex-col items-center shadow-2xl max-w-5xl mx-auto overflow-hidden">
                 <div className="w-20 h-1.5 bg-slate-300 rounded-full mb-10 flex-shrink-0" />
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10 w-full max-w-[440px]">
-                   <button 
-                      onClick={() => handlePrint('printable-receipt-preview')}
-                      className="flex flex-col items-center justify-center gap-2 p-6 bg-white border border-slate-100 text-slate-900 rounded-[2rem] font-black uppercase text-[10px] shadow-lg hover:shadow-xl transition-all"
-                   >
-                      <Printer size={20} />
-                      <span>TICKET</span>
-                   </button>
+                   {isCaja && (
+                     <button 
+                        onClick={() => handlePrint('printable-receipt-preview')}
+                        className="flex flex-col items-center justify-center gap-2 p-6 bg-white border border-slate-100 text-slate-900 rounded-[2rem] font-black uppercase text-[10px] shadow-lg hover:shadow-xl transition-all"
+                     >
+                        <Printer size={20} />
+                        <span>TICKET</span>
+                     </button>
+                   )}
                    <button 
                       onClick={() => handlePrint('printable-receipt-preview')}
                       className="flex flex-col items-center justify-center gap-2 p-6 bg-[#C29F5C] text-white rounded-[2rem] font-black uppercase text-[10px] shadow-lg hover:opacity-90 transition-all"

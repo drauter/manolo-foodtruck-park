@@ -109,7 +109,7 @@ const EmployeePanel = () => {
 
       {activeTab === 'caja' ? (
         <div className="bg-white rounded-[3rem] overflow-hidden shadow-2xl h-[calc(100vh-200px)] border border-slate-800/50 relative">
-           <SellerPOS isEmbedded={true} />
+           <SellerPOS isEmbedded={true} embeddedStation={stationKey} />
         </div>
       ) : stationOrders.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-40 bg-slate-900/30 rounded-[3rem] border border-dashed border-slate-800">
@@ -175,12 +175,6 @@ const EmployeePanel = () => {
               )}
 
               <div className="flex gap-4 p-6 bg-slate-800/20 mt-auto">
-                <button 
-                  onClick={() => setPrintingOrder(order)}
-                  className="flex-grow py-5 bg-slate-800 text-white font-black rounded-2xl hover:bg-slate-700 transition-all flex items-center justify-center gap-3 text-lg border border-white/5 shadow-xl"
-                >
-                  <Printer size={24} /> IMPRIMIR
-                </button>
                 {activeTab === 'prep' && (
                   <button 
                     onClick={() => updateStationStatus(order.id, stationKey, 'ready')}
