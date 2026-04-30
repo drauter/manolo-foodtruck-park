@@ -54,6 +54,7 @@ const SellerPOS = ({ isEmbedded = false, embeddedStation = null }) => {
     : orderContext.currentUser;
     
   const { products, addToCart, cart, removeFromCart, clearCart, placeOrder, logout, closeShift, orders, updateStationStatus, cancelOrder, deleteOrder, deletePayment, announceOrder, verifyAdminPin, getShiftTotals, users } = orderContext;
+  const [selectedInvoice, setSelectedInvoice] = useState(null);
   const [activeTab, setActiveTab] = useState('ventas'); // 'ventas', 'cobros', 'despacho', 'historial'
   const [isCartOpen, setIsCartOpen] = useState(false);
   
