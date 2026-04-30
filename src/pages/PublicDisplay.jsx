@@ -3,6 +3,7 @@ import { useOrder } from '../context/OrderContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Coffee, Utensils, IceCream, Clock, CheckCircle, LogOut } from 'lucide-react';
 import { STATIONS, STATION_LABELS } from '../utils/constants';
+import { QRCodeSVG } from 'qrcode.react';
 
 const StationColumn = ({ label, icon: IconComponent, color, orders, stationKey }) => {
   if (!IconComponent) return null;
@@ -89,6 +90,7 @@ const StationColumn = ({ label, icon: IconComponent, color, orders, stationKey }
 
 const PublicDisplay = () => {
   const { orders } = useOrder();
+  const menuUrl = `${window.location.origin}/menu`;
   const [audioUnlocked, setAudioUnlocked] = React.useState(() => {
     return localStorage.getItem('manolo_audio_unlocked') === 'true';
   });
@@ -112,31 +114,48 @@ const PublicDisplay = () => {
   return (
     <div className="min-h-screen bg-slate-950 text-white font-sans overflow-hidden flex flex-col p-2 sm:p-4 lg:p-6 gap-3 sm:gap-4">
       {/* Dynamic Header */}
-      <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-2 border-b border-slate-900 gap-2">
-        <div>
-          <div className="flex items-center gap-3 mb-1">
-             <div className="w-8 h-1 bg-emerald-500 rounded-full" />
-             <span className="text-[9px] font-black tracking-[0.3em] text-emerald-500 uppercase">Estado de Pedidos</span>
+      <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-4 border-b border-slate-900 gap-4">
+        <div className="flex items-center gap-6">
+          <img src="/logo.jpg" alt="Logo" className="w-24 h-24 sm:w-32 sm:h-32 object-contain rounded-3xl shadow-2xl border-4 border-white/5" />
+          <div>
+            <div className="flex items-center gap-3 mb-1">
+               <div className="w-8 h-1 bg-emerald-500 rounded-full" />
+               <span className="text-[9px] font-black tracking-[0.3em] text-emerald-500 uppercase">Estado de Pedidos</span>
+            </div>
+            <h1 className="text-2xl sm:text-4xl font-black italic tracking-tighter leading-none opacity-90 uppercase italic underline decoration-emerald-500 decoration-4 underline-offset-4">MANOLO <span className="text-emerald-500">FOOD & DRINKS</span></h1>
           </div>
-          <h1 className="text-2xl sm:text-4xl font-black italic tracking-tighter leading-none opacity-90 uppercase italic underline decoration-emerald-500 decoration-4 underline-offset-4">MANOLO <span className="text-emerald-500">FOODTRUCK</span></h1>
         </div>
-        <div className="w-full sm:w-auto text-left sm:text-right flex flex-row sm:flex-col items-center sm:items-end justify-between sm:justify-end gap-2">
-           <div className="flex items-center gap-4">
-             <div className="text-2xl sm:text-4xl font-black font-mono leading-none tracking-tighter tabular-nums text-emerald-500">
-               {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-             </div>
-             <button 
-               onClick={() => window.location.href = '/login'}
-               className="p-3 bg-slate-900 text-slate-500 hover:text-white rounded-2xl border border-slate-800 transition-all hover:scale-105 active:scale-95 flex items-center gap-2 group"
-               title="Salir"
-             >
-               <LogOut size={18} className="group-hover:text-red-500" />
-               <span className="text-[10px] font-black uppercase tracking-widest hidden sm:inline">Cerrar</span>
-             </button>
+        
+        <div className="flex flex-row items-center gap-8 bg-slate-900/50 p-4 rounded-[2.5rem] border border-white/5 shadow-inner">
+           <div className="flex flex-col items-center gap-2">
+              <div className="p-2 bg-white rounded-2xl shadow-xl">
+                 <QRCodeSVG value={menuUrl} size={100} />
+              </div>
+              <div className="text-center">
+                 <p className="text-[10px] font-black text-emerald-500 uppercase tracking-widest leading-none">ESCANEAME</p>
+                 <p className="text-[8px] font-bold text-white/40 uppercase tracking-tight mt-1">Y ORDENA TU PEDIDO</p>
+              </div>
            </div>
-           <div className="flex items-center gap-2 bg-slate-900 px-3 py-0.5 rounded-full border border-slate-800">
-              <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
-              <span className="text-[7px] font-black uppercase tracking-widest text-slate-400">Live Sync</span>
+
+           <div className="w-px h-16 bg-white/5" />
+
+           <div className="text-left sm:text-right flex flex-col items-center sm:items-end justify-center gap-2">
+              <div className="flex items-center gap-4">
+                <div className="text-2xl sm:text-5xl font-black font-mono leading-none tracking-tighter tabular-nums text-emerald-500">
+                  {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                </div>
+                <button 
+                  onClick={() => window.location.href = '/login'}
+                  className="p-3 bg-slate-900 text-slate-500 hover:text-white rounded-2xl border border-slate-800 transition-all hover:scale-105 active:scale-95 flex items-center gap-2 group"
+                  title="Salir"
+                >
+                  <LogOut size={18} className="group-hover:text-red-500" />
+                </button>
+              </div>
+              <div className="flex items-center gap-2 bg-slate-950 px-3 py-1 rounded-full border border-white/5">
+                 <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
+                 <span className="text-[7px] font-black uppercase tracking-widest text-slate-500">Sistema en Vivo</span>
+              </div>
            </div>
         </div>
       </header>

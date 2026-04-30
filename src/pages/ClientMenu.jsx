@@ -99,9 +99,7 @@ const ClientMenu = () => {
       <header className="sticky top-0 z-40 bg-slate-950/80 backdrop-blur-xl border-b border-white/5 p-6 shadow-2xl">
         <div className="max-w-5xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="flex items-center gap-4 w-full md:w-auto">
-             <div className="w-12 h-12 bg-emerald-600 rounded-[1.25rem] flex items-center justify-center shadow-lg shadow-emerald-900/40 border border-emerald-400/20 rotate-3">
-                <ShoppingCart className="text-white" />
-             </div>
+             <img src="/logo.jpg" alt="Logo" className="w-16 h-16 sm:w-20 sm:h-20 object-contain rounded-2xl shadow-xl border-2 border-white/5" />
              <div>
                 <h2 className="text-2xl font-black text-white tracking-tighter italic uppercase leading-none text-emerald-500">Manolo Food and Drinks Truck Park</h2>
                 <div className="flex items-center gap-2 mt-1.5">

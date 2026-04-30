@@ -143,7 +143,10 @@ const OrderTracking = () => {
       <div className="fixed inset-0 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-emerald-500/10 via-transparent to-transparent opacity-50 pointer-events-none" />
       
       <header className="max-w-md mx-auto flex items-center justify-between mb-10 relative z-10">
-         <button onClick={() => navigate('/menu')} className="p-4 bg-slate-900/50 backdrop-blur-xl border border-white/5 rounded-2xl text-slate-400 hover:text-white transition-all shadow-lg active:scale-95"><ChevronLeft size={24} /></button>
+         <div className="flex items-center gap-4">
+            <button onClick={() => navigate('/menu')} className="p-4 bg-slate-900/50 backdrop-blur-xl border border-white/5 rounded-2xl text-slate-400 hover:text-white transition-all shadow-lg active:scale-95"><ChevronLeft size={24} /></button>
+            <img src="/logo.jpg" alt="Logo" className="w-12 h-12 object-contain rounded-xl border border-white/5" />
+         </div>
          <div className="text-right">
             <div className="text-[10px] font-black uppercase text-emerald-500 tracking-[0.4em] mb-1">MANOLO FOOD AND DRINKS TRUCK PARK • LIVE TRACKING</div>
             <div className="text-4xl font-black italic text-white tracking-tighter leading-none">#{order?.ticket_number || '---'}</div>

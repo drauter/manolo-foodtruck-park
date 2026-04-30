@@ -260,10 +260,8 @@ const SellerPOS = ({ isEmbedded = false, embeddedStation = null }) => {
       
       <div className="flex-grow flex flex-col h-full bg-slate-50 relative overflow-hidden">
         <header className="bg-white border-b border-slate-200 p-4 sm:p-6 flex justify-between items-center shadow-sm z-30 sticky top-0">
-          <div className="flex items-center gap-3 sm:gap-4">
-             <div className="w-10 h-10 sm:w-12 sm:h-12 bg-slate-900 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-lg">
-                <ShoppingCart className="text-white" size={20} />
-             </div>
+          <div className="flex items-center gap-5">
+             <img src="/logo.jpg" alt="Logo" className="w-14 h-14 sm:w-16 sm:h-16 object-contain rounded-2xl shadow-xl border border-white/10" />
              <div>
                 <h1 className="text-lg sm:text-xl font-black italic tracking-tighter uppercase leading-none">MANOLO FOOD AND DRINKS TRUCK PARK</h1>
                 <p className="text-[8px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Terminal: {currentUser.station === 'COMIDA RAPIDA' ? 'COMIDA RAPIDA' : (currentUser.station === 'COMIDA RAPIDA' ? 'COMIDA RAPIDA' : currentUser.station)}</p>
