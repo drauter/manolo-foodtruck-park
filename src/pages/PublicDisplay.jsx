@@ -160,7 +160,7 @@ const PublicDisplay = () => {
         <div className="flex items-center gap-20 whitespace-nowrap animate-marquee">
           {[1,2,3].map(i => (
             <span key={i} className="text-lg font-black text-emerald-950 uppercase italic flex items-center gap-8">
-              <span>🍔 ¡Bienvenidos a MANOLO FOODTRUCK PARK!</span>
+              <span>🍔 ¡Bienvenidos a MANOLO FOOD AND DRINKS TRUCK PARK!</span>
               <div className="w-2 h-2 bg-white rounded-full" />
               <span>🥤 Escanea el QR para pedir</span>
               <div className="w-2 h-2 bg-white rounded-full" />

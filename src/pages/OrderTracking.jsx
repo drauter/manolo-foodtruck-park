@@ -145,7 +145,7 @@ const OrderTracking = () => {
       <header className="max-w-md mx-auto flex items-center justify-between mb-10 relative z-10">
          <button onClick={() => navigate('/menu')} className="p-4 bg-slate-900/50 backdrop-blur-xl border border-white/5 rounded-2xl text-slate-400 hover:text-white transition-all shadow-lg active:scale-95"><ChevronLeft size={24} /></button>
          <div className="text-right">
-            <div className="text-[10px] font-black uppercase text-emerald-500 tracking-[0.4em] mb-1">MANOLO FOODTRUCK PARK • LIVE TRACKING</div>
+            <div className="text-[10px] font-black uppercase text-emerald-500 tracking-[0.4em] mb-1">MANOLO FOOD AND DRINKS TRUCK PARK • LIVE TRACKING</div>
             <div className="text-4xl font-black italic text-white tracking-tighter leading-none">#{order?.ticket_number || '---'}</div>
          </div>
       </header>
@@ -297,7 +297,7 @@ const OrderTracking = () => {
                 <div className="w-1.5 h-1.5 bg-slate-500 rounded-full animate-bounce [animation-delay:0.2s]" />
                 <div className="w-1.5 h-1.5 bg-slate-500 rounded-full animate-bounce [animation-delay:0.4s]" />
             </div>
-            <p className="text-[10px] text-slate-500 font-black uppercase tracking-[0.5em]">MANOLO FOODTRUCK PARK SYSTEM</p>
+            <p className="text-[10px] text-slate-500 font-black uppercase tracking-[0.5em]">MANOLO FOOD AND DRINKS TRUCK PARK SYSTEM</p>
          </div>
       </div>
     </div>

@@ -56,7 +56,7 @@ export const buildReceiptText = (order, station = 'CAJA') => {
   // Texto puro para centrado por hardware
   const header = sanitize(`TICKET ${order.ticket_number}`);
   const brand = sanitize('MANOLO');
-  const park = sanitize('FOODTRUCK PARK');
+  const park = sanitize('FOOD AND DRINKS TRUCK PARK');
 
   const ts = new Date(order.timestamp);
   const ampm = ts.getHours() >= 12 ? 'PM' : 'AM';
@@ -101,7 +101,7 @@ export const buildReceiptText = (order, station = 'CAJA') => {
   const thanksLines = [
     sanitize('GRACIAS POR TU COMPRA'),
     sanitize('VISITANOS PRONTO EN MANOLO'),
-    sanitize('FOODTRUCK PARK'),
+    sanitize('FOOD AND DRINKS TRUCK PARK'),
     '',
     '',
     '',

@@ -103,10 +103,10 @@ const ClientMenu = () => {
                 <ShoppingCart className="text-white" />
              </div>
              <div>
-                <h2 className="text-2xl font-black text-white tracking-tighter italic uppercase leading-none text-emerald-500">Manolo Foodtruck Park</h2>
+                <h2 className="text-2xl font-black text-white tracking-tighter italic uppercase leading-none text-emerald-500">Manolo Food and Drinks Truck Park</h2>
                 <div className="flex items-center gap-2 mt-1.5">
                    <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.5)]" />
-                   <span className="text-[10px] text-slate-400 uppercase tracking-widest font-black">Foodtruck Park & Chill</span>
+                   <span className="text-[10px] text-slate-400 uppercase tracking-widest font-black">Food and Drinks Truck Park & Chill</span>
                 </div>
              </div>
           </div>

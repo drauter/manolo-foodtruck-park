@@ -249,7 +249,7 @@ const SellerPOS = ({ isEmbedded = false, embeddedStation = null }) => {
   const handleWhatsAppShare = (order) => {
     if (!order) return;
     const itemsText = (order.items || []).map(i => `${i.quantity} x ${i.products?.name || i.product?.name || 'Producto'}`).join('\n');
-    const text = `🍕 *MANOLO FOODTRUCK PARK* 🍕\n---------------------------\n*Ticket:* #${order.ticket_number}\n*Cliente:* ${order.customer_name?.toUpperCase()}\n---------------------------\n${itemsText}\n---------------------------\n*TOTAL: RD$ ${order.total_price}.00*\n\n¡Gracias por preferirnos!`;
+    const text = `🍕 *MANOLO FOOD AND DRINKS TRUCK PARK* 🍕\n---------------------------\n*Ticket:* #${order.ticket_number}\n*Cliente:* ${order.customer_name?.toUpperCase()}\n---------------------------\n${itemsText}\n---------------------------\n*TOTAL: RD$ ${order.total_price}.00*\n\n¡Gracias por preferirnos!`;
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
   };
 
@@ -265,7 +265,7 @@ const SellerPOS = ({ isEmbedded = false, embeddedStation = null }) => {
                 <ShoppingCart className="text-white" size={20} />
              </div>
              <div>
-                <h1 className="text-lg sm:text-xl font-black italic tracking-tighter uppercase leading-none">MANOLO FOODTRUCK PARK</h1>
+                <h1 className="text-lg sm:text-xl font-black italic tracking-tighter uppercase leading-none">MANOLO FOOD AND DRINKS TRUCK PARK</h1>
                 <p className="text-[8px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Terminal: {currentUser.station === 'COMIDA RAPIDA' ? 'COMIDA RAPIDA' : (currentUser.station === 'COMIDA RAPIDA' ? 'COMIDA RAPIDA' : currentUser.station)}</p>
              </div>
           </div>

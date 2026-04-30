@@ -38,7 +38,7 @@ class ErrorBoundary extends React.Component {
 
 function App() {
   React.useEffect(() => {
-    document.title = "MANOLO FOODTRUCK PARK";
+    document.title = "MANOLO FOOD AND DRINKS TRUCK PARK";
   }, []);
 
   return (

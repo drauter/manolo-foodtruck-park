@@ -34,7 +34,7 @@ const AdminPanel = () => {
    }, [selectedVoice]);
 
    const handleTestVoice = () => {
-      const msg = new SpeechSynthesisUtterance("Esta es una prueba de voz para Manolo Foodtruck Park.");
+      const msg = new SpeechSynthesisUtterance("Esta es una prueba de voz para Manolo Food and Drinks Truck Park.");
       msg.lang = 'es-ES';
       const voice = voices.find(v => v.voiceURI === pendingVoice);
       if (voice) msg.voice = voice;
@@ -376,7 +376,7 @@ const AdminPanel = () => {
    const handleWhatsAppShare = (order) => {
       if (!order) return;
       const itemsText = (order.items || []).map(i => `${i.quantity} x ${i.products?.name || i.product?.name || 'Producto'}`).join('\n');
-      const text = `🍔 *MANOLO FOODTRUCK PARK* 🍔\n---------------------------\n*Ticket:* #${order.ticket_number}\n*Cliente:* ${order.customer_name?.toUpperCase()}\n---------------------------\n${itemsText}\n---------------------------\n*TOTAL: RD$ ${order.total_price}.00*\n\n¡Gracias por preferirnos!`;
+      const text = `🍔 *MANOLO FOOD AND DRINKS TRUCK PARK* 🍔\n---------------------------\n*Ticket:* #${order.ticket_number}\n*Cliente:* ${order.customer_name?.toUpperCase()}\n---------------------------\n${itemsText}\n---------------------------\n*TOTAL: RD$ ${order.total_price}.00*\n\n¡Gracias por preferirnos!`;
       window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
    };
 
@@ -412,7 +412,7 @@ const AdminPanel = () => {
       <div className="min-h-screen bg-slate-50 flex flex-col lg:flex-row font-sans overflow-x-hidden no-print">
          {/* Sidebar - Desktop */}
          <aside className="hidden lg:flex w-72 bg-slate-900 text-white p-6 flex-col gap-8 sticky top-0 h-screen overflow-y-auto z-50">
-            <div className="text-2xl font-black italic text-emerald-500 tracking-tighter uppercase leading-none">Manolo <span className="text-white">FOODTRUCK Park</span></div>
+            <div className="text-2xl font-black italic text-emerald-500 tracking-tighter uppercase leading-none">Manolo <span className="text-white">FOOD AND DRINKS Truck Park</span></div>
             <nav className="space-y-1 flex-grow">
                {menuItems.map(tab => (
                   <button key={tab.id} onClick={() => setActiveTab(tab.id)}
