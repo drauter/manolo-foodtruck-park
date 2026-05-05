@@ -368,13 +368,16 @@ export const OrderProvider = ({ children }) => {
     ));
   };
 
-  const updateOrder = (orderId, updatedOrder) => {
+  const updateOrder = async (orderId, updates) => {
+    const { error } = await supabase.from('orders').update(updates).eq('id', orderId);
+    if (error) {
+       console.error('ERROR UPDATING ORDER:', error);
+       return;
+    }
+    
     setOrders(prev => prev.map(order => {
       if (order.id !== orderId) return order;
-      
-      // Handle stock adjustments if items changed
-      // (This is a simplified version, in a real app we'd diff items)
-      return { ...order, ...updatedOrder };
+      return { ...order, ...updates };
     }));
   };
 
