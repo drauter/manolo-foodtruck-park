@@ -69,7 +69,7 @@ export const buildReceiptText = (order, station = 'CAJA') => {
     park,
     line('='),
     dual('ESTADO / STATUS:', is_paid ? 'PAGADO / PAID' : 'PENDIENTE / PENDING'),
-    dual('FACTURA / INVOICE:', `FAC-${order.ticket_number}`),
+    dual('RECIBO / RECEIPT:', `REC-${order.ticket_number}`),
     dual('FECHA / DATE:', ts.toLocaleDateString()),
     dual('HORA / TIME:', cleanTime),
     dual('CLIENTE / CUSTOMER:', order.customer_name || ''),

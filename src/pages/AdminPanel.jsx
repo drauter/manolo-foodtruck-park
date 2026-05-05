@@ -427,7 +427,7 @@ const AdminPanel = () => {
       { id: 'pos', label: 'Ventas (POS)', icon: ShoppingCart, roles: ['admin'] },
       { id: 'analytics', label: 'Analítica', icon: BarChart3, roles: ['admin', 'contador'] },
       { id: 'checkout', label: 'Entrega / Caja', icon: Package, roles: ['admin'] },
-      { id: 'history', label: 'Historial / Fact.', icon: FileText, roles: ['admin', 'contador'] },
+      { id: 'history', label: 'Historial / Rec.', icon: FileText, roles: ['admin', 'contador'] },
       { id: 'products', label: 'Catalogo', icon: Package, roles: ['admin', 'catalogo'] },
       { id: 'inventory', label: 'Inventario', icon: Layers, roles: ['admin', 'catalogo', 'contador'] },
       { id: 'shifts', label: 'Turnos', icon: Filter, roles: ['admin'] },
