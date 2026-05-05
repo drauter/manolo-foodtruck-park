@@ -1,7 +1,7 @@
 import React from 'react';
 import { useOrder } from '../context/OrderContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Coffee, Utensils, IceCream, Clock, CheckCircle, LogOut } from 'lucide-react';
+import { Coffee, Utensils, IceCream, Clock, CheckCircle, LogOut, Volume2 } from 'lucide-react';
 import { STATIONS, STATION_LABELS } from '../utils/constants';
 import { QRCodeSVG } from 'qrcode.react';
 
@@ -144,6 +144,18 @@ const PublicDisplay = () => {
                 <div className="text-2xl sm:text-5xl font-black font-mono leading-none tracking-tighter tabular-nums text-slate-900">
                   {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </div>
+                <button 
+                  onClick={() => {
+                    const msg = new SpeechSynthesisUtterance('Prueba de sonido activa');
+                    msg.lang = 'es-ES';
+                    window.speechSynthesis.cancel();
+                    window.speechSynthesis.speak(msg);
+                  }}
+                  className="p-3 bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white rounded-2xl border border-emerald-100 transition-all flex items-center gap-2 group shadow-sm"
+                  title="Probar Sonido"
+                >
+                  <Volume2 size={18} />
+                </button>
                 <button 
                   onClick={() => window.location.href = '/login'}
                   className="p-3 bg-white text-slate-400 hover:text-slate-900 rounded-2xl border border-slate-100 transition-all hover:scale-105 active:scale-95 flex items-center gap-2 group shadow-sm"

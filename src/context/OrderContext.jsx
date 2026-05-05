@@ -127,9 +127,10 @@ export const OrderProvider = ({ children }) => {
           const oldStatuses = payload.old?.station_statuses || {};
           const newStatuses = payload.new.station_statuses;
           // Automatic ready triggers (Only on display)
-          const isDisplay = window.location.pathname.toLowerCase().includes('display');
+          const isDisplay = /display/i.test(window.location.pathname);
           
           if (isDisplay) {
+            console.log('REALTIME EVENT RECEIVED (DISPLAY):', payload.new.id, newStatuses);
             Object.entries(newStatuses).forEach(([st, status]) => {
               if (status === 'ready' && oldStatuses[st] !== 'ready') {
                 announceOrder(payload.new, st, false);
@@ -817,17 +818,25 @@ export const OrderProvider = ({ children }) => {
         setTimeout(processQueue, 500);
       };
       
-      // Aggressive: Always resume before speaking
+      // Aggressive: Always resume and cancel previous before speaking
+      window.speechSynthesis.cancel(); 
       window.speechSynthesis.resume();
-      window.speechSynthesis.speak(utterance);
-      console.log('Speaking message:', finalMessage);
+      
+      try {
+        window.speechSynthesis.speak(utterance);
+        console.log('🗣️ SPEAKING:', finalMessage);
+      } catch (err) {
+        console.error('Speech Synthesis Fatal Error:', err);
+        isSpeaking.current = false;
+        setTimeout(processQueue, 1000);
+      }
     };
     
     speak(message);
   }, [selectedVoice]);
 
   const announceOrder = React.useCallback((order, stationKey, manual = false) => {
-    const isDisplay = window.location.pathname.toLowerCase().includes('display');
+    const isDisplay = /display/i.test(window.location.pathname);
     
     if (manual && !isDisplay) {
       // Manual trigger from non-display: update DB to trigger sound on display
