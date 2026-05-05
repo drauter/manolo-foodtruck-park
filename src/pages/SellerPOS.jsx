@@ -15,7 +15,7 @@ const ProductItem = ({ product, addToCart }) => {
   const [qty, setQty] = useState(1);
 
   return (
-    <div className="bg-slate-50 rounded-[2.5rem] overflow-hidden border border-slate-100 flex shadow-lg hover:border-emerald-500 transition-all group p-4 gap-6">
+    <div className="bg-slate-200 rounded-[2.5rem] overflow-hidden border border-slate-300 flex shadow-lg hover:border-emerald-500 transition-all group p-4 gap-6">
       <div className="w-24 h-24 flex-shrink-0 bg-slate-800 rounded-3xl overflow-hidden relative">
         <img src={product.image_url} alt={product.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
       </div>

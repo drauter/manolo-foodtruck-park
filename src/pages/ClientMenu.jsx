@@ -9,7 +9,7 @@ const ProductItem = ({ product, addToCart }) => {
   const [qty, setQty] = useState(1);
 
   return (
-    <div className="bg-[#FFDAB9] rounded-[2.5rem] overflow-hidden border border-slate-100 flex shadow-sm hover:border-emerald-500 transition-all group p-4 gap-6">
+    <div className="bg-slate-200 rounded-[2.5rem] overflow-hidden border border-slate-300 flex shadow-sm hover:border-emerald-500 transition-all group p-4 gap-6">
       <div className="w-24 h-24 flex-shrink-0 bg-slate-800 rounded-3xl overflow-hidden relative">
         <img src={product.image_url} alt={product.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
       </div>
@@ -246,7 +246,7 @@ const ClientMenu = () => {
 
                  <div className="flex-grow overflow-y-auto space-y-4 pr-2 custom-scrollbar pb-8">
                     {cart.map(item => (
-                      <div key={item.id} className="bg-slate-50 p-6 rounded-[2.5rem] border border-slate-100 flex gap-6 items-center group">
+                      <div key={item.id} className="bg-slate-200 p-6 rounded-[2.5rem] border border-slate-300 flex gap-6 items-center group">
                          <img src={item.image_url} className="w-20 h-20 rounded-3xl object-cover shadow-xl" />
                          <div className="flex-grow">
                             <h4 className="font-black text-xl italic uppercase tracking-tighter group-hover:text-emerald-600 transition-colors text-slate-900">{item.name}</h4>
