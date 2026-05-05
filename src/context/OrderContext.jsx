@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useRef, useCallback } from 'react';
 import { useLocation } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
-import { STATIONS } from '../utils/constants';
+import { STATIONS, STATION_LABELS, getStationDisplay } from '../utils/constants';
 
 const OrderContext = createContext();
 
@@ -871,9 +871,9 @@ export const OrderProvider = ({ children }) => {
     // Get unique ready stations if stationKey is not fixed
     const stations = [...new Set(Object.entries(order.station_statuses || {})
       .filter(([k, s]) => s === 'ready' && !k.startsWith('_'))
-      .map(([st]) => st))];
+      .map(([st]) => STATION_LABELS[st] || st))];
       
-    let stationText = stationKey;
+    let stationText = STATION_LABELS[stationKey] || stationKey;
     if (stations.length > 0) {
       if (stations.length === 1) {
         stationText = stations[0];
