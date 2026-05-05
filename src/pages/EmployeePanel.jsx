@@ -50,8 +50,8 @@ const EmployeePanel = () => {
   }
 
   return (
-    <div className="min-h-screen bg-white text-slate-900 p-4 sm:p-6 font-sans no-print">
-      <header className="mb-10 flex flex-col md:flex-row md:items-center justify-between gap-6 bg-slate-50 p-8 rounded-[2.5rem] border border-slate-100 shadow-sm">
+    <div className="min-h-screen bg-[#FFDAB9] text-slate-900 p-4 sm:p-6 font-sans no-print">
+      <header className="mb-10 flex flex-col md:flex-row md:items-center justify-between gap-6 bg-[#FFDAB9] p-8 rounded-[2.5rem] border border-slate-100 shadow-sm">
         <div className="flex items-center gap-6">
           <div className={`p-4 sm:p-5 rounded-2xl sm:rounded-3xl ${currentStation.bg} ${currentStation.color} shadow-lg border border-current/20`}>
             <Package size={24} className="sm:w-8 sm:h-8" />

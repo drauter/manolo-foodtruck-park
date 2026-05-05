@@ -447,9 +447,9 @@ const AdminPanel = () => {
    }
 
    return (
-      <div className="min-h-screen bg-slate-50 flex flex-col lg:flex-row font-sans overflow-x-hidden no-print">
+      <div className="min-h-screen bg-[#FFDAB9] flex flex-col lg:flex-row font-sans overflow-x-hidden no-print">
          {/* Sidebar - Desktop */}
-         <aside className="hidden lg:flex w-72 bg-white text-slate-900 p-6 flex-col gap-8 sticky top-0 h-screen overflow-y-auto z-50 border-r border-slate-100 shadow-sm">
+         <aside className="hidden lg:flex w-72 bg-[#FFDAB9] text-slate-900 p-6 flex-col gap-8 sticky top-0 h-screen overflow-y-auto z-50 border-r border-slate-100 shadow-sm">
             <div className="flex flex-col items-center gap-4">
                <img src="/logo.png" alt="Logo" className="w-24 h-24 object-cover rounded-full shadow-2xl border border-white/5" />
                <div className="text-xl font-black italic text-emerald-500 tracking-tighter uppercase leading-none text-center">Manolo <br/><span className="text-white text-xs">FOOD AND DRINKS Truck Park</span></div>

@@ -139,7 +139,7 @@ const OrderTracking = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white text-slate-900 font-sans p-6 overflow-x-hidden selection:bg-emerald-500/30">
+    <div className="min-h-screen bg-[#FFDAB9] text-slate-900 font-sans p-6 overflow-x-hidden selection:bg-emerald-500/30">
       <div className="fixed inset-0 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-emerald-500/5 via-transparent to-transparent opacity-50 pointer-events-none" />
       
       <header className="max-w-md mx-auto flex items-center justify-between mb-10 relative z-10">

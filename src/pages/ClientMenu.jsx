@@ -9,7 +9,7 @@ const ProductItem = ({ product, addToCart }) => {
   const [qty, setQty] = useState(1);
 
   return (
-    <div className="bg-slate-50 rounded-[2.5rem] overflow-hidden border border-slate-100 flex shadow-sm hover:border-emerald-500 transition-all group p-4 gap-6">
+    <div className="bg-[#FFDAB9] rounded-[2.5rem] overflow-hidden border border-slate-100 flex shadow-sm hover:border-emerald-500 transition-all group p-4 gap-6">
       <div className="w-24 h-24 flex-shrink-0 bg-slate-800 rounded-3xl overflow-hidden relative">
         <img src={product.image_url} alt={product.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
       </div>
@@ -22,7 +22,7 @@ const ProductItem = ({ product, addToCart }) => {
         <div className="flex justify-between items-center mt-2">
           <span className="text-2xl font-black text-slate-900 font-mono tracking-tighter decoration-emerald-500 underline decoration-2">${product.price * qty}</span>
           
-          <div className="flex items-center gap-2 bg-white p-1 rounded-2xl border border-slate-200">
+          <div className="flex items-center gap-2 bg-[#FFDAB9] p-1 rounded-2xl border border-slate-200">
             <div className="flex items-center gap-3 px-2">
                <button onClick={() => setQty(Math.max(1, qty - 1))} className="p-1 text-slate-600 hover:text-white transition-colors"><Minus size={16} /></button>
                <span className="font-black text-sm w-4 text-center">{qty}</span>
@@ -95,9 +95,9 @@ const ClientMenu = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white text-slate-900 pb-24 font-sans selection:bg-emerald-500/30 bg-[radial-gradient(circle_at_top,_var(--tw-gradient-stops))] from-slate-50 to-white">
+    <div className="min-h-screen bg-[#FFDAB9] text-slate-900 pb-24 font-sans selection:bg-emerald-500/30">
       
-      <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-xl border-b border-slate-100 p-6 shadow-sm">
+      <header className="sticky top-0 z-40 bg-[#FFDAB9]/80 backdrop-blur-xl border-b border-slate-100 p-6 shadow-sm">
         <div className="max-w-7xl mx-auto flex flex-col lg:flex-row justify-between items-center gap-6">
           <div className="flex items-center gap-4 w-full lg:w-auto min-w-0">
              <img src="/logo.png" alt="Logo" className="w-16 h-16 sm:w-20 sm:h-20 object-cover rounded-full shadow-xl border-2 border-white/5 flex-shrink-0" />
@@ -237,7 +237,7 @@ const ClientMenu = () => {
           {isCartOpen && (
             <div className="fixed inset-0 z-50">
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsCartOpen(false)} className="absolute inset-0 bg-slate-900/40 backdrop-blur-md" />
-              <motion.div initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }} className="absolute bottom-0 left-0 right-0 h-[92vh] bg-white rounded-t-[4rem] p-10 flex flex-col border-t border-slate-100 shadow-2xl max-w-2xl mx-auto overflow-hidden">
+              <motion.div initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }} className="absolute bottom-0 left-0 right-0 h-[92vh] bg-[#FFDAB9] rounded-t-[4rem] p-10 flex flex-col border-t border-slate-100 shadow-2xl max-w-2xl mx-auto overflow-hidden">
                  <div className="w-16 h-1.5 bg-slate-800 rounded-full mx-auto mb-10" />
                  <div className="flex justify-between items-center mb-10">
                     <h2 className="text-4xl font-black italic tracking-tighter uppercase text-slate-900 leading-none underline decoration-emerald-500 decoration-4">Tu Pedido</h2>
@@ -246,7 +246,7 @@ const ClientMenu = () => {
 
                  <div className="flex-grow overflow-y-auto space-y-4 pr-2 custom-scrollbar pb-8">
                     {cart.map(item => (
-                      <div key={item.id} className="bg-slate-50 p-6 rounded-[2.5rem] border border-slate-100 flex gap-6 items-center group">
+                      <div key={item.id} className="bg-[#FFDAB9] p-6 rounded-[2.5rem] border border-slate-100 flex gap-6 items-center group">
                          <img src={item.image_url} className="w-20 h-20 rounded-3xl object-cover shadow-xl" />
                          <div className="flex-grow">
                             <h4 className="font-black text-xl italic uppercase tracking-tighter group-hover:text-emerald-600 transition-colors text-slate-900">{item.name}</h4>

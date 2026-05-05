@@ -15,7 +15,7 @@ const StationColumn = ({ label, icon: IconComponent, color, orders, stationKey }
 
   return (
     <div className="flex-1 flex flex-col gap-3 h-full min-w-0">
-      <div className={`p-3 sm:p-4 rounded-[1.5rem] bg-slate-50 border-2 border-slate-100 flex items-center justify-between shadow-sm`}>
+      <div className={`p-3 sm:p-4 rounded-[1.5rem] bg-[#FFDAB9] border-2 border-slate-100 flex items-center justify-between shadow-sm`}>
          <div className="flex items-center gap-3">
             <div className={`p-2 rounded-xl bg-${color}-500/10 text-${color}-500 border border-${color}-500/20`}>
                <IconComponent size={20} />
@@ -122,7 +122,7 @@ const PublicDisplay = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-white text-slate-900 font-sans overflow-hidden flex flex-col p-2 sm:p-4 lg:p-6 gap-3 sm:gap-4">
+    <div className="min-h-screen bg-[#FFDAB9] text-slate-900 font-sans overflow-hidden flex flex-col p-2 sm:p-4 lg:p-6 gap-3 sm:gap-4">
       {/* Dynamic Header */}
       <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-4 border-b border-slate-100 gap-4">
         <div className="flex items-center gap-6">
@@ -136,9 +136,9 @@ const PublicDisplay = () => {
           </div>
         </div>
         
-        <div className="flex flex-row items-center gap-8 bg-slate-50 p-4 rounded-[2.5rem] border border-slate-100 shadow-sm">
+        <div className="flex flex-row items-center gap-8 bg-[#FFDAB9] p-4 rounded-[2.5rem] border border-slate-100 shadow-sm">
            <div className="flex flex-col items-center gap-2">
-              <div className="p-2 bg-white rounded-2xl shadow-lg border border-slate-100">
+              <div className="p-2 bg-[#FFDAB9] rounded-2xl shadow-lg border border-slate-100">
                  <QRCodeSVG value={menuUrl} size={100} />
               </div>
               <div className="text-center">
