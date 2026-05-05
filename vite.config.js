@@ -16,8 +16,8 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['logo.png'],
       manifest: {
-        name: 'Manolo Agro Industrial',
-        short_name: 'ManoloAgro',
+        name: 'MANOLO FOOD AND DRINKS TRUCK PARK',
+        short_name: 'ManoloPark',
         description: 'Sistema de Gestión POS para Manolo Foodtruck Park',
         theme_color: '#0f172a',
         icons: [
