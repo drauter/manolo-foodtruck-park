@@ -600,7 +600,7 @@ const AdminPanel = () => {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                            {products.filter(p => !searchQuery || p.name.toLowerCase().includes(searchQuery.toLowerCase())).map(p => (
                               <button key={p.id} onClick={() => addToCart(p)} className="bg-white p-5 rounded-[2.5rem] border border-slate-100 shadow-sm hover:border-emerald-500 flex items-center gap-4 text-left transition-all active:scale-95 group">
-                                 <img src={p.image} className="w-20 h-20 rounded-2xl object-cover shrink-0" />
+                                 <img src={p.image_url} className="w-20 h-20 rounded-2xl object-cover shrink-0" />
                                  <div className="flex-grow">
                                     <h4 className="font-black text-slate-900 leading-tight group-hover:text-emerald-600 uppercase text-sm">{p.name}</h4>
                                     <p className="text-[10px] font-black text-slate-400 mt-1 uppercase italic">{p.station}</p>
