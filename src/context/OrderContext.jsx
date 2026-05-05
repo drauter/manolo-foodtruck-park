@@ -126,9 +126,9 @@ export const OrderProvider = ({ children }) => {
         if (payload.eventType === 'UPDATE' && payload.new.station_statuses) {
           const oldStatuses = payload.old?.station_statuses || {};
           const newStatuses = payload.new.station_statuses;
-          const isDisplay = window.location.pathname === '/display';
-          
           // Automatic ready triggers (Only on display)
+          const isDisplay = window.location.pathname.toLowerCase().includes('display');
+          
           if (isDisplay) {
             Object.entries(newStatuses).forEach(([st, status]) => {
               if (status === 'ready' && oldStatuses[st] !== 'ready') {
@@ -140,11 +140,20 @@ export const OrderProvider = ({ children }) => {
             const newTrigger = newStatuses._voice_trigger;
             const oldTrigger = oldStatuses._voice_trigger;
             if (newTrigger && newTrigger !== oldTrigger) {
-              const st = newStatuses._voice_station || Object.keys(newStatuses).find(k => !k.startsWith('_')) || 'General';
-              const key = `${payload.new.id}-${newTrigger}`;
-              if (!announcedManualRef.current.has(key)) {
-                announcedManualRef.current.add(key);
-                announceOrder(payload.new, st, true);
+              const triggerTime = new Date(newTrigger).getTime();
+              const now = new Date().getTime();
+              
+              // Only trigger if it happened in the last 60 seconds (prevents old triggers on refresh)
+              if (now - triggerTime < 60000) {
+                const st = newStatuses._voice_station || Object.keys(newStatuses).find(k => !k.startsWith('_')) || 'General';
+                const key = `${payload.new.id}-${newTrigger}`;
+                if (!announcedManualRef.current.has(key)) {
+                  console.log('REMOTE VOICE TRIGGER RECEIVED:', st, newTrigger);
+                  announcedManualRef.current.add(key);
+                  announceOrder(payload.new, st, true);
+                }
+              } else {
+                console.log('Skipping old voice trigger:', newTrigger);
               }
             }
           }
@@ -818,11 +827,12 @@ export const OrderProvider = ({ children }) => {
   }, [selectedVoice]);
 
   const announceOrder = React.useCallback((order, stationKey, manual = false) => {
-    const isDisplay = location.pathname === '/display';
+    const isDisplay = window.location.pathname.toLowerCase().includes('display');
     
     if (manual && !isDisplay) {
       // Manual trigger from non-display: update DB to trigger sound on display
       const trigger = new Date().toISOString();
+      console.log('MANUAL VOICE TRIGGER (REMOTE):', stationKey, trigger);
       updateOrder(order.id, {
         station_statuses: {
           ...order.station_statuses,

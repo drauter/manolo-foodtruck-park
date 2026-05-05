@@ -15,20 +15,20 @@ const ProductItem = ({ product, addToCart }) => {
   const [qty, setQty] = useState(1);
 
   return (
-    <div className="bg-slate-900 rounded-[2.5rem] overflow-hidden border border-slate-800 flex shadow-xl hover:border-emerald-500/50 transition-all group p-4 gap-6">
+    <div className="bg-slate-50 rounded-[2.5rem] overflow-hidden border border-slate-100 flex shadow-lg hover:border-emerald-500 transition-all group p-4 gap-6">
       <div className="w-24 h-24 flex-shrink-0 bg-slate-800 rounded-3xl overflow-hidden relative">
         <img src={product.image_url} alt={product.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
       </div>
       <div className="flex-grow flex flex-col justify-between py-1">
         <div>
-          <h3 className="font-black text-lg leading-tight text-white mb-1 group-hover:text-emerald-400 transition-colors uppercase italic">{product.name}</h3>
+          <h3 className="font-black text-lg leading-tight text-slate-900 mb-1 group-hover:text-emerald-600 transition-colors uppercase italic">{product.name}</h3>
           <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest opacity-60">{product.station}</p>
         </div>
         
         <div className="flex justify-between items-center mt-2">
-          <span className="text-2xl font-black text-white font-mono tracking-tighter decoration-emerald-500 underline decoration-2">${product.price * qty}</span>
+          <span className="text-2xl font-black text-slate-900 font-mono tracking-tighter decoration-emerald-500 underline decoration-2">${product.price * qty}</span>
           
-          <div className="flex items-center gap-2 bg-slate-950 p-1 rounded-2xl border border-slate-800">
+          <div className="flex items-center gap-2 bg-white p-1 rounded-2xl border border-slate-100 shadow-sm">
             <div className="flex items-center gap-3 px-2">
                <button onClick={() => setQty(Math.max(1, qty - 1))} className="p-1 text-slate-600 hover:text-white transition-colors"><Minus size={16} /></button>
                <span className="font-black text-sm w-4 text-center">{qty}</span>

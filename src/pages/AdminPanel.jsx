@@ -449,7 +449,7 @@ const AdminPanel = () => {
    return (
       <div className="min-h-screen bg-slate-50 flex flex-col lg:flex-row font-sans overflow-x-hidden no-print">
          {/* Sidebar - Desktop */}
-         <aside className="hidden lg:flex w-72 bg-slate-900 text-white p-6 flex-col gap-8 sticky top-0 h-screen overflow-y-auto z-50">
+         <aside className="hidden lg:flex w-72 bg-white text-slate-900 p-6 flex-col gap-8 sticky top-0 h-screen overflow-y-auto z-50 border-r border-slate-100 shadow-sm">
             <div className="flex flex-col items-center gap-4">
                <img src="/logo.png" alt="Logo" className="w-24 h-24 object-cover rounded-full shadow-2xl border border-white/5" />
                <div className="text-xl font-black italic text-emerald-500 tracking-tighter uppercase leading-none text-center">Manolo <br/><span className="text-white text-xs">FOOD AND DRINKS Truck Park</span></div>
@@ -481,7 +481,7 @@ const AdminPanel = () => {
          </aside>
 
          {/* Sidebar - Mobile Navigation */}
-         <div className="flex lg:hidden bg-slate-900 p-4 border-b border-white/10 sticky top-0 z-50 overflow-x-auto no-scrollbar">
+         <div className="flex lg:hidden bg-white p-4 border-b border-slate-100 sticky top-0 z-50 overflow-x-auto no-scrollbar shadow-sm">
             <div className="flex gap-2 min-w-max">
                {menuItems.map(tab => (
                   <button key={tab.id} onClick={() => setActiveTab(tab.id)} className={`px-4 py-3 rounded-2xl flex items-center gap-2 transition-all ${activeTab === tab.id ? 'bg-emerald-600 text-white shadow-md' : 'text-slate-500'}`}>
@@ -565,11 +565,11 @@ const AdminPanel = () => {
                      </div>
 
                      {/* Station Pending Summary */}
-                     <div className="bg-slate-950 p-8 rounded-[3rem] border border-slate-800 shadow-2xl relative overflow-hidden">
+                     <div className="bg-slate-50 p-8 rounded-[3rem] border border-slate-200 shadow-sm relative overflow-hidden">
                         <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/5 rounded-full blur-3xl -mr-32 -mt-32" />
                         <div className="flex items-center gap-4 mb-8 relative z-10">
                            <div className="w-10 h-1bg-emerald-500 rounded-full" />
-                           <h3 className="text-xl font-black uppercase italic tracking-tighter text-white">Pendientes por Estación</h3>
+                           <h3 className="text-xl font-black uppercase italic tracking-tighter text-slate-900">Pendientes por Estación</h3>
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 relative z-10">
                            {[STATIONS.BAR, STATIONS.COMIDA_RAPIDA, STATIONS.POSTRES].map(st => {
@@ -577,11 +577,11 @@ const AdminPanel = () => {
                                  .reduce((sum, o) => sum + (o.items?.filter(i => i.station === st).reduce((s, i) => s + ((Number(i.price_at_time) || 0) * (Number(i.quantity) || 0)), 0) || 0), 0);
 
                               return (
-                                 <div key={st} className="bg-white/5 backdrop-blur-md p-6 rounded-2xl border border-white/10 group hover:bg-white/10 transition-all">
-                                    <div className="text-[9px] font-black text-slate-500 uppercase tracking-[0.2em] mb-2">{getStationDisplay(st)}</div>
-                                    <div className={`text-2xl font-black font-mono tracking-tighter ${pendingAmt > 0 ? 'text-amber-400' : 'text-slate-600'}`}>${pendingAmt}</div>
-                                    <div className="mt-2 h-1 w-full bg-white/5 rounded-full overflow-hidden">
-                                       <motion.div initial={{ width: 0 }} animate={{ width: pendingAmt > 0 ? '60%' : '0%' }} className="h-full bg-amber-500/50" />
+                                 <div key={st} className="bg-white p-6 rounded-2xl border border-slate-100 group hover:border-emerald-500 transition-all shadow-sm">
+                                    <div className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">{getStationDisplay(st)}</div>
+                                    <div className={`text-2xl font-black font-mono tracking-tighter ${pendingAmt > 0 ? 'text-emerald-600' : 'text-slate-300'}`}>${pendingAmt}</div>
+                                    <div className="mt-2 h-1 w-full bg-slate-100 rounded-full overflow-hidden">
+                                       <motion.div initial={{ width: 0 }} animate={{ width: pendingAmt > 0 ? '60%' : '0%' }} className="h-full bg-emerald-500" />
                                     </div>
                                  </div>
                               );

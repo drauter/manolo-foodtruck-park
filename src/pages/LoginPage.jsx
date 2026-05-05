@@ -78,7 +78,7 @@ const LoginPage = () => {
   const clearLast = () => setPin(prev => prev.slice(0, -1));
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white flex flex-col items-center justify-center p-6 bg-[radial-gradient(circle_at_top,_var(--tw-gradient-stops))] from-slate-900 to-slate-950">
+    <div className="min-h-screen bg-white text-slate-900 flex flex-col items-center justify-center p-6 bg-[radial-gradient(circle_at_top,_var(--tw-gradient-stops))] from-slate-50 to-white">
       
       <div className="text-center mb-8 sm:mb-12">
         <motion.div 
@@ -136,8 +136,8 @@ const LoginPage = () => {
           >
             <div className="flex gap-4 mb-12">
               {[1, 2, 3, 4].map((i) => (
-                <div key={i} className={`w-14 h-14 rounded-2xl border-2 flex items-center justify-center transition-all duration-300 ${pin.length >= i ? 'bg-white border-white' : 'border-slate-800 bg-slate-950'}`}>
-                  {pin.length >= i && <div className="w-3 h-3 bg-slate-950 rounded-full" />}
+                <div key={i} className={`w-14 h-14 rounded-2xl border-2 flex items-center justify-center transition-all duration-300 ${pin.length >= i ? 'bg-slate-900 border-slate-900' : 'border-slate-100 bg-slate-50 shadow-sm'}`}>
+                  {pin.length >= i && <div className="w-3 h-3 bg-white rounded-full" />}
                 </div>
               ))}
             </div>
@@ -146,11 +146,11 @@ const LoginPage = () => {
 
             <div className="grid grid-cols-3 gap-2 sm:gap-4 w-full mb-4 sm:mb-8 scale-95 sm:scale-100 max-w-[320px] sm:max-w-none">
               {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
-                <button key={num} onClick={() => handleNumberClick(num.toString())} className="h-14 sm:h-20 bg-slate-900 rounded-2xl sm:rounded-3xl font-black text-2xl sm:text-3xl hover:bg-slate-800 active:scale-90 transition-all border border-slate-800/50 shadow-lg">{num}</button>
+                <button key={num} onClick={() => handleNumberClick(num.toString())} className="h-14 sm:h-20 bg-white rounded-2xl sm:rounded-3xl font-black text-2xl sm:text-3xl hover:bg-slate-50 active:scale-90 transition-all border border-slate-100 shadow-sm text-slate-900">{num}</button>
               ))}
               <div />
-              <button onClick={() => handleNumberClick('0')} className="h-14 sm:h-20 bg-slate-900 rounded-2xl sm:rounded-3xl font-black text-2xl sm:text-3xl hover:bg-slate-800 active:scale-90 transition-all border border-slate-800/50 shadow-lg">0</button>
-              <button onClick={clearLast} className="h-14 sm:h-20 bg-slate-900 rounded-2xl sm:rounded-3xl flex items-center justify-center hover:bg-red-500/20 text-slate-500 hover:text-red-500 transition-all border border-slate-800/50"><Delete size={28} /></button>
+              <button onClick={() => handleNumberClick('0')} className="h-14 sm:h-20 bg-white rounded-2xl sm:rounded-3xl font-black text-2xl sm:text-3xl hover:bg-slate-50 active:scale-90 transition-all border border-slate-100 shadow-sm text-slate-900">0</button>
+              <button onClick={clearLast} className="h-14 sm:h-20 bg-white rounded-2xl sm:rounded-3xl flex items-center justify-center hover:bg-red-50 text-slate-300 hover:text-red-500 transition-all border border-slate-100"><Delete size={28} /></button>
             </div>
             
             <p className="text-slate-600 text-[10px] font-black uppercase tracking-widest mb-10">Ingresa tu PIN Personal</p>

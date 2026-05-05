@@ -50,20 +50,20 @@ const EmployeePanel = () => {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 p-4 sm:p-6 font-sans no-print">
-      <header className="mb-10 flex flex-col md:flex-row md:items-center justify-between gap-6 bg-slate-900 p-8 rounded-[2.5rem] border border-slate-800 shadow-2xl">
+    <div className="min-h-screen bg-white text-slate-900 p-4 sm:p-6 font-sans no-print">
+      <header className="mb-10 flex flex-col md:flex-row md:items-center justify-between gap-6 bg-slate-50 p-8 rounded-[2.5rem] border border-slate-100 shadow-sm">
         <div className="flex items-center gap-6">
           <div className={`p-4 sm:p-5 rounded-2xl sm:rounded-3xl ${currentStation.bg} ${currentStation.color} shadow-lg border border-current/20`}>
             <Package size={24} className="sm:w-8 sm:h-8" />
           </div>
           <div>
-            <h1 className="text-2xl sm:text-4xl font-black text-white tracking-tighter uppercase italic leading-none">ESTACIÓN: <span className={currentStation.color}>{currentStation.display}</span></h1>
+            <h1 className="text-2xl sm:text-4xl font-black text-slate-900 tracking-tighter uppercase italic leading-none">ESTACIÓN: <span className={currentStation.color}>{currentStation.display}</span></h1>
             <p className="text-slate-400 mt-1 font-bold uppercase tracking-widest text-[9px] sm:text-xs opacity-60">Gestión de Producción y Despacho</p>
           </div>
         </div>
         
         <div className="flex gap-4 items-center w-full md:w-auto">
-          <div className="flex gap-1 sm:gap-2 bg-slate-950 p-1.5 sm:p-2 rounded-2xl sm:rounded-[2rem] border border-slate-800 flex-grow sm:flex-grow-0 overflow-x-auto no-scrollbar">
+          <div className="flex gap-1 sm:gap-2 bg-white p-1.5 sm:p-2 rounded-2xl sm:rounded-[2rem] border border-slate-100 flex-grow sm:flex-grow-0 overflow-x-auto no-scrollbar shadow-sm">
             <button 
               onClick={() => setActiveTab('caja')}
               className={`flex-grow sm:flex-grow-0 px-4 sm:px-8 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl font-black text-[10px] sm:text-xs uppercase tracking-widest transition-all ${activeTab === 'caja' ? currentStation.bg + ' ' + currentStation.color : 'text-slate-500 hover:text-slate-300'} whitespace-nowrap`}
@@ -99,7 +99,7 @@ const EmployeePanel = () => {
             </button>
             <button 
               onClick={() => setShowSettings(true)}
-              className="p-3 sm:p-4 bg-slate-950 text-slate-500 hover:text-white rounded-2xl border border-slate-800 transition-all active:scale-95"
+              className="p-3 sm:p-4 bg-white text-slate-400 hover:text-slate-900 rounded-2xl border border-slate-200 transition-all active:scale-95 shadow-sm"
             >
               <Settings size={20} className="sm:w-6 sm:h-6" />
             </button>
@@ -112,10 +112,10 @@ const EmployeePanel = () => {
            <SellerPOS isEmbedded={true} embeddedStation={stationKey} />
         </div>
       ) : stationOrders.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-40 bg-slate-900/30 rounded-[3rem] border border-dashed border-slate-800">
-           <Package size={64} className="text-slate-800 mb-6" />
-           <h2 className="text-2xl font-bold text-slate-600 uppercase tracking-widest">Sin pedidos pendientes</h2>
-           <p className="text-slate-700 mt-2 italic text-lg">Buen trabajo, todo está al día.</p>
+        <div className="flex flex-col items-center justify-center py-40 bg-slate-50 rounded-[3rem] border border-dashed border-slate-200">
+           <Package size={64} className="text-slate-200 mb-6" />
+           <h2 className="text-2xl font-bold text-slate-300 uppercase tracking-widest">Sin pedidos pendientes</h2>
+           <p className="text-slate-400 mt-2 italic text-lg">Buen trabajo, todo está al día.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -125,32 +125,32 @@ const EmployeePanel = () => {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: idx * 0.05 }}
-              className="bg-slate-900 border border-slate-800 rounded-[3rem] overflow-hidden flex flex-col shadow-2xl relative group hover:border-emerald-500/30 transition-all"
+              className="bg-slate-50 border border-slate-200 rounded-[3rem] overflow-hidden flex flex-col shadow-xl relative group hover:border-emerald-500 transition-all"
             >
-              <div className="p-6 bg-slate-800/50 flex justify-between items-center border-b border-slate-800">
+              <div className="p-6 bg-white flex justify-between items-center border-b border-slate-100">
                  <div className="flex flex-col">
                     <div className="flex justify-between items-center mb-6">
                       <div className="flex items-center gap-3">
-                        <div className="text-[10px] font-black text-emerald-500 uppercase tracking-widest bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20">#{order.ticket_number}</div>
+                        <div className="text-[10px] font-black text-emerald-600 uppercase tracking-widest bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">#{order.ticket_number}</div>
                         {order.is_paid && <span className="bg-emerald-500 text-white text-[8px] px-2 py-0.5 rounded-full font-black uppercase">PAGADO</span>}
                       </div>
-                      <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-2">
+                      <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
                         <Clock size={12} /> {new Date(order.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                       </div>
                     </div>
-                    <div className="text-3xl font-black italic text-white leading-none mt-1 truncate max-w-[150px] uppercase tracking-tighter">{order.customer_name}</div>
+                    <div className="text-3xl font-black italic text-slate-900 leading-none mt-1 truncate max-w-[150px] uppercase tracking-tighter">{order.customer_name}</div>
                  </div>
               </div>
 
               <div className="p-8 flex-grow space-y-4">
                 {order.items.filter(item => item.station === stationKey).map((item, i) => (
-                  <div key={i} className="flex justify-between items-center gap-4 bg-slate-950 p-4 rounded-2xl border border-slate-800">
+                  <div key={i} className="flex justify-between items-center gap-4 bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
                     <div className="flex gap-4 items-center">
-                      <span className="bg-emerald-500 text-emerald-950 font-black w-10 h-10 rounded-xl flex items-center justify-center text-xl shadow-lg">
+                      <span className="bg-emerald-500 text-white font-black w-10 h-10 rounded-xl flex items-center justify-center text-xl shadow-md">
                         {item.quantity}
                       </span>
                       <div className="flex flex-col">
-                        <span className="text-xl font-bold text-slate-100 uppercase tracking-tight leading-none">
+                        <span className="text-xl font-bold text-slate-900 uppercase tracking-tight leading-none">
                           {item.products?.name || item.product?.name || 'Producto'}
                         </span>
                         {(item.products?.description || item.product?.description) && (

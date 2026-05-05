@@ -1,7 +1,11 @@
 @import "tailwindcss";
 
 @layer base {
-  html {
+  html, body {
+    margin: 0;
+    padding: 0;
+    background-color: white !important;
+    color: #0f172a; /* slate-900 */
     -webkit-tap-highlight-color: transparent;
   }
 }
@@ -23,11 +27,8 @@
     background: transparent;
   }
   .custom-scrollbar::-webkit-scrollbar-thumb {
-    background: rgba(0, 0, 0, 0.1);
+    background: rgba(0, 0, 0, 0.05);
     border-radius: 10px;
-  }
-  .dark .custom-scrollbar::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.1);
   }
 }
 

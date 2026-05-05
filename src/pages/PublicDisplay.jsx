@@ -15,7 +15,7 @@ const StationColumn = ({ label, icon: IconComponent, color, orders, stationKey }
 
   return (
     <div className="flex-1 flex flex-col gap-3 h-full min-w-0">
-      <div className={`p-3 sm:p-4 rounded-[1.5rem] bg-slate-900 border-2 border-slate-800 flex items-center justify-between shadow-xl`}>
+      <div className={`p-3 sm:p-4 rounded-[1.5rem] bg-slate-50 border-2 border-slate-100 flex items-center justify-between shadow-sm`}>
          <div className="flex items-center gap-3">
             <div className={`p-2 rounded-xl bg-${color}-500/10 text-${color}-500 border border-${color}-500/20`}>
                <IconComponent size={20} />
@@ -112,49 +112,49 @@ const PublicDisplay = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white font-sans overflow-hidden flex flex-col p-2 sm:p-4 lg:p-6 gap-3 sm:gap-4">
+    <div className="min-h-screen bg-white text-slate-900 font-sans overflow-hidden flex flex-col p-2 sm:p-4 lg:p-6 gap-3 sm:gap-4">
       {/* Dynamic Header */}
-      <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-4 border-b border-slate-900 gap-4">
+      <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-4 border-b border-slate-100 gap-4">
         <div className="flex items-center gap-6">
-          <img src="/logo.png" alt="Logo" className="w-24 h-24 sm:w-32 sm:h-32 object-cover rounded-full shadow-2xl border-4 border-white/5" />
+          <img src="/logo.png" alt="Logo" className="w-24 h-24 sm:w-32 sm:h-32 object-cover rounded-full shadow-xl border-4 border-white" />
           <div>
             <div className="flex items-center gap-3 mb-1">
                <div className="w-8 h-1 bg-emerald-500 rounded-full" />
-               <span className="text-[9px] font-black tracking-[0.3em] text-emerald-500 uppercase">Estado de Pedidos</span>
+               <span className="text-[9px] font-black tracking-[0.3em] text-emerald-600 uppercase">Estado de Pedidos</span>
             </div>
-            <h1 className="text-2xl sm:text-4xl font-black italic tracking-tighter leading-none opacity-90 uppercase italic underline decoration-emerald-500 decoration-4 underline-offset-4">MANOLO <span className="text-emerald-500">FOOD & DRINKS</span></h1>
+            <h1 className="text-2xl sm:text-4xl font-black italic tracking-tighter leading-none text-slate-900 uppercase italic underline decoration-emerald-500 decoration-4 underline-offset-4">MANOLO <span className="text-emerald-600">FOOD & DRINKS</span></h1>
           </div>
         </div>
         
-        <div className="flex flex-row items-center gap-8 bg-slate-900/50 p-4 rounded-[2.5rem] border border-white/5 shadow-inner">
+        <div className="flex flex-row items-center gap-8 bg-slate-50 p-4 rounded-[2.5rem] border border-slate-100 shadow-sm">
            <div className="flex flex-col items-center gap-2">
-              <div className="p-2 bg-white rounded-2xl shadow-xl">
+              <div className="p-2 bg-white rounded-2xl shadow-lg border border-slate-100">
                  <QRCodeSVG value={menuUrl} size={100} />
               </div>
               <div className="text-center">
-                 <p className="text-[10px] font-black text-emerald-500 uppercase tracking-widest leading-none">ESCANEAME</p>
-                 <p className="text-[8px] font-bold text-white/40 uppercase tracking-tight mt-1">Y ORDENA TU PEDIDO</p>
+                 <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest leading-none">ESCANEAME</p>
+                 <p className="text-[8px] font-bold text-slate-400 uppercase tracking-tight mt-1">Y ORDENA TU PEDIDO</p>
               </div>
            </div>
 
-           <div className="w-px h-16 bg-white/5" />
+           <div className="w-px h-16 bg-slate-200" />
 
            <div className="text-left sm:text-right flex flex-col items-center sm:items-end justify-center gap-2">
               <div className="flex items-center gap-4">
-                <div className="text-2xl sm:text-5xl font-black font-mono leading-none tracking-tighter tabular-nums text-emerald-500">
+                <div className="text-2xl sm:text-5xl font-black font-mono leading-none tracking-tighter tabular-nums text-slate-900">
                   {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </div>
                 <button 
                   onClick={() => window.location.href = '/login'}
-                  className="p-3 bg-slate-900 text-slate-500 hover:text-white rounded-2xl border border-slate-800 transition-all hover:scale-105 active:scale-95 flex items-center gap-2 group"
+                  className="p-3 bg-white text-slate-400 hover:text-slate-900 rounded-2xl border border-slate-100 transition-all hover:scale-105 active:scale-95 flex items-center gap-2 group shadow-sm"
                   title="Salir"
                 >
                   <LogOut size={18} className="group-hover:text-red-500" />
                 </button>
               </div>
-              <div className="flex items-center gap-2 bg-slate-950 px-3 py-1 rounded-full border border-white/5">
+              <div className="flex items-center gap-2 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-100">
                  <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
-                 <span className="text-[7px] font-black uppercase tracking-widest text-slate-500">Sistema en Vivo</span>
+                 <span className="text-[7px] font-black uppercase tracking-widest text-emerald-600">Sistema en Vivo</span>
               </div>
            </div>
         </div>
@@ -197,7 +197,7 @@ const PublicDisplay = () => {
             initial={{ opacity: 0 }} 
             animate={{ opacity: 1 }} 
             exit={{ opacity: 0 }} 
-            className="fixed inset-0 z-[600] bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-6"
+            className="fixed inset-0 z-[600] bg-white/95 backdrop-blur-md flex items-center justify-center p-6"
           >
              <motion.button 
                initial={{ scale: 0.9 }}
