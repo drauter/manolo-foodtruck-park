@@ -60,8 +60,6 @@ const StationColumn = ({ label, icon: IconComponent, color, orders, stationKey }
 
          <div className="h-px bg-white/5 my-2" />
 
-         <div className="h-px bg-white/5 my-1" />
-
          {/* Preparing Section */}
          <div className="flex items-center gap-2 mb-1 px-1">
             <Clock size={12} className="text-slate-900" />
@@ -83,22 +81,34 @@ const StationColumn = ({ label, icon: IconComponent, color, orders, stationKey }
             </AnimatePresence>
          </div>
       </div>
-      
     </div>
   );
 };
 
 const PublicDisplay = () => {
-  const { orders } = useOrder();
-  const menuUrl = `${window.location.origin}/menu`;
-  const [audioUnlocked, setAudioUnlocked] = React.useState(() => {
-    return localStorage.getItem('manolo_audio_unlocked') === 'true';
-  });
+  const { orders, announceOrder, voices } = useOrder();
+  const [audioUnlocked, setAudioUnlocked] = React.useState(() => localStorage.getItem('manolo_audio_unlocked') === 'true');
+  const [voiceNotification, setVoiceNotification] = React.useState(null);
+  
+  // Clear notification after 5s
+  React.useEffect(() => {
+    if (voiceNotification) {
+      const timer = setTimeout(() => setVoiceNotification(null), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [voiceNotification]);
 
-  // Resume speech context on first interaction
+  // Expose a way to show notification from context if needed
+  React.useEffect(() => {
+    window.showVoiceNotification = (text) => setVoiceNotification(text);
+    return () => { delete window.showVoiceNotification; };
+  }, []);
+
+  const menuUrl = `${window.location.origin}/menu`;
+
   const unlockAudio = () => {
     window.speechSynthesis.resume();
-    // Speak a silent or short message to "prime" the speaker
+    // Speak a silent or short message to \"prime\" the speaker
     const ut = new SpeechSynthesisUtterance('');
     window.speechSynthesis.speak(ut);
     setAudioUnlocked(true);
@@ -202,6 +212,24 @@ const PublicDisplay = () => {
         </div>
       </footer>
 
+      {/* Voice Trigger Visual Notification */}
+      <AnimatePresence>
+        {voiceNotification && (
+          <motion.div 
+            initial={{ y: -100, opacity: 0 }}
+            animate={{ y: 20, opacity: 1 }}
+            exit={{ y: -100, opacity: 0 }}
+            className="fixed top-6 left-1/2 -translate-x-1/2 z-[700] bg-emerald-600 text-white px-8 py-4 rounded-3xl shadow-2xl flex items-center gap-4 border-2 border-emerald-400"
+          >
+             <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center animate-pulse"><Volume2 size={24} /></div>
+             <div>
+                <div className="text-[10px] font-black uppercase tracking-widest opacity-60">Anunciando Ticket</div>
+                <div className="text-xl font-black italic tracking-tighter uppercase">#{voiceNotification}</div>
+             </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Audio Unlocker Overlay */}
       <AnimatePresence>
         {!audioUnlocked && (
@@ -212,11 +240,11 @@ const PublicDisplay = () => {
             className="fixed inset-0 z-[600] bg-white/95 backdrop-blur-md flex items-center justify-center p-6"
           >
              <motion.button 
-               initial={{ scale: 0.9 }}
-               animate={{ scale: [0.9, 1, 0.9] }}
-               transition={{ repeat: Infinity, duration: 2 }}
-               onClick={unlockAudio}
-               className="bg-emerald-600 text-white p-12 rounded-[4rem] shadow-2xl flex flex-col items-center gap-6 border-4 border-emerald-400 group hover:bg-emerald-500 transition-colors"
+                initial={{ scale: 0.9 }}
+                animate={{ scale: [0.9, 1, 0.9] }}
+                transition={{ repeat: Infinity, duration: 2 }}
+                onClick={unlockAudio}
+                className="bg-emerald-600 text-white p-12 rounded-[4rem] shadow-2xl flex flex-col items-center gap-6 border-4 border-emerald-400 group hover:bg-emerald-500 transition-colors"
              >
                 <div className="w-24 h-24 bg-white/20 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform"><CheckCircle size={48} /></div>
                 <div className="text-center">

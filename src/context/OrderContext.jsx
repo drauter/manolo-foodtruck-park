@@ -128,12 +128,14 @@ export const OrderProvider = ({ children }) => {
           const newStatuses = payload.new.station_statuses;
           // Automatic ready triggers (Only on display)
           const isDisplay = /display/i.test(window.location.pathname);
+          console.log('REALTIME UPDATE RECEIVED - Path:', window.location.pathname, 'isDisplay:', isDisplay);
           
           if (isDisplay) {
-            console.log('REALTIME EVENT RECEIVED (DISPLAY):', payload.new.id, newStatuses);
+            console.log('%c 📥 SUPABASE EVENT:', 'background: #2563eb; color: white; padding: 2px 5px; border-radius: 3px;', payload.eventType, payload.new?.id);
             Object.entries(newStatuses).forEach(([st, status]) => {
               if (status === 'ready' && oldStatuses[st] !== 'ready') {
                 announceOrder(payload.new, st, false);
+                if (window.showVoiceNotification) window.showVoiceNotification(payload.new.ticket_number);
               }
             });
 
@@ -149,9 +151,12 @@ export const OrderProvider = ({ children }) => {
                 const st = newStatuses._voice_station || Object.keys(newStatuses).find(k => !k.startsWith('_')) || 'General';
                 const key = `${payload.new.id}-${newTrigger}`;
                 if (!announcedManualRef.current.has(key)) {
-                  console.log('REMOTE VOICE TRIGGER RECEIVED:', st, newTrigger);
+                  console.log('%c 🗣️ REMOTE VOICE TRIGGER RECEIVED:', 'background: #059669; color: white; padding: 2px 5px; border-radius: 3px;', st, newTrigger);
                   announcedManualRef.current.add(key);
                   announceOrder(payload.new, st, true);
+                  if (window.showVoiceNotification) window.showVoiceNotification(payload.new.ticket_number);
+                } else {
+                  console.log('Voice trigger already processed for this key:', key);
                 }
               } else {
                 console.log('Skipping old voice trigger:', newTrigger);
