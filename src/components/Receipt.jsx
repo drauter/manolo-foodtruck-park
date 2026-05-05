@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { QRCodeCanvas } from 'qrcode.react';
+import { getStationDisplay } from '../utils/constants';
 
 const WIDTH = 42;
 
@@ -72,7 +73,7 @@ export const buildReceiptText = (order, station = 'CAJA') => {
     dual('FECHA / DATE:', ts.toLocaleDateString()),
     dual('HORA / TIME:', cleanTime),
     dual('CLIENTE / CUSTOMER:', order.customer_name || ''),
-    dual('ESTACION / STATION:', station),
+    dual('ESTACION / STATION:', getStationDisplay(station, order)),
     line('-'),
     col3('DESC', 'QTY', 'TOTAL'),
     line('-'),
