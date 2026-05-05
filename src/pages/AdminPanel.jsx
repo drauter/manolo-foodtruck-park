@@ -413,7 +413,7 @@ const AdminPanel = () => {
          {/* Sidebar - Desktop */}
          <aside className="hidden lg:flex w-72 bg-slate-900 text-white p-6 flex-col gap-8 sticky top-0 h-screen overflow-y-auto z-50">
             <div className="flex flex-col items-center gap-4">
-               <img src="/logo.jpg" alt="Logo" className="w-24 h-24 object-cover rounded-full shadow-2xl border border-white/5" />
+               <img src="/logo.png" alt="Logo" className="w-24 h-24 object-cover rounded-full shadow-2xl border border-white/5" />
                <div className="text-xl font-black italic text-emerald-500 tracking-tighter uppercase leading-none text-center">Manolo <br/><span className="text-white text-xs">FOOD AND DRINKS Truck Park</span></div>
             </div>
             <nav className="space-y-1 flex-grow">
@@ -534,7 +534,7 @@ const AdminPanel = () => {
                            <h3 className="text-xl font-black uppercase italic tracking-tighter text-white">Pendientes por Estación</h3>
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 relative z-10">
-                           {['BAR', 'COMIDA RAPIDA', 'POSTRES'].map(st => {
+                           {[STATIONS.BAR, STATIONS.COMIDA_RAPIDA, STATIONS.POSTRES].map(st => {
                               const pendingAmt = orders.filter(o => !o.is_paid && o.station_statuses?.[st] && o.station_statuses[st] !== 'delivered')
                                  .reduce((sum, o) => sum + (o.items?.filter(i => i.station === st).reduce((s, i) => s + ((Number(i.price_at_time) || 0) * (Number(i.quantity) || 0)), 0) || 0), 0);
 
@@ -657,7 +657,7 @@ const AdminPanel = () => {
                         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-10">
                            <h2 className="text-2xl font-black uppercase italic tracking-tighter">Historial de Transacciones</h2>
                            <div className="flex bg-slate-100 p-1.5 rounded-2xl gap-2 w-full md:w-auto overflow-x-auto">
-                              {['Todas', 'BAR', 'COMIDA RÁPIDA', 'DULCES/POSTRES'].map(f => (
+                              {['Todas', STATIONS.BAR, STATIONS.COMIDA_RAPIDA, STATIONS.POSTRES].map(f => (
                                  <button key={f} onClick={() => setSalesFilter(f)} className={`px-5 py-2.5 rounded-xl text-[10px] font-black whitespace-nowrap transition-all ${salesFilter === f ? 'bg-white text-slate-900 shadow-md' : 'text-slate-400'}`}>{f}</button>
                               ))}
                            </div>
@@ -773,7 +773,7 @@ const AdminPanel = () => {
                            </div>
 
                            <div className="flex bg-slate-100 p-1.5 rounded-2xl gap-2 w-full md:w-auto overflow-x-auto no-scrollbar">
-                              {['TODAS', 'BAR', 'COMIDA RAPIDA', 'DULCES/POSTRES'].map(st => (
+                              {[STATIONS.CAJA, STATIONS.BAR, STATIONS.COMIDA_RAPIDA, STATIONS.POSTRES].map(st => (
                                  <button
                                     key={st}
                                     onClick={() => setSelectedCheckoutStation(st)}
@@ -851,7 +851,7 @@ const AdminPanel = () => {
                            </div>
                            <div className="flex flex-wrap gap-4 bg-slate-100 p-2 rounded-3xl">
                               <div className="flex gap-2 border-r border-slate-200 pr-4 mr-2">
-                                 {['TODAS', 'BAR', 'COMIDA RAPIDA', 'DULCES/POSTRES'].map(st => (
+                                 {[STATIONS.CAJA, STATIONS.BAR, STATIONS.COMIDA_RAPIDA, STATIONS.POSTRES].map(st => (
                                     <button
                                        key={st}
                                        onClick={() => setSelectedCollectionsStation(st)}
@@ -1728,9 +1728,9 @@ const AdminPanel = () => {
                            <div className="space-y-2">
                               <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Estación</label>
                               <select value={isEditingProduct ? editingProduct.station : newProduct.station} onChange={e => isEditingProduct ? setEditingProduct({ ...editingProduct, station: e.target.value }) : setNewProduct({ ...newProduct, station: e.target.value })} className="w-full bg-slate-50 p-5 rounded-2xl font-black uppercase text-[10px] border border-slate-100">
-                                 <option value="COMIDA RAPIDA">Comida Rápida</option>
-                                 <option value="BAR">Bar / Bebidas</option>
-                                 <option value="DULCES/POSTRES">Postres / Dulces</option>
+                                 <option value={STATIONS.COMIDA_RAPIDA}>Comida Rápida</option>
+                                 <option value={STATIONS.BAR}>Bar / Bebidas</option>
+                                 <option value={STATIONS.POSTRES}>Postres / Dulces</option>
                               </select>
                            </div>
                         </div>
@@ -1800,10 +1800,10 @@ const AdminPanel = () => {
                            <div className="space-y-2">
                               <label className="text-xs font-black uppercase text-slate-400 ml-2 italic">Estación</label>
                               <select value={userData.station} onChange={e => setUserData({ ...userData, station: e.target.value })} className="w-full bg-slate-50 p-5 rounded-2xl font-black uppercase text-[10px]">
-                                 <option value="BAR">Bar</option>
-                                 <option value="COMIDA RAPIDA">Comida Rápida</option>
-                                 <option value="DULCES/POSTRES">Postres / Dulces</option>
-                                 <option value="CAJA">Caja</option>
+                                 <option value={STATIONS.BAR}>Bar</option>
+                                 <option value={STATIONS.COMIDA_RAPIDA}>Comida Rápida</option>
+                                 <option value={STATIONS.POSTRES}>Postres / Dulces</option>
+                                 <option value={STATIONS.CAJA}>Caja</option>
                               </select>
                            </div>
                         )}

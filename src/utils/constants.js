@@ -1,7 +1,7 @@
 export const STATIONS = {
   BAR: 'BAR',
   COMIDA_RAPIDA: 'COMIDA RAPIDA',
-  POSTRES: 'POSTRES',
+  POSTRES: 'DULCES/POSTRES',
   CAJA: 'CAJA'
 };
 

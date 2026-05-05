@@ -14,7 +14,7 @@ export default defineConfig({
     }),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.svg'],
+      includeAssets: ['logo.png'],
       manifest: {
         name: 'Manolo Foodtruck Park',
         short_name: 'ManoloPark',

@@ -98,19 +98,19 @@ const ClientMenu = () => {
     <div className="min-h-screen bg-slate-950 text-slate-100 pb-24 font-sans selection:bg-emerald-500/30 bg-[radial-gradient(circle_at_top,_var(--tw-gradient-stops))] from-slate-900 to-slate-950">
       
       <header className="sticky top-0 z-40 bg-slate-950/80 backdrop-blur-xl border-b border-white/5 p-6 shadow-2xl">
-        <div className="max-w-5xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
-          <div className="flex items-center gap-4 w-full md:w-auto">
-             <img src="/logo.jpg" alt="Logo" className="w-16 h-16 sm:w-20 sm:h-20 object-cover rounded-full shadow-xl border-2 border-white/5" />
-             <div>
-                <h2 className="text-2xl font-black text-white tracking-tighter italic uppercase leading-none text-emerald-500">Manolo Food and Drinks Truck Park</h2>
+        <div className="max-w-7xl mx-auto flex flex-col lg:flex-row justify-between items-center gap-6">
+          <div className="flex items-center gap-4 w-full lg:w-auto min-w-0">
+             <img src="/logo.png" alt="Logo" className="w-16 h-16 sm:w-20 sm:h-20 object-cover rounded-full shadow-xl border-2 border-white/5 flex-shrink-0" />
+             <div className="min-w-0">
+                <h2 className="text-xl sm:text-2xl font-black text-white tracking-tighter italic uppercase leading-tight text-emerald-500 truncate">Manolo Food and Drinks Truck Park</h2>
                 <div className="flex items-center gap-2 mt-1.5">
-                   <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.5)]" />
-                   <span className="text-[10px] text-slate-400 uppercase tracking-widest font-black">Food and Drinks Truck Park & Chill</span>
+                   <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.5)] flex-shrink-0" />
+                   <span className="text-[10px] text-slate-400 uppercase tracking-widest font-black truncate">Food and Drinks Truck Park & Chill</span>
                 </div>
              </div>
           </div>
           
-          <nav className="flex gap-4 overflow-x-auto pb-4 custom-scrollbar w-full md:w-auto mt-6 md:mt-0">
+          <nav className="flex gap-3 sm:gap-4 overflow-x-auto pb-4 px-2 -mx-2 custom-scrollbar w-full lg:w-auto mt-2 lg:mt-0 no-scrollbar">
             {menuStations.map(station => (
               <button 
                 key={station} 
@@ -197,7 +197,8 @@ const ClientMenu = () => {
            </button>
         </motion.div>
       )}
-      {/* Cart Bottom Bar (Mobile) */}
+
+      {/* Cart Bottom Bar (Mobile) */}
       {cart.length > 0 && !isCartOpen && !orderConfirmed && (
         <motion.div 
           initial={{ y: 100 }} 

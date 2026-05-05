@@ -3,6 +3,7 @@ import { useOrder } from '../context/OrderContext';
 import { useNavigate } from 'react-router-dom';
 import { Shield, Coffee, Utensils, IceCream, Wallet, Lock, Delete, ShoppingCart } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { STATIONS } from '../utils/constants';
 
 const LoginPage = () => {
   const { login, connectionError, refreshData, loadingOrders, verifyPin } = useOrder();
@@ -17,10 +18,10 @@ const LoginPage = () => {
     'Comida Rápida': Utensils,
     'Dulces / Postres': IceCream,
     'Caja': Wallet,
-    'BAR': Coffee,
-    'COMIDA RAPIDA': Utensils,
-    'DULCES/POSTRES': IceCream,
-    'CAJA': Wallet,
+    [STATIONS.BAR]: Coffee,
+    [STATIONS.COMIDA_RAPIDA]: Utensils,
+    [STATIONS.POSTRES]: IceCream,
+    [STATIONS.CAJA]: Wallet,
     'default': Shield
   };
 
@@ -29,10 +30,10 @@ const LoginPage = () => {
     'Comida Rápida': 'from-amber-600 to-orange-500',
     'Dulces / Postres': 'from-pink-600 to-rose-500',
     'Caja': 'from-emerald-600 to-teal-500',
-    'BAR': 'from-blue-600 to-cyan-500',
-    'COMIDA RAPIDA': 'from-amber-600 to-orange-500',
-    'DULCES/POSTRES': 'from-pink-600 to-rose-500',
-    'CAJA': 'from-emerald-600 to-teal-500',
+    [STATIONS.BAR]: 'from-blue-600 to-cyan-500',
+    [STATIONS.COMIDA_RAPIDA]: 'from-amber-600 to-orange-500',
+    [STATIONS.POSTRES]: 'from-pink-600 to-rose-500',
+    [STATIONS.CAJA]: 'from-emerald-600 to-teal-500',
     'default': 'from-slate-600 to-slate-400'
   };
 
