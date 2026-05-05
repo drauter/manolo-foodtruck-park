@@ -268,82 +268,120 @@ const AdminPanel = () => {
          clearCart();
       }
    };
-
-   const exportToExcel = () => {
+   const exportToExcel = () => {
       const wb = XLSX.utils.book_new();
       const now = new Date();
       let startDate = new Date(0);
+      const dateStr = now.toLocaleDateString();
+      const timeStr = now.toLocaleTimeString();
+
       if (reportPeriod === 'Hoy') startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
       else if (reportPeriod === 'Semana') startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
       else if (reportPeriod === 'Mes') startDate = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
 
       const filteredOrders = reportPeriod === 'Todo' ? orders : orders.filter(o => new Date(o.timestamp) >= startDate);
-       // 1. Analytics & Projections
-       const analyticsSummary = analyticsData.productPerformance.map(p => ({
-          Producto: p.name,
-          Estacion: p.station,
-          Stock: p.stock,
-          Ventas_Dia_Prom: p.avgDailySales.toFixed(2),
-          Dias_Restantes: p.daysRemaining === Infinity ? 'N/A' : p.daysRemaining,
-          Ganancia_Potencial: p.potentialProfit,
-          Inversion: Number(p.cost) * Number(p.stock)
-       }));
-       XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(analyticsSummary), "Analítica");
 
-       // 2. Detailed Sales
-       const salesData = filteredOrders.map(o => ({
-          Ticket: o.ticket_number,
-          Cliente: o.customer_name,
-          Fecha: new Date(o.timestamp).toLocaleString(),
-          Total: o.total_price,
-          Estado: o.status,
-          Pagado: o.is_paid ? 'SI' : 'NO'
-       }));
-       XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(salesData), "Ventas");
+      // 0. DASHBOARD / RESUMEN EJECUTIVO
+      const dashboardData = [
+         ["MANOLO FOOD AND DRINKS TRUCK PARK"],
+         ["REPORTE GERENCIAL DE OPERACIONES"],
+         [""],
+         ["FECHA EMISIÓN:", dateStr],
+         ["HORA EMISIÓN:", timeStr],
+         ["PERIODO REPORTE:", reportPeriod],
+         ["GENERADO POR:", currentUser?.name || 'Administrador'],
+         [""],
+         ["RESUMEN FINANCIERO (Periodo Seleccionado)"],
+         ["Ventas Totales:", totalSales],
+         ["Costo Insumos:", totalCost],
+         ["Ganancia Neta:", totalProfit],
+         [""],
+         ["ESTADO DE INVENTARIO (Global)"],
+         ["Valor Total Stock (Venta):", products.reduce((acc, p) => acc + (Number(p.stock) * Number(p.price)), 0)],
+         ["Inversión en Stock (Costo):", products.reduce((acc, p) => acc + (Number(p.stock) * Number(p.cost)), 0)],
+         ["Ganancia Potencial Stock:", products.reduce((acc, p) => acc + (Number(p.stock) * (Number(p.price) - Number(p.cost))), 0)],
+         ["Productos en Alerta:", lowStockProducts.length]
+      ];
+      const wsDash = XLSX.utils.aoa_to_sheet(dashboardData);
+      wsDash['!cols'] = [{ wch: 30 }, { wch: 30 }];
+      XLSX.utils.book_append_sheet(wb, wsDash, "RESUMEN");
 
-       // 3. Inventory by Station
-       Object.values(STATIONS).filter(s => s !== 'CAJA').forEach(station => {
-          const stationProducts = products.filter(p => p.station === station);
-          const invData = stationProducts.map(p => {
-             const price = Number(p.price) || 0;
-             const cost = Number(p.cost) || 0;
-             const stock = Number(p.stock) || 0;
-             const performance = analyticsData.productPerformance.find(pp => pp.id === p.id);
-             return {
-                Nombre: p.name,
-                Precio: price,
-                Costo: cost,
-                Stock: stock,
-                Valor_Venta: price * stock,
-                Ganancia_Proyectada: (price - cost) * stock,
-                Proyeccion_Agotamiento: performance?.daysRemaining === Infinity ? 'Sin ventas' : `${performance?.daysRemaining} días`,
-                Estado: stock < 10 ? 'STOCK BAJO' : 'OK'
-             };
-          });
+      // 1. Analytics & Projections
+      const analyticsSummary = analyticsData.productPerformance
+         .sort((a, b) => a.daysRemaining - b.daysRemaining)
+         .map(p => ({
+            "PRODUCTO": p.name.toUpperCase(),
+            "ESTACIÓN": p.station,
+            "STOCK ACTUAL": p.stock,
+            "VENTAS DIARIAS (PROM)": p.avgDailySales.toFixed(2),
+            "DÍAS PARA AGOTARSE": p.daysRemaining === Infinity ? 'SIN VENTAS' : p.daysRemaining,
+            "ESTADO": p.daysRemaining <= 3 ? 'CRÍTICO' : p.stock < 10 ? 'BAJO' : 'OK',
+            "GANANCIA PROYECTADA": p.potentialProfit,
+            "INVERSIÓN EN STOCK": Number(p.cost) * Number(p.stock)
+         }));
+      const wsAnalyt = XLSX.utils.json_to_sheet(analyticsSummary);
+      wsAnalyt['!cols'] = [{ wch: 30 }, { wch: 20 }, { wch: 15 }, { wch: 20 }, { wch: 20 }, { wch: 15 }, { wch: 20 }, { wch: 20 }];
+      XLSX.utils.book_append_sheet(wb, wsAnalyt, "INTELIGENCIA STOCK");
 
-          const totalValue = invData.reduce((sum, item) => sum + item.Valor_Venta, 0);
-          const totalProfit = invData.reduce((sum, item) => sum + item.Ganancia_Proyectada, 0);
-          invData.push({ Nombre: 'TOTAL ESTACION', Precio: '', Costo: '', Stock: '', Valor_Venta: totalValue, Ganancia_Proyectada: totalProfit, Estado: '' });
+      // 2. Detailed Sales
+      const salesData = filteredOrders.map(o => ({
+         "TICKET": `#${o.ticket_number}`,
+         "CLIENTE": o.customer_name.toUpperCase(),
+         "FECHA": new Date(o.timestamp).toLocaleString(),
+         "TOTAL": o.total_price,
+         "ESTADO": o.status === 'cancelled' ? 'CANCELADO' : 'COMPLETADO',
+         "PAGO": o.is_paid ? 'PAGADO' : 'PENDIENTE'
+      }));
+      const wsSales = XLSX.utils.json_to_sheet(salesData);
+      wsSales['!cols'] = [{ wch: 15 }, { wch: 30 }, { wch: 25 }, { wch: 15 }, { wch: 15 }, { wch: 15 }];
+      XLSX.utils.book_append_sheet(wb, wsSales, "HISTORIAL VENTAS");
 
-          const wsInv = XLSX.utils.json_to_sheet(invData);
-          const sanitizedName = (STATION_LABELS[station] || station).replace(/[:\\/?*[\]]/g, '_').substring(0, 31);
-          XLSX.utils.book_append_sheet(wb, wsInv, sanitizedName);
-       });
+      // 3. Inventory by Station
+      Object.values(STATIONS).filter(s => s !== 'CAJA').forEach(station => {
+         const stationProducts = products.filter(p => p.station === station);
+         const invData = stationProducts.map(p => {
+            const price = Number(p.price) || 0;
+            const cost = Number(p.cost) || 0;
+            const stock = Number(p.stock) || 0;
+            const performance = analyticsData.productPerformance.find(pp => pp.id === p.id);
+            return {
+               "PRODUCTO": p.name.toUpperCase(),
+               "PRECIO VENTA": price,
+               "COSTO UNIT": cost,
+               "STOCK": stock,
+               "VALOR VENTA": price * stock,
+               "GANANCIA": (price - cost) * stock,
+               "PROYECCIÓN": performance?.daysRemaining === Infinity ? 'SIN VENTAS' : `${performance?.daysRemaining} DÍAS`,
+               "ESTADO": stock < 10 ? 'REABASTECER' : 'NORMAL'
+            };
+         });
 
-       // 4. Shifts
-       const shiftData = shifts.map(s => ({ 
-          Estación: s.station, 
-          Fecha: new Date(s.timestamp).toLocaleString(), 
-          Esperado: s.expected_cash || s.expected_sales, 
-          Real: s.actual_cash, 
-          Diferencia: s.difference,
-          Justificacion: s.note || '-',
-          Autorizado_Por: s.authorized_by || '-'
-       }));
-       XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(shiftData), "Turnos");
+         const totalValue = invData.reduce((sum, item) => sum + item["VALOR VENTA"], 0);
+         const totalProfit = invData.reduce((sum, item) => sum + item["GANANCIA"], 0);
+         invData.push({}); // Empty row
+         invData.push({ "PRODUCTO": `TOTAL ${station}`, "VALOR VENTA": totalValue, "GANANCIA": totalProfit });
 
-       XLSX.writeFile(wb, `Reporte_Avanzado_Manolo_${new Date().toISOString().split('T')[0]}.xlsx`);
+         const wsInv = XLSX.utils.json_to_sheet(invData);
+         wsInv['!cols'] = [{ wch: 30 }, { wch: 15 }, { wch: 15 }, { wch: 10 }, { wch: 15 }, { wch: 15 }, { wch: 20 }, { wch: 15 }];
+         const sanitizedName = (STATION_LABELS[station] || station).replace(/[:\\/?*[\]]/g, '_').substring(0, 31);
+         XLSX.utils.book_append_sheet(wb, wsInv, sanitizedName);
+      });
 
+      // 4. Shifts
+      const shiftData = shifts.map(s => ({ 
+         "ESTACIÓN": s.station, 
+         "FECHA CIERRE": new Date(s.timestamp).toLocaleString(), 
+         "ESPERADO (EFECTIVO)": s.expected_cash || s.expected_sales, 
+         "REPORTADO": s.actual_cash, 
+         "DIFERENCIA": s.difference,
+         "JUSTIFICACIÓN": s.note || '-',
+         "AUTORIZADO POR": s.authorized_by || '-'
+      }));
+      const wsShifts = XLSX.utils.json_to_sheet(shiftData);
+      wsShifts['!cols'] = [{ wch: 20 }, { wch: 25 }, { wch: 20 }, { wch: 15 }, { wch: 15 }, { wch: 40 }, { wch: 20 }];
+      XLSX.utils.book_append_sheet(wb, wsShifts, "CUADRES CAJA");
+
+      XLSX.writeFile(wb, `Reporte_Avanzado_Manolo_${now.toISOString().split('T')[0]}.xlsx`);
    };
 
    const handleFinalizePayment = () => {
