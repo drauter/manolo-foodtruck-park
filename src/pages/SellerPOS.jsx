@@ -58,6 +58,7 @@ const SellerPOS = ({ isEmbedded = false, embeddedStation = null }) => {
   const selectedInvoice = useMemo(() => orders.find(o => o.id === selectedInvoiceId), [orders, selectedInvoiceId]);
   const [activeTab, setActiveTab] = useState('ventas'); // 'ventas', 'cobros', 'despacho', 'historial'
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState('Todos');
   
   const normalize = (s) => s ? s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().replace(/-/g, " ") : "";
   const isCaja = normalize(currentUser?.station) === 'CAJA';
@@ -121,6 +122,10 @@ const SellerPOS = ({ isEmbedded = false, embeddedStation = null }) => {
   const filteredProducts = (isCaja || !currentUser || !currentUser.station)
     ? (Array.isArray(products) ? products : [])
     : (Array.isArray(products) ? products.filter(p => normalize(p.station) === normalize(currentUser.station)) : []);
+
+  const displayProducts = selectedCategory === 'Todos' 
+    ? filteredProducts 
+    : filteredProducts.filter(p => (p.category || 'Varios') === selectedCategory);
     
   const categories = [...new Set(filteredProducts.map(p => p.category || 'Varios'))];
 
@@ -309,15 +314,19 @@ const SellerPOS = ({ isEmbedded = false, embeddedStation = null }) => {
                  )}
                  
                  <div className="flex gap-3 overflow-x-auto pb-4 no-scrollbar">
-                    {['Todos', ...categories].map(c => (
-                      <button key={c} className="px-8 py-4 bg-white rounded-3xl text-[10px] font-black uppercase tracking-widest shadow-sm border border-slate-100 hover:border-emerald-500 transition-all whitespace-nowrap">
-                         {c}
-                      </button>
-                    ))}
-                 </div>
+                     {['Todos', ...categories].map(c => (
+                       <button 
+                         key={c} 
+                         onClick={() => setSelectedCategory(c)}
+                         className={`px-8 py-4 rounded-3xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap border-2 ${selectedCategory === c ? 'bg-emerald-600 border-emerald-500 text-white shadow-lg scale-105' : 'bg-white border-slate-100 text-slate-400 hover:border-slate-300'}`}
+                       >
+                          {c}
+                       </button>
+                     ))}
+                  </div>
 
                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 sm:gap-8">
-                    {filteredProducts.map(product => (
+                    {displayProducts.map(product => (
                       <div key={product.id} onClick={() => addToCart(product, 1)} className="bg-white p-5 rounded-[2.5rem] border border-slate-100 shadow-md hover:shadow-2xl hover:border-emerald-500 transition-all group flex flex-col items-center cursor-pointer active:scale-95 text-center relative overflow-hidden">
                          <div className="absolute top-4 right-4 bg-slate-900 text-white w-10 h-10 rounded-full flex items-center justify-center scale-0 group-hover:scale-100 transition-transform shadow-lg z-10">
                             <Plus size={20} />

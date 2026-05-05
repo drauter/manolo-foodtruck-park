@@ -102,7 +102,7 @@ const ClientMenu = () => {
           <div className="flex items-center gap-4 w-full lg:w-auto min-w-0">
              <img src="/logo.png" alt="Logo" className="w-16 h-16 sm:w-20 sm:h-20 object-cover rounded-full shadow-xl border-2 border-white/5 flex-shrink-0" />
              <div className="min-w-0">
-                <h2 className="text-xl sm:text-2xl font-black text-white tracking-tighter italic uppercase leading-tight text-emerald-500 truncate">Manolo Agro Industrial</h2>
+                <h2 className="text-xl sm:text-2xl font-black text-white tracking-tighter italic uppercase leading-tight text-emerald-500 truncate">MANOLO FOOD AND DRINKS TRUCK PARK</h2>
                 <div className="flex items-center gap-2 mt-1.5">
                    <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.5)] flex-shrink-0" />
                    <span className="text-[10px] text-slate-400 uppercase tracking-widest font-black truncate">Manolo Agro Industrial</span>
