@@ -194,7 +194,7 @@ const AdminPanel = () => {
       
       const productPerformance = products.map(p => {
         const unitsSold = recentOrders.reduce((sum, o) => {
-          const item = o.items?.find(i => i.id === p.id);
+          const item = o.items?.find(i => i.product_id === p.id);
           return sum + (Number(item?.quantity) || 0);
         }, 0);
         

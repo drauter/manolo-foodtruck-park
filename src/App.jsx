@@ -42,8 +42,8 @@ function App() {
   }, []);
 
   return (
-    <OrderProvider>
-      <Router>
+    <Router>
+      <OrderProvider>
         <ErrorBoundary>
           <Routes>
             <Route path="/" element={<LoginPage />} />
@@ -56,8 +56,8 @@ function App() {
             <Route path="/empleado/:station" element={<EmployeePanel />} />
           </Routes>
         </ErrorBoundary>
-      </Router>
-    </OrderProvider>
+      </OrderProvider>
+    </Router>
   );
 }
 

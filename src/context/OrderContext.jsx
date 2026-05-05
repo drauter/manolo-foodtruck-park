@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef, useCallback } from 'react';
+import { useLocation } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { STATIONS } from '../utils/constants';
 
@@ -35,6 +36,8 @@ export const OrderProvider = ({ children }) => {
 
   // Voice State
   const announcedOrdersRef = React.useRef(new Set());
+  const announcedManualRef = React.useRef(new Set());
+  const location = useLocation();
   const [selectedVoice, setSelectedVoice] = useState(() => localStorage.getItem('manolo_voice') || '');
   const [voices, setVoices] = useState([]);
   const [isVoicesLoaded, setIsVoicesLoaded] = useState(false);
@@ -123,13 +126,28 @@ export const OrderProvider = ({ children }) => {
         if (payload.eventType === 'UPDATE' && payload.new.station_statuses) {
           const oldStatuses = payload.old?.station_statuses || {};
           const newStatuses = payload.new.station_statuses;
+          const isDisplay = window.location.pathname === '/display';
           
-          Object.entries(newStatuses).forEach(([st, status]) => {
-            if (status === 'ready' && oldStatuses[st] !== 'ready') {
-              console.log('IMMEDIATE VOICE TRIGGER:', payload.new.ticket_number, st);
-              announceOrder(payload.new, st, false);
+          // Automatic ready triggers (Only on display)
+          if (isDisplay) {
+            Object.entries(newStatuses).forEach(([st, status]) => {
+              if (status === 'ready' && oldStatuses[st] !== 'ready') {
+                announceOrder(payload.new, st, false);
+              }
+            });
+
+            // Remote Manual Voice Trigger
+            const newTrigger = newStatuses._voice_trigger;
+            const oldTrigger = oldStatuses._voice_trigger;
+            if (newTrigger && newTrigger !== oldTrigger) {
+              const st = newStatuses._voice_station || Object.keys(newStatuses).find(k => !k.startsWith('_')) || 'General';
+              const key = `${payload.new.id}-${newTrigger}`;
+              if (!announcedManualRef.current.has(key)) {
+                announcedManualRef.current.add(key);
+                announceOrder(payload.new, st, true);
+              }
             }
-          });
+          }
         }
 
         const { data } = await supabase.from('orders').select('*, order_items(*, products(name, description))').order('timestamp', { ascending: false });
@@ -800,8 +818,24 @@ export const OrderProvider = ({ children }) => {
   }, [selectedVoice]);
 
   const announceOrder = React.useCallback((order, stationKey, manual = false) => {
-    const announcementKey = `${order.id}-${stationKey}-ready`;
+    const isDisplay = location.pathname === '/display';
     
+    if (manual && !isDisplay) {
+      // Manual trigger from non-display: update DB to trigger sound on display
+      const trigger = new Date().toISOString();
+      updateOrder(order.id, {
+        station_statuses: {
+          ...order.station_statuses,
+          _voice_trigger: trigger,
+          _voice_station: stationKey
+        }
+      });
+      return;
+    }
+
+    if (!isDisplay) return; // Automatic announcements or skip if not display
+
+    const announcementKey = `${order.id}-${stationKey}-ready`;
     if (!manual && announcedOrdersRef.current.has(announcementKey)) return;
     
     const ticket = order.ticket_number || '';
@@ -809,7 +843,7 @@ export const OrderProvider = ({ children }) => {
     
     // Get unique ready stations if stationKey is not fixed
     const stations = [...new Set(Object.entries(order.station_statuses || {})
-      .filter(([, s]) => s === 'ready')
+      .filter(([k, s]) => s === 'ready' && !k.startsWith('_'))
       .map(([st]) => st))];
       
     let stationText = stationKey;
@@ -833,22 +867,41 @@ export const OrderProvider = ({ children }) => {
     
     announcementQueue.current.push({ message, key: announcementKey, manual });
     processQueue();
-  }, [processQueue]);
+  }, [processQueue, location.pathname, updateOrder]);
 
-  // Effect to handle automatic announcements when orders are ready
+  // Effect to handle automatic announcements when orders are ready (only for Display)
   useEffect(() => {
     if (!orders || orders.length === 0) return;
+    const isDisplay = location.pathname === '/display';
+    if (!isDisplay) return;
     
     orders.forEach(order => {
       if (order.station_statuses) {
         Object.entries(order.station_statuses).forEach(([station, status]) => {
-          if (status === 'ready') {
+          if (status === 'ready' && !station.startsWith('_')) {
             announceOrder(order, station, false);
           }
         });
+
+        // Check for missed remote manual triggers on initial load or re-sync
+        const trigger = order.station_statuses?._voice_trigger;
+        if (trigger) {
+          const key = `${order.id}-${trigger}`;
+          if (!announcedManualRef.current.has(key)) {
+            // Only announce if it's very recent (last 30 seconds) to avoid noise on reload
+            const triggerTime = new Date(trigger).getTime();
+            if (Date.now() - triggerTime < 30000) {
+              const st = order.station_statuses?._voice_station || 'General';
+              announcedManualRef.current.add(key);
+              announceOrder(order, st, true);
+            } else {
+              announcedManualRef.current.add(key); // Mark as "seen" anyway
+            }
+          }
+        }
       }
     });
-  }, [orders, announceOrder]);
+  }, [orders, location.pathname, announceOrder]);
 
   const verifyPin = async (pin) => {
     try {
