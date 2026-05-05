@@ -134,7 +134,7 @@ const EmployeePanel = () => {
                         <div className="text-[10px] font-black text-emerald-600 uppercase tracking-widest bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">#{order.ticket_number}</div>
                         {order.is_paid && <span className="bg-emerald-500 text-white text-[8px] px-2 py-0.5 rounded-full font-black uppercase">PAGADO</span>}
                       </div>
-                      <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                      <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-2">
                         <Clock size={12} /> {new Date(order.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                       </div>
                     </div>
@@ -154,7 +154,7 @@ const EmployeePanel = () => {
                           {item.products?.name || item.product?.name || 'Producto'}
                         </span>
                         {(item.products?.description || item.product?.description) && (
-                          <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1.5 opacity-60 italic leading-tight">
+                          <span className="text-[10px] text-slate-600 uppercase italic tracking-wider leading-tight">
                             {item.products?.description || item.product?.description}
                           </span>
                         )}

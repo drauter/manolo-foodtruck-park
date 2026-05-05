@@ -64,8 +64,8 @@ const OrderTracking = () => {
 
   if (loadingOrders) {
     return (
-      <div className="min-h-screen bg-slate-950 text-white flex flex-col items-center justify-center p-6 text-center">
-        <Loader2 className="w-12 h-12 text-emerald-500 animate-spin mb-4" />
+      <div className="min-h-screen bg-white text-slate-900 flex flex-col items-center justify-center p-6 text-center">
+        <Loader2 className="w-12 h-12 text-emerald-600 animate-spin mb-4" />
         <h2 className="text-xl font-black uppercase italic tracking-tighter">Cargando tu pedido...</h2>
       </div>
     );
@@ -73,13 +73,13 @@ const OrderTracking = () => {
 
   if (!order && !activeOrders.length) {
     return (
-      <div className="min-h-screen bg-slate-950 text-white flex flex-col items-center justify-center p-6 text-center">
-        <div className="w-24 h-24 bg-slate-900 rounded-full flex items-center justify-center mb-8 border border-white/5 shadow-2xl">
-           <Package size={48} className="text-slate-700" />
+      <div className="min-h-screen bg-white text-slate-900 flex flex-col items-center justify-center p-6 text-center">
+        <div className="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center mb-8 border border-slate-100 shadow-sm">
+           <Package size={48} className="text-slate-200" />
         </div>
         <h2 className="text-3xl font-black uppercase italic tracking-tighter">No hay pedidos activos</h2>
-        <p className="text-slate-500 mt-4 font-bold uppercase text-[10px] tracking-[0.3em] max-w-[250px] leading-relaxed">Escanea el QR para ver el estado de tu orden</p>
-        <Link to="/menu" className="mt-10 bg-white text-slate-950 px-10 py-5 rounded-2xl font-black uppercase text-xs tracking-[0.2em] hover:scale-105 active:scale-95 transition-all shadow-xl">Ir al Menú</Link>
+        <p className="text-slate-400 mt-4 font-bold uppercase text-[10px] tracking-[0.3em] max-w-[250px] leading-relaxed">Escanea el QR para ver el estado de tu orden</p>
+        <Link to="/menu" className="mt-10 bg-slate-900 text-white px-10 py-5 rounded-2xl font-black uppercase text-xs tracking-[0.2em] hover:scale-105 active:scale-95 transition-all shadow-xl">Ir al Menú</Link>
       </div>
     );
   }
@@ -139,17 +139,17 @@ const OrderTracking = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 font-sans p-6 overflow-x-hidden selection:bg-emerald-500/30">
-      <div className="fixed inset-0 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-emerald-500/10 via-transparent to-transparent opacity-50 pointer-events-none" />
+    <div className="min-h-screen bg-white text-slate-900 font-sans p-6 overflow-x-hidden selection:bg-emerald-500/30">
+      <div className="fixed inset-0 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-emerald-500/5 via-transparent to-transparent opacity-50 pointer-events-none" />
       
       <header className="max-w-md mx-auto flex items-center justify-between mb-10 relative z-10">
          <div className="flex items-center gap-4">
-            <button onClick={() => navigate('/menu')} className="p-4 bg-slate-900/50 backdrop-blur-xl border border-white/5 rounded-2xl text-slate-400 hover:text-white transition-all shadow-lg active:scale-95"><ChevronLeft size={24} /></button>
-            <img src="/logo.png" alt="Logo" className="w-12 h-12 object-cover rounded-full border border-white/5" />
+            <button onClick={() => navigate('/menu')} className="p-4 bg-slate-50 backdrop-blur-xl border border-slate-100 rounded-2xl text-slate-400 hover:text-slate-900 transition-all shadow-sm active:scale-95"><ChevronLeft size={24} /></button>
+            <img src="/logo.png" alt="Logo" className="w-12 h-12 object-cover rounded-full border border-slate-100" />
          </div>
          <div className="text-right">
-            <div className="text-[10px] font-black uppercase text-emerald-500 tracking-[0.4em] mb-1">MANOLO FOOD AND DRINKS TRUCK PARK • LIVE TRACKING</div>
-            <div className="text-4xl font-black italic text-white tracking-tighter leading-none">#{order?.ticket_number || '---'}</div>
+            <div className="text-[10px] font-black uppercase text-emerald-600 tracking-[0.4em] mb-1">MANOLO FOOD AND DRINKS TRUCK PARK • LIVE TRACKING</div>
+            <div className="text-4xl font-black italic text-slate-900 tracking-tighter leading-none">#{order?.ticket_number || '---'}</div>
          </div>
       </header>
 
@@ -164,7 +164,7 @@ const OrderTracking = () => {
                         setActiveTabId(o.id);
                         navigate(`/tracking/${o.id}`, { replace: true });
                     }}
-                    className={`shrink-0 px-6 py-4 rounded-2xl border transition-all flex flex-col items-center gap-1 ${activeTabId === o.id ? 'bg-emerald-500 border-emerald-400 text-white shadow-lg scale-105' : 'bg-slate-900 border-white/5 text-slate-500 hover:text-slate-300'}`}
+                    className={`shrink-0 px-6 py-4 rounded-2xl border transition-all flex flex-col items-center gap-1 ${activeTabId === o.id ? 'bg-emerald-500 border-emerald-400 text-white shadow-lg scale-105' : 'bg-white border-slate-200 text-slate-400 hover:text-slate-900'}`}
                  >
                     <span className="text-[8px] font-black uppercase tracking-widest opacity-60">Ticket</span>
                     <span className="text-xl font-black italic tracking-tighter leading-none">#{o.ticket_number}</span>
@@ -179,17 +179,17 @@ const OrderTracking = () => {
          <motion.div 
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
-            className={`p-10 rounded-[3.5rem] text-center relative overflow-hidden shadow-2xl border ${isReadyGlobal ? 'bg-emerald-600 border-emerald-400 shadow-emerald-900/40' : (displayOrder.status === 'delivered' ? 'bg-blue-600 border-blue-400 shadow-blue-900/40' : 'bg-slate-900 border-white/10 shadow-black')}`}
+            className={`p-10 rounded-[3.5rem] text-center relative overflow-hidden shadow-2xl border ${isReadyGlobal ? 'bg-emerald-600 border-emerald-400 shadow-emerald-900/40' : (displayOrder.status === 'delivered' ? 'bg-blue-600 border-blue-400 shadow-blue-900/40' : 'bg-slate-50 border-slate-100 shadow-sm')}`}
          >
             <div className="absolute -top-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-3xl animate-pulse" />
             <div className="relative z-10 flex flex-col items-center">
                <div className="w-24 h-24 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center mb-6 border border-white/20 shadow-inner">
                   {getStatusIcon()}
                </div>
-               <h2 className="text-5xl font-black uppercase italic tracking-tighter mb-3 leading-none text-white whitespace-pre-wrap">
+               <h2 className={`text-5xl font-black uppercase italic tracking-tighter mb-3 leading-none whitespace-pre-wrap ${isReadyGlobal || displayOrder.status === 'delivered' ? 'text-white' : 'text-slate-900'}`}>
                   {getStatusText()}
                </h2>
-               <p className="text-[11px] font-black uppercase tracking-widest text-white/80 max-w-[200px] leading-relaxed">
+               <p className={`text-[11px] font-black uppercase tracking-widest max-w-[200px] leading-relaxed ${isReadyGlobal || displayOrder.status === 'delivered' ? 'text-white/80' : 'text-slate-500'}`}>
                   {getInstructions()}
                </p>
             </div>
@@ -222,28 +222,28 @@ const OrderTracking = () => {
                const isDone = status === 'ready' || status === 'delivered';
                
                return (
-                  <motion.div 
-                    key={station}
-                    initial={{ x: -20, opacity: 0 }}
-                    animate={{ x: 0, opacity: 1 }}
-                    transition={{ delay: 0.3 + (idx * 0.1) }}
-                    className={`p-6 rounded-[2.25rem] border flex items-center justify-between gap-4 transition-all ${isDone ? 'bg-emerald-500/5 border-emerald-500/20' : 'bg-slate-900 border-white/5'}`}
-                  >
-                     <div className="flex items-center gap-4">
-                        <div className={`p-4 rounded-2xl ${isDone ? 'bg-emerald-500 text-white' : 'bg-slate-800 text-slate-600'} shadow-lg transition-colors`}>
-                           <Icon size={24} />
-                        </div>
-                        <div>
-                           <div className={`text-lg font-black italic tracking-tight ${isDone ? 'text-white' : 'text-slate-400'}`}>
-                             {station === 'COMIDA RAPIDA' ? 'COMIDA RAPIDA' : station}
-                           </div>
-                           <div className={`text-[9px] font-black uppercase tracking-[0.2em] ${isDone ? 'text-emerald-500' : 'text-slate-600'}`}>
-                              {status === 'delivered' ? 'ENTREGADO' : (status === 'ready' ? 'LISTO EN VENTANA' : 'EN PRODUCCIÓN...')}
-                           </div>
-                        </div>
-                     </div>
-                     {isDone ? <CheckCircle2 className="text-emerald-500" /> : <Loader2 className="text-slate-800 animate-spin" />}
-                  </motion.div>
+                    <motion.div 
+                      key={station}
+                      initial={{ x: -20, opacity: 0 }}
+                      animate={{ x: 0, opacity: 1 }}
+                      transition={{ delay: 0.3 + (idx * 0.1) }}
+                      className={`p-6 rounded-[2.25rem] border flex items-center justify-between gap-4 transition-all ${isDone ? 'bg-emerald-50 border-emerald-100' : 'bg-slate-50 border-slate-100'}`}
+                    >
+                       <div className="flex items-center gap-4">
+                          <div className={`p-4 rounded-2xl ${isDone ? 'bg-emerald-600 text-white' : 'bg-white text-slate-400 border border-slate-100'} shadow-sm transition-colors`}>
+                             <Icon size={24} />
+                          </div>
+                          <div>
+                             <div className={`text-lg font-black italic tracking-tight ${isDone ? 'text-slate-900' : 'text-slate-400'}`}>
+                               {station === 'COMIDA RAPIDA' ? 'COMIDA RAPIDA' : station}
+                             </div>
+                             <div className={`text-[9px] font-black uppercase tracking-[0.2em] ${isDone ? 'text-emerald-600' : 'text-slate-400'}`}>
+                                {status === 'delivered' ? 'ENTREGADO' : (status === 'ready' ? 'LISTO EN VENTANA' : 'EN PRODUCCIÓN...')}
+                             </div>
+                          </div>
+                       </div>
+                       {isDone ? <CheckCircle2 className="text-emerald-500" /> : <Loader2 className="text-slate-200 animate-spin" />}
+                    </motion.div>
                );
             })}
          </div>
