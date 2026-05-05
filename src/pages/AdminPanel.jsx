@@ -530,7 +530,8 @@ const AdminPanel = () => {
                               </div>
                               <div className="grid grid-cols-2 gap-2 mt-2">
                                  <button onClick={() => {
-                                    setNewProduct({ ...product });
+                                    setEditingProduct({ ...product });
+                                    setIsEditingProduct(true);
                                     setIsModalOpen(true);
                                  }} className="bg-white text-slate-900 p-3 rounded-xl font-black uppercase text-[9px] hover:bg-slate-900 hover:text-white transition-all border border-slate-200">Editar</button>
                                  <button onClick={() => {
