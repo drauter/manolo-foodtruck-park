@@ -74,7 +74,7 @@ const OrderTracking = () => {
   if (!order && !activeOrders.length) {
     return (
       <div className="min-h-screen bg-white text-slate-900 flex flex-col items-center justify-center p-6 text-center">
-        <div className="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center mb-8 border border-slate-100 shadow-sm">
+        <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center mb-8 border border-slate-200 shadow-sm">
            <Package size={48} className="text-slate-200" />
         </div>
         <h2 className="text-3xl font-black uppercase italic tracking-tighter">No hay pedidos activos</h2>
@@ -144,7 +144,7 @@ const OrderTracking = () => {
       
       <header className="max-w-md mx-auto flex items-center justify-between mb-10 relative z-10">
          <div className="flex items-center gap-4">
-            <button onClick={() => navigate('/menu')} className="p-4 bg-slate-50 backdrop-blur-xl border border-slate-100 rounded-2xl text-slate-400 hover:text-slate-900 transition-all shadow-sm active:scale-95"><ChevronLeft size={24} /></button>
+            <button onClick={() => navigate('/menu')} className="p-4 bg-white backdrop-blur-xl border border-slate-200 rounded-2xl text-slate-400 hover:text-slate-900 transition-all shadow-sm active:scale-95"><ChevronLeft size={24} /></button>
             <img src="/logo.png" alt="Logo" className="w-12 h-12 object-cover rounded-full border border-slate-100" />
          </div>
          <div className="text-right">
@@ -179,7 +179,7 @@ const OrderTracking = () => {
          <motion.div 
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
-            className={`p-10 rounded-[3.5rem] text-center relative overflow-hidden shadow-2xl border ${isReadyGlobal ? 'bg-emerald-600 border-emerald-400 shadow-emerald-900/40' : (displayOrder.status === 'delivered' ? 'bg-blue-600 border-blue-400 shadow-blue-900/40' : 'bg-slate-50 border-slate-100 shadow-sm')}`}
+            className={`p-10 rounded-[3.5rem] text-center relative overflow-hidden shadow-2xl border ${isReadyGlobal ? 'bg-emerald-600 border-emerald-400 shadow-emerald-900/40' : (displayOrder.status === 'delivered' ? 'bg-blue-600 border-blue-400 shadow-blue-900/40' : 'bg-white border-slate-200 shadow-sm')}`}
          >
             <div className="absolute -top-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-3xl animate-pulse" />
             <div className="relative z-10 flex flex-col items-center">

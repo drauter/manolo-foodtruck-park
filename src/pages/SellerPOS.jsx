@@ -294,7 +294,7 @@ const SellerPOS = ({ isEmbedded = false, embeddedStation = null }) => {
           )}
 
           <div className="flex gap-2">
-             {!isEmbedded && <button onClick={() => setIsClosingShift(true)} className="p-2.5 sm:p-3 bg-amber-50 text-amber-600 rounded-xl hover:bg-amber-600 hover:text-white transition-all border border-amber-100"><LogOut size={16} /></button>}
+             {!isEmbedded && <button onClick={() => setIsClosingShift(true)} className="p-2.5 sm:p-3 bg-slate-100 text-amber-600 rounded-xl hover:bg-amber-600 hover:text-white transition-all border border-slate-200"><LogOut size={16} /></button>}
           </div>
         </header>
 
@@ -458,7 +458,7 @@ const SellerPOS = ({ isEmbedded = false, embeddedStation = null }) => {
 
                  <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
                     {orders.filter(o => o.status !== 'cancelled').reverse().map(order => (
-                      <div key={order.id} className={`bg-white p-8 rounded-[3.5rem] border ${order.is_paid ? 'border-emerald-500/20 bg-emerald-50/10' : 'border-slate-100'} shadow-lg flex flex-col gap-6 group hover:border-emerald-500 transition-all relative overflow-hidden`}>
+                      <div key={order.id} className={`bg-white p-8 rounded-[3.5rem] border ${order.is_paid ? 'border-emerald-500/20 bg-slate-100/10' : 'border-slate-100'} shadow-lg flex flex-col gap-6 group hover:border-emerald-500 transition-all relative overflow-hidden`}>
                          {order.is_paid && (
                            <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/10 rounded-bl-full flex items-center justify-center pointer-events-none">
                               <CheckCircle className="text-emerald-500 mt-2 ml-2" size={32} />
@@ -476,7 +476,7 @@ const SellerPOS = ({ isEmbedded = false, embeddedStation = null }) => {
                          </div>
                          <div className="flex gap-3 mt-2">
                             {order.is_paid ? (
-                              <div className="flex-grow py-5 bg-emerald-50 text-emerald-600 border border-emerald-100 rounded-[2rem] font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-3">
+                              <div className="flex-grow py-5 bg-slate-100 text-emerald-600 border border-slate-200 rounded-[2rem] font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-3">
                                  <CheckCircle size={18} /> PAGO COMPLETADO
                               </div>
                             ) : (
@@ -493,14 +493,14 @@ const SellerPOS = ({ isEmbedded = false, embeddedStation = null }) => {
                               </button>
                             )}
                             <div className="flex gap-3">
-                               <button onClick={() => setSelectedInvoiceId(order.id)} className="p-5 bg-slate-50 text-slate-400 rounded-[2rem] border border-slate-100 flex items-center justify-center hover:bg-slate-900 hover:text-white transition-all"><FileText size={20} /></button>
+                               <button onClick={() => setSelectedInvoiceId(order.id)} className="p-5 bg-white text-slate-400 rounded-[2rem] border border-slate-200 flex items-center justify-center hover:bg-slate-900 hover:text-white transition-all"><FileText size={20} /></button>
                                <button 
                                   onClick={() => {
                                      if (confirm(`¿ELIMINAR TICKET #${order.ticket_number} DE ${order.customer_name}?`)) {
                                         requireAdminAuth(() => cancelOrder(order.id));
                                      }
                                   }} 
-                                  className="p-5 bg-red-50 text-red-400 rounded-[2rem] border border-red-100 flex items-center justify-center hover:bg-red-500 hover:text-white transition-all"
+                                  className="p-5 bg-white text-red-400 rounded-[2rem] border border-slate-200 flex items-center justify-center hover:bg-red-500 hover:text-white transition-all"
                                >
                                   <Trash2 size={20} />
                                </button>
@@ -537,7 +537,7 @@ const SellerPOS = ({ isEmbedded = false, embeddedStation = null }) => {
                              {!order.is_paid && <div className="bg-amber-100 text-amber-600 px-3 py-1 rounded-full text-[8px] font-black uppercase">FALTA PAGO</div>}
                           </div>
 
-                          <div className="bg-slate-50 p-6 rounded-3xl space-y-3">
+                          <div className="bg-slate-100 p-6 rounded-3xl space-y-3">
                              {Object.entries(order.station_statuses || {}).filter(([, s]) => s === 'ready').map(([station]) => (
                                <div key={station} className="flex justify-between items-center">
                                   <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">{station}</span>

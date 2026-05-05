@@ -15,7 +15,7 @@ const StationColumn = ({ label, icon: IconComponent, color, orders, stationKey }
 
   return (
     <div className="flex-1 flex flex-col gap-3 h-full min-w-0">
-      <div className={`p-3 sm:p-4 rounded-[1.5rem] bg-slate-50 border-2 border-slate-100 flex items-center justify-between shadow-sm`}>
+      <div className={`p-3 sm:p-4 rounded-[1.5rem] bg-white border-2 border-slate-200 flex items-center justify-between shadow-sm`}>
          <div className="flex items-center gap-3">
             <div className={`p-2 rounded-xl bg-${color}-500/10 text-${color}-500 border border-${color}-500/20`}>
                <IconComponent size={20} />

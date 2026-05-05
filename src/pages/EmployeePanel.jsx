@@ -51,7 +51,7 @@ const EmployeePanel = () => {
 
   return (
     <div className="min-h-screen bg-white text-slate-900 p-4 sm:p-6 font-sans no-print">
-      <header className="mb-10 flex flex-col md:flex-row md:items-center justify-between gap-6 bg-slate-50 p-8 rounded-[2.5rem] border border-slate-100 shadow-sm">
+      <header className="mb-10 flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white p-8 rounded-[2.5rem] border border-slate-200 shadow-sm">
         <div className="flex items-center gap-6">
           <div className={`p-4 sm:p-5 rounded-2xl sm:rounded-3xl ${currentStation.bg} ${currentStation.color} shadow-lg border border-current/20`}>
             <Package size={24} className="sm:w-8 sm:h-8" />
@@ -112,7 +112,7 @@ const EmployeePanel = () => {
            <SellerPOS isEmbedded={true} embeddedStation={stationKey} />
         </div>
       ) : stationOrders.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-40 bg-slate-50 rounded-[3rem] border border-dashed border-slate-200">
+        <div className="flex flex-col items-center justify-center py-40 bg-white rounded-[3rem] border border-dashed border-slate-300">
            <Package size={64} className="text-slate-200 mb-6" />
            <h2 className="text-2xl font-bold text-slate-300 uppercase tracking-widest">Sin pedidos pendientes</h2>
            <p className="text-slate-400 mt-2 italic text-lg">Buen trabajo, todo está al día.</p>
@@ -125,13 +125,13 @@ const EmployeePanel = () => {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: idx * 0.05 }}
-              className="bg-slate-50 border border-slate-200 rounded-[3rem] overflow-hidden flex flex-col shadow-xl relative group hover:border-emerald-500 transition-all"
+              className="bg-white border border-slate-300 rounded-[3rem] overflow-hidden flex flex-col shadow-xl relative group hover:border-emerald-500 transition-all"
             >
               <div className="p-6 bg-white flex justify-between items-center border-b border-slate-100">
                  <div className="flex flex-col">
                     <div className="flex justify-between items-center mb-6">
                       <div className="flex items-center gap-3">
-                        <div className="text-[10px] font-black text-emerald-600 uppercase tracking-widest bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">#{order.ticket_number}</div>
+                        <div className="text-[10px] font-black text-emerald-600 uppercase tracking-widest bg-white px-3 py-1 rounded-full border border-emerald-200">#{order.ticket_number}</div>
                         {order.is_paid && <span className="bg-emerald-500 text-white text-[8px] px-2 py-0.5 rounded-full font-black uppercase">PAGADO</span>}
                       </div>
                       <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-2">

@@ -22,7 +22,7 @@ const ProductItem = ({ product, addToCart }) => {
         <div className="flex justify-between items-center mt-2">
           <span className="text-2xl font-black text-slate-900 font-mono tracking-tighter decoration-emerald-500 underline decoration-2">${product.price * qty}</span>
           
-          <div className="flex items-center gap-2 bg-[#FFDAB9] p-1 rounded-2xl border border-slate-200">
+          <div className="flex items-center gap-2 bg-white p-1 rounded-2xl border border-slate-200">
             <div className="flex items-center gap-3 px-2">
                <button onClick={() => setQty(Math.max(1, qty - 1))} className="p-1 text-slate-600 hover:text-white transition-colors"><Minus size={16} /></button>
                <span className="font-black text-sm w-4 text-center">{qty}</span>
@@ -251,7 +251,7 @@ const ClientMenu = () => {
                          <div className="flex-grow">
                             <h4 className="font-black text-xl italic uppercase tracking-tighter group-hover:text-emerald-600 transition-colors text-slate-900">{item.name}</h4>
                             <div className="flex justify-between items-end mt-4">
-                               <div className="px-3 py-1 bg-white border border-slate-100 rounded-xl font-mono text-emerald-600 text-xs">Cant: {item.quantity}</div>
+                               <div className="px-3 py-1 bg-slate-100 border border-slate-200 rounded-xl font-mono text-emerald-600 text-xs">Cant: {item.quantity}</div>
                                <span className="text-2xl font-black text-slate-900 font-mono tracking-tighter">${item.price * item.quantity}</span>
                             </div>
                          </div>
@@ -259,11 +259,11 @@ const ClientMenu = () => {
                       </div>
                     ))}
                  </div>
-                  <div className="bg-slate-50 p-8 rounded-[3rem] border border-slate-100 shadow-inner space-y-6 mt-auto">
+                 <div className="bg-white p-8 rounded-[3rem] border border-slate-200 shadow-inner space-y-6 mt-auto">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                        <div className="space-y-2">
                           <label className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-400 ml-4">Tu Nombre</label>
-                          <input type="text" value={customerName} onChange={e => { setCustomerName(e.target.value); if(nameError) setNameError(false); }} placeholder="..." className={`w-full bg-white p-6 rounded-3xl font-black text-2xl italic text-center text-slate-900 border ${nameError ? 'border-red-500 ring-4 ring-red-500/20' : 'border-slate-100'} outline-none focus:ring-4 focus:ring-emerald-500/20 transition-all`} />
+                          <input type="text" value={customerName} onChange={e => { setCustomerName(e.target.value); if(nameError) setNameError(false); }} placeholder="..." className={`w-full bg-slate-50 p-6 rounded-3xl font-black text-2xl italic text-center text-slate-900 border ${nameError ? 'border-red-500 ring-4 ring-red-500/20' : 'border-slate-100'} outline-none focus:ring-4 focus:ring-emerald-500/20 transition-all`} />
                        </div>
                        <div className="space-y-2">
                           <label className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-400 ml-4">Instrucciones Especiales</label>
@@ -319,7 +319,7 @@ const ClientMenu = () => {
                 </div>
                 <div className="p-10 text-center space-y-6">
                    <h3 className="text-2xl font-black uppercase italic tracking-tighter">{orderConfirmed.customer_name}</h3>
-                   <div className="bg-slate-50 p-6 rounded-[2rem] border border-slate-100 flex flex-col items-center gap-4">
+                   <div className="p-6 rounded-[2rem] border border-slate-200 flex flex-col items-center gap-4">
                       <Clock className="text-emerald-600" />
                       <p className="text-[10px] font-black uppercase tracking-widest leading-relaxed">Redirigiendo al RASTREADOR en vivo...</p>
                       <div className="w-full h-1 bg-slate-200 rounded-full overflow-hidden">

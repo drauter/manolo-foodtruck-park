@@ -447,7 +447,7 @@ const AdminPanel = () => {
    }
 
    return (
-      <div className="min-h-screen bg-slate-50 flex flex-col lg:flex-row font-sans overflow-x-hidden no-print">
+      <div className="min-h-screen bg-white flex flex-col lg:flex-row font-sans overflow-x-hidden no-print">
          {/* Sidebar - Desktop */}
          <aside className="hidden lg:flex w-72 bg-white text-slate-900 p-6 flex-col gap-8 sticky top-0 h-screen overflow-y-auto z-50 border-r border-slate-100 shadow-sm">
             <div className="flex flex-col items-center gap-4">
@@ -493,7 +493,7 @@ const AdminPanel = () => {
             </div>
          </div>
 
-         <main className="flex-grow p-4 sm:p-8 overflow-y-auto bg-slate-50">
+         <main className="flex-grow p-4 sm:p-8 overflow-y-auto bg-white">
             <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-10">
                <div>
                   <h1 className="text-3xl sm:text-4xl font-black tracking-tighter capitalize leading-none">{menuItems.find(m => m.id === activeTab)?.label}</h1>
@@ -501,7 +501,7 @@ const AdminPanel = () => {
                </div>
                <div className="flex flex-wrap gap-4 w-full sm:w-auto">
                   {currentUser?.role === 'admin' && (
-                     <button onClick={exportToExcel} className="flex-grow sm:flex-grow-0 bg-emerald-50 text-emerald-600 px-6 py-3 rounded-2xl flex items-center justify-center gap-2 font-black uppercase text-[10px] tracking-widest border border-emerald-100 hover:bg-emerald-600 hover:text-white transition-all">
+                     <button onClick={exportToExcel} className="flex-grow sm:flex-grow-0 bg-white text-emerald-600 px-6 py-3 rounded-2xl flex items-center justify-center gap-2 font-black uppercase text-[10px] tracking-widest border border-emerald-100 hover:bg-emerald-600 hover:text-white transition-all">
                         Descargar Reporte EXCEL
                      </button>
                   )}
@@ -532,12 +532,12 @@ const AdminPanel = () => {
                                  <button onClick={() => {
                                     setNewProduct({ ...product });
                                     setIsModalOpen(true);
-                                 }} className="bg-slate-50 text-slate-900 p-3 rounded-xl font-black uppercase text-[9px] hover:bg-slate-900 hover:text-white transition-all border border-slate-100">Editar</button>
+                                 }} className="bg-white text-slate-900 p-3 rounded-xl font-black uppercase text-[9px] hover:bg-slate-900 hover:text-white transition-all border border-slate-200">Editar</button>
                                  <button onClick={() => {
                                     requireAdminAuth(() => {
                                        if (confirm("¿Eliminar producto?")) deleteProduct(product.id);
                                     });
-                                 }} className="bg-red-50 text-red-500 p-3 rounded-xl font-black uppercase text-[9px] hover:bg-red-500 hover:text-white transition-all border border-red-100">Eliminar</button>
+                                 }} className="bg-white text-red-500 p-3 rounded-xl font-black uppercase text-[9px] hover:bg-red-500 hover:text-white transition-all border border-red-100">Eliminar</button>
                               </div>
                            </div>
                         ))}
@@ -555,7 +555,7 @@ const AdminPanel = () => {
                            { label: 'Stock Bajo', value: lowStockProducts.length, icon: AlertCircle, color: 'text-amber-500' },
                         ].map((stat, i) => (
                            <div key={i} className="bg-white p-4 sm:p-5 rounded-3xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
-                              <div className={`p-2 rounded-xl bg-slate-50 ${stat.color} w-fit`}><stat.icon size={18} /></div>
+                              <div className={`p-2 rounded-xl bg-slate-100 ${stat.color} w-fit`}><stat.icon size={18} /></div>
                               <div className="mt-3">
                                  <div className="text-slate-400 text-[8px] sm:text-[10px] font-black uppercase tracking-widest leading-none">{stat.label}</div>
                                  <div className="text-xl sm:text-2xl font-black mt-1 text-slate-900 tracking-tighter">{stat.value}</div>
@@ -565,7 +565,7 @@ const AdminPanel = () => {
                      </div>
 
                      {/* Station Pending Summary */}
-                     <div className="bg-slate-50 p-8 rounded-[3rem] border border-slate-200 shadow-sm relative overflow-hidden">
+                     <div className="bg-white p-8 rounded-[3rem] border border-slate-200 shadow-sm relative overflow-hidden">
                         <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/5 rounded-full blur-3xl -mr-32 -mt-32" />
                         <div className="flex items-center gap-4 mb-8 relative z-10">
                            <div className="w-10 h-1bg-emerald-500 rounded-full" />
