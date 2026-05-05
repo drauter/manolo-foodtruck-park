@@ -154,15 +154,17 @@ const Receipt = ({ order, station = 'CAJA', printId = 'printable-invoice' }) => 
       width: '100%',
       boxSizing: 'border-box'
     }}>
-      {/* TICKET ID - Modo Inverso (Blanco sobre Negro) */}
+      {/* TICKET ID - Modo Inverso (Blanco sobre Negro) - MAS AMPLIO */}
       <pre 
         data-style="inverse"
         style={{
           ...preStyle,
           backgroundColor: 'black',
           color: 'white',
-          padding: '6px 12px',
-          marginBottom: '10px',
+          padding: '12px 40px',
+          fontSize: '24px',
+          letterSpacing: '2px',
+          marginBottom: '15px',
           width: 'auto',
           display: 'inline-block'
         }}
