@@ -15,7 +15,7 @@ const ProductItem = ({ product, addToCart }) => {
   const [qty, setQty] = useState(1);
 
   return (
-    <div className="bg-[#FFDAB9] rounded-[2.5rem] overflow-hidden border border-slate-100 flex shadow-lg hover:border-emerald-500 transition-all group p-4 gap-6">
+    <div className="bg-slate-50 rounded-[2.5rem] overflow-hidden border border-slate-100 flex shadow-lg hover:border-emerald-500 transition-all group p-4 gap-6">
       <div className="w-24 h-24 flex-shrink-0 bg-slate-800 rounded-3xl overflow-hidden relative">
         <img src={product.image_url} alt={product.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
       </div>
@@ -263,10 +263,10 @@ const SellerPOS = ({ isEmbedded = false, embeddedStation = null }) => {
   if (!currentUser) return null;
   
   return (
-    <div className={`${isEmbedded ? 'h-full absolute inset-0' : 'min-h-screen lg:h-screen'} bg-[#FFDAB9] text-slate-900 flex flex-col lg:flex-row overflow-x-hidden lg:overflow-hidden font-sans no-print`}>
+    <div className={`${isEmbedded ? 'h-full absolute inset-0' : 'min-h-screen lg:h-screen'} bg-slate-50 text-slate-900 flex flex-col lg:flex-row overflow-x-hidden lg:overflow-hidden font-sans no-print`}>
       
-      <div className="flex-grow flex flex-col h-full bg-[#FFDAB9] relative overflow-hidden">
-        <header className="bg-[#FFDAB9] border-b border-slate-200 p-4 sm:p-6 flex justify-between items-center shadow-sm z-30 sticky top-0">
+      <div className="flex-grow flex flex-col h-full bg-slate-50 relative overflow-hidden">
+        <header className="bg-white border-b border-slate-200 p-4 sm:p-6 flex justify-between items-center shadow-sm z-30 sticky top-0">
           <div className="flex items-center gap-5">
              <img src="/logo.png" alt="Logo" className="w-14 h-14 sm:w-16 sm:h-16 object-cover rounded-full shadow-xl border border-white/10" />
              <div>
@@ -277,18 +277,18 @@ const SellerPOS = ({ isEmbedded = false, embeddedStation = null }) => {
 
           {!isEmbedded && (
             <>
-              <div className="hidden md:flex bg-slate-900/5 p-1.5 rounded-2xl border border-slate-200">
-                 <button onClick={() => setActiveTab('ventas')} className={`px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'ventas' ? 'bg-emerald-600 text-white shadow-md' : 'text-slate-500'}`}>Ventas</button>
-                 <button onClick={() => setActiveTab('cobros')} className={`px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'cobros' ? 'bg-emerald-600 text-white shadow-md' : 'text-slate-500'}`}>Cobros</button>
-                 <button onClick={() => setActiveTab('despacho')} className={`px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'despacho' ? 'bg-emerald-600 text-white shadow-md' : 'text-slate-500'}`}>Despacho</button>
-                 <button onClick={() => setActiveTab('historial')} className={`px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'historial' ? 'bg-emerald-600 text-white shadow-md' : 'text-slate-500'}`}>Historial</button>
+              <div className="hidden md:flex bg-slate-100 p-1.5 rounded-2xl border border-slate-200">
+                 <button onClick={() => setActiveTab('ventas')} className={`px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'ventas' ? 'bg-white text-slate-900 shadow-md' : 'text-slate-500'}`}>Ventas</button>
+                 <button onClick={() => setActiveTab('cobros')} className={`px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'cobros' ? 'bg-white text-slate-900 shadow-md' : 'text-slate-500'}`}>Cobros</button>
+                 <button onClick={() => setActiveTab('despacho')} className={`px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'despacho' ? 'bg-white text-slate-900 shadow-md' : 'text-slate-500'}`}>Despacho</button>
+                 <button onClick={() => setActiveTab('historial')} className={`px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'historial' ? 'bg-white text-slate-900 shadow-md' : 'text-slate-500'}`}>Historial</button>
               </div>
               
-              <div className="flex md:hidden bg-slate-900/5 p-1 rounded-xl border border-slate-200">
-                 <button onClick={() => setActiveTab('ventas')} className={`p-2 rounded-lg transition-all ${activeTab === 'ventas' ? 'bg-emerald-600 text-white shadow-sm' : 'text-slate-400'}`}><Utensils size={18} /></button>
-                 <button onClick={() => setActiveTab('cobros')} className={`p-2 rounded-lg transition-all ${activeTab === 'cobros' ? 'bg-emerald-600 text-white shadow-sm' : 'text-slate-400'}`}><Wallet size={18} /></button>
-                 <button onClick={() => setActiveTab('despacho')} className={`p-2 rounded-lg transition-all ${activeTab === 'despacho' ? 'bg-emerald-600 text-white shadow-sm' : 'text-slate-400'}`}><Package size={18} /></button>
-                 <button onClick={() => setActiveTab('historial')} className={`p-2 rounded-lg transition-all ${activeTab === 'historial' ? 'bg-emerald-600 text-white shadow-sm' : 'text-slate-400'}`}><Clock size={18} /></button>
+              <div className="flex md:hidden bg-slate-100 p-1 rounded-xl border border-slate-200">
+                 <button onClick={() => setActiveTab('ventas')} className={`p-2 rounded-lg transition-all ${activeTab === 'ventas' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-400'}`}><Utensils size={18} /></button>
+                 <button onClick={() => setActiveTab('cobros')} className={`p-2 rounded-lg transition-all ${activeTab === 'cobros' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-400'}`}><Wallet size={18} /></button>
+                 <button onClick={() => setActiveTab('despacho')} className={`p-2 rounded-lg transition-all ${activeTab === 'despacho' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-400'}`}><Package size={18} /></button>
+                 <button onClick={() => setActiveTab('historial')} className={`p-2 rounded-lg transition-all ${activeTab === 'historial' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-400'}`}><Clock size={18} /></button>
               </div>
             </>
           )}

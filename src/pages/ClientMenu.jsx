@@ -95,9 +95,9 @@ const ClientMenu = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#FFDAB9] text-slate-900 pb-24 font-sans selection:bg-emerald-500/30">
+    <div className="min-h-screen bg-white text-slate-900 pb-24 font-sans selection:bg-emerald-500/30">
       
-      <header className="sticky top-0 z-40 bg-[#FFDAB9]/80 backdrop-blur-xl border-b border-slate-100 p-6 shadow-sm">
+      <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-xl border-b border-slate-100 p-6 shadow-sm">
         <div className="max-w-7xl mx-auto flex flex-col lg:flex-row justify-between items-center gap-6">
           <div className="flex items-center gap-4 w-full lg:w-auto min-w-0">
              <img src="/logo.png" alt="Logo" className="w-16 h-16 sm:w-20 sm:h-20 object-cover rounded-full shadow-xl border-2 border-white/5 flex-shrink-0" />
@@ -237,7 +237,7 @@ const ClientMenu = () => {
           {isCartOpen && (
             <div className="fixed inset-0 z-50">
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsCartOpen(false)} className="absolute inset-0 bg-slate-900/40 backdrop-blur-md" />
-              <motion.div initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }} className="absolute bottom-0 left-0 right-0 h-[92vh] bg-[#FFDAB9] rounded-t-[4rem] p-10 flex flex-col border-t border-slate-100 shadow-2xl max-w-2xl mx-auto overflow-hidden">
+              <motion.div initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }} className="absolute bottom-0 left-0 right-0 h-[92vh] bg-white rounded-t-[4rem] p-10 flex flex-col border-t border-slate-100 shadow-2xl max-w-2xl mx-auto overflow-hidden">
                  <div className="w-16 h-1.5 bg-slate-800 rounded-full mx-auto mb-10" />
                  <div className="flex justify-between items-center mb-10">
                     <h2 className="text-4xl font-black italic tracking-tighter uppercase text-slate-900 leading-none underline decoration-emerald-500 decoration-4">Tu Pedido</h2>
@@ -246,7 +246,7 @@ const ClientMenu = () => {
 
                  <div className="flex-grow overflow-y-auto space-y-4 pr-2 custom-scrollbar pb-8">
                     {cart.map(item => (
-                      <div key={item.id} className="bg-[#FFDAB9] p-6 rounded-[2.5rem] border border-slate-100 flex gap-6 items-center group">
+                      <div key={item.id} className="bg-slate-50 p-6 rounded-[2.5rem] border border-slate-100 flex gap-6 items-center group">
                          <img src={item.image_url} className="w-20 h-20 rounded-3xl object-cover shadow-xl" />
                          <div className="flex-grow">
                             <h4 className="font-black text-xl italic uppercase tracking-tighter group-hover:text-emerald-600 transition-colors text-slate-900">{item.name}</h4>
