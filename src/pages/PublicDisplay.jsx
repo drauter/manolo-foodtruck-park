@@ -22,7 +22,7 @@ const StationColumn = ({ label, icon: IconComponent, color, orders, stationKey }
             </div>
             <h2 className="text-sm sm:text-base font-black uppercase tracking-tighter italic leading-none">{label}</h2>
          </div>
-         <div className="bg-slate-950 px-3 py-0.5 rounded-full text-[9px] font-black text-slate-500 uppercase tracking-widest border border-slate-800">
+         <div className="bg-slate-900 px-3 py-1 rounded-full text-[10px] font-black text-white uppercase tracking-widest border border-slate-700 shadow-sm">
             {stationOrders.length}
          </div>
       </div>
@@ -30,8 +30,8 @@ const StationColumn = ({ label, icon: IconComponent, color, orders, stationKey }
       {/* Ready Section */}
       <div className={`flex-grow flex flex-col gap-3 p-3 rounded-[2rem] bg-${color}-500/5 border border-${color}-500/10 min-h-0`}>
          <div className="flex items-center gap-2 mb-1 px-1">
-            <CheckCircle size={12} className={`text-${color}-500`} />
-            <span className={`text-[9px] font-black uppercase tracking-widest text-${color}-500/70`}>LISTOS</span>
+            <CheckCircle size={12} className={`text-${color}-600`} />
+            <span className={`text-[10px] font-black uppercase tracking-widest text-slate-900`}>LISTOS</span>
          </div>
          <div className="grid grid-cols-1 xl:grid-cols-2 gap-2 overflow-y-auto pr-1 custom-scrollbar">
             <AnimatePresence>
@@ -64,8 +64,8 @@ const StationColumn = ({ label, icon: IconComponent, color, orders, stationKey }
 
          {/* Preparing Section */}
          <div className="flex items-center gap-2 mb-1 px-1">
-            <Clock size={12} className="text-slate-500" />
-            <span className="text-[9px] font-black uppercase tracking-widest text-slate-500">PREPARANDO</span>
+            <Clock size={12} className="text-slate-900" />
+            <span className="text-[10px] font-black uppercase tracking-widest text-slate-900">PREPARANDO</span>
          </div>
          <div className="flex flex-wrap gap-1.5 overflow-y-auto pr-1 custom-scrollbar">
             <AnimatePresence>
@@ -74,10 +74,10 @@ const StationColumn = ({ label, icon: IconComponent, color, orders, stationKey }
                   key={order.id}
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  className="bg-slate-800/50 px-3 py-1.5 rounded-xl border border-slate-700/50 flex items-center gap-2"
+                  className="bg-slate-900 px-3 py-1.5 rounded-xl border border-slate-700 flex items-center gap-2 shadow-sm"
                 >
-                  <span className="text-[11px] font-black text-slate-400">#{order.ticket_number}</span>
-                  <span className="text-[9px] font-bold text-slate-500 uppercase truncate max-w-[60px]">{order.customer_name}</span>
+                  <span className="text-[11px] font-black text-white">#{order.ticket_number}</span>
+                  <span className="text-[9px] font-bold text-slate-300 uppercase truncate max-w-[60px]">{order.customer_name}</span>
                 </motion.div>
               ))}
             </AnimatePresence>

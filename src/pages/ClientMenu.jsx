@@ -9,20 +9,20 @@ const ProductItem = ({ product, addToCart }) => {
   const [qty, setQty] = useState(1);
 
   return (
-    <div className="bg-slate-900 rounded-[2.5rem] overflow-hidden border border-slate-800 flex shadow-xl hover:border-emerald-500/50 transition-all group p-4 gap-6">
+    <div className="bg-slate-50 rounded-[2.5rem] overflow-hidden border border-slate-100 flex shadow-sm hover:border-emerald-500 transition-all group p-4 gap-6">
       <div className="w-24 h-24 flex-shrink-0 bg-slate-800 rounded-3xl overflow-hidden relative">
         <img src={product.image_url} alt={product.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
       </div>
       <div className="flex-grow flex flex-col justify-between py-1">
         <div>
-          <h3 className="font-black text-lg leading-tight text-white mb-1 group-hover:text-emerald-400 transition-colors uppercase italic">{product.name}</h3>
+          <h3 className="font-black text-lg leading-tight text-slate-900 mb-1 group-hover:text-emerald-600 transition-colors uppercase italic">{product.name}</h3>
           <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest opacity-60">{product.description}</p>
         </div>
         
         <div className="flex justify-between items-center mt-2">
-          <span className="text-2xl font-black text-white font-mono tracking-tighter decoration-emerald-500 underline decoration-2">${product.price * qty}</span>
+          <span className="text-2xl font-black text-slate-900 font-mono tracking-tighter decoration-emerald-500 underline decoration-2">${product.price * qty}</span>
           
-          <div className="flex items-center gap-2 bg-slate-950 p-1 rounded-2xl border border-slate-800">
+          <div className="flex items-center gap-2 bg-white p-1 rounded-2xl border border-slate-200">
             <div className="flex items-center gap-3 px-2">
                <button onClick={() => setQty(Math.max(1, qty - 1))} className="p-1 text-slate-600 hover:text-white transition-colors"><Minus size={16} /></button>
                <span className="font-black text-sm w-4 text-center">{qty}</span>
@@ -95,9 +95,9 @@ const ClientMenu = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 pb-24 font-sans selection:bg-emerald-500/30 bg-[radial-gradient(circle_at_top,_var(--tw-gradient-stops))] from-slate-900 to-slate-950">
+    <div className="min-h-screen bg-white text-slate-900 pb-24 font-sans selection:bg-emerald-500/30 bg-[radial-gradient(circle_at_top,_var(--tw-gradient-stops))] from-slate-50 to-white">
       
-      <header className="sticky top-0 z-40 bg-slate-950/80 backdrop-blur-xl border-b border-white/5 p-6 shadow-2xl">
+      <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-xl border-b border-slate-100 p-6 shadow-sm">
         <div className="max-w-7xl mx-auto flex flex-col lg:flex-row justify-between items-center gap-6">
           <div className="flex items-center gap-4 w-full lg:w-auto min-w-0">
              <img src="/logo.png" alt="Logo" className="w-16 h-16 sm:w-20 sm:h-20 object-cover rounded-full shadow-xl border-2 border-white/5 flex-shrink-0" />
@@ -160,7 +160,7 @@ const ClientMenu = () => {
               <section className="mb-12">
                 <div className="flex items-center gap-6 mb-10">
                     <div className="w-4 h-4 rounded-full bg-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.5)]" />
-                    <h2 className="text-2xl sm:text-4xl font-black uppercase italic tracking-tighter text-white">{getStationDisplay(activeStation)}</h2>
+                    <h2 className="text-2xl sm:text-4xl font-black uppercase italic tracking-tighter text-slate-900">{getStationDisplay(activeStation)}</h2>
                     <div className="flex-grow h-px bg-gradient-to-r from-slate-800 to-transparent" />
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -236,48 +236,47 @@ const ClientMenu = () => {
         <AnimatePresence>
           {isCartOpen && (
             <div className="fixed inset-0 z-50">
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsCartOpen(false)} className="absolute inset-0 bg-slate-950/80 backdrop-blur-xl" />
-              <motion.div initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }} className="absolute bottom-0 left-0 right-0 h-[92vh] bg-slate-900 rounded-t-[4rem] p-10 flex flex-col border-t border-white/5 shadow-2xl max-w-2xl mx-auto overflow-hidden">
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsCartOpen(false)} className="absolute inset-0 bg-slate-900/40 backdrop-blur-md" />
+              <motion.div initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }} className="absolute bottom-0 left-0 right-0 h-[92vh] bg-white rounded-t-[4rem] p-10 flex flex-col border-t border-slate-100 shadow-2xl max-w-2xl mx-auto overflow-hidden">
                  <div className="w-16 h-1.5 bg-slate-800 rounded-full mx-auto mb-10" />
                  <div className="flex justify-between items-center mb-10">
-                    <h2 className="text-4xl font-black italic tracking-tighter uppercase text-white leading-none underline decoration-emerald-500 decoration-4">Tu Pedido</h2>
-                    <button onClick={() => setIsCartOpen(false)} className="p-4 bg-slate-800 rounded-2xl text-slate-400 hover:text-white"><X size={24} /></button>
+                    <h2 className="text-4xl font-black italic tracking-tighter uppercase text-slate-900 leading-none underline decoration-emerald-500 decoration-4">Tu Pedido</h2>
+                    <button onClick={() => setIsCartOpen(false)} className="p-4 bg-slate-50 rounded-2xl text-slate-400 hover:text-slate-900"><X size={24} /></button>
                  </div>
 
                  <div className="flex-grow overflow-y-auto space-y-4 pr-2 custom-scrollbar pb-8">
                     {cart.map(item => (
-                      <div key={item.id} className="bg-slate-950/50 p-6 rounded-[2.5rem] border border-white/5 flex gap-6 items-center group">
+                      <div key={item.id} className="bg-slate-50 p-6 rounded-[2.5rem] border border-slate-100 flex gap-6 items-center group">
                          <img src={item.image_url} className="w-20 h-20 rounded-3xl object-cover shadow-xl" />
                          <div className="flex-grow">
-                            <h4 className="font-black text-xl italic uppercase tracking-tighter group-hover:text-emerald-400 transition-colors">{item.name}</h4>
+                            <h4 className="font-black text-xl italic uppercase tracking-tighter group-hover:text-emerald-600 transition-colors text-slate-900">{item.name}</h4>
                             <div className="flex justify-between items-end mt-4">
-                               <div className="px-3 py-1 bg-slate-900 border border-white/5 rounded-xl font-mono text-emerald-500 text-xs">Cant: {item.quantity}</div>
-                               <span className="text-2xl font-black text-white font-mono tracking-tighter">${item.price * item.quantity}</span>
+                               <div className="px-3 py-1 bg-white border border-slate-100 rounded-xl font-mono text-emerald-600 text-xs">Cant: {item.quantity}</div>
+                               <span className="text-2xl font-black text-slate-900 font-mono tracking-tighter">${item.price * item.quantity}</span>
                             </div>
                          </div>
                          <button onClick={() => removeFromCart(item.id)} className="p-3 text-slate-800 hover:text-red-500 transition-colors"><Trash2 size={24} /></button>
                       </div>
                     ))}
                  </div>
-
-                 <div className="bg-slate-950 p-8 rounded-[3rem] border border-white/5 shadow-inner space-y-6 mt-auto">
+                  <div className="bg-slate-50 p-8 rounded-[3rem] border border-slate-100 shadow-inner space-y-6 mt-auto">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                        <div className="space-y-2">
-                          <label className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-600 ml-4">Tu Nombre</label>
-                          <input type="text" value={customerName} onChange={e => { setCustomerName(e.target.value); if(nameError) setNameError(false); }} placeholder="..." className={`w-full bg-slate-900 p-6 rounded-3xl font-black text-2xl italic text-center text-white border ${nameError ? 'border-red-500 ring-4 ring-red-500/20' : 'border-white/5'} outline-none focus:ring-4 focus:ring-emerald-500/20 transition-all`} />
+                          <label className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-400 ml-4">Tu Nombre</label>
+                          <input type="text" value={customerName} onChange={e => { setCustomerName(e.target.value); if(nameError) setNameError(false); }} placeholder="..." className={`w-full bg-white p-6 rounded-3xl font-black text-2xl italic text-center text-slate-900 border ${nameError ? 'border-red-500 ring-4 ring-red-500/20' : 'border-slate-100'} outline-none focus:ring-4 focus:ring-emerald-500/20 transition-all`} />
                        </div>
                        <div className="space-y-2">
-                          <label className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-600 ml-4">Instrucciones Especiales</label>
+                          <label className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-400 ml-4">Instrucciones Especiales</label>
                           <textarea 
                             value={orderNotes} 
                             onChange={e => setOrderNotes(e.target.value)} 
                             placeholder="Ej: Sin cebolla, extra salsa..." 
-                            className="w-full bg-slate-900 p-6 rounded-3xl font-bold text-sm italic text-white border border-white/5 outline-none focus:ring-4 focus:ring-emerald-500/20 resize-none h-[88px] placeholder:text-slate-700" 
+                            className="w-full bg-white p-6 rounded-3xl font-bold text-sm italic text-slate-900 border border-slate-100 outline-none focus:ring-4 focus:ring-emerald-500/20 resize-none h-[88px] placeholder:text-slate-200" 
                           />
                        </div>
                     </div>
                     <div className="flex justify-between items-center pt-4">
-                       <span className="text-4xl font-black font-mono tracking-tighter text-white">${total}</span>
+                       <span className="text-4xl font-black font-mono tracking-tighter text-slate-900">${total}</span>n>
                        <motion.button 
                          whileHover={{ scale: 1.02 }}
                          whileTap={{ scale: 0.98 }}
