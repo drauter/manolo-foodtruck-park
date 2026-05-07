@@ -4,7 +4,7 @@
   html, body {
     margin: 0;
     padding: 0;
-    background-color: white !important;
+    background-color: #f0fdf4 !important; /* Verde pastel suave que combina con la marca */
     color: #0f172a; /* slate-900 */
     -webkit-tap-highlight-color: transparent;
   }

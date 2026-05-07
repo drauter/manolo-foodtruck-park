@@ -16,7 +16,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import * as XLSX from 'xlsx';
 import Receipt from '../components/Receipt';
-import { printReceipt } from '../utils/printUtils';
+import { printReceipt, openCashDrawer } from '../utils/printUtils';
 
 // Main Admin Panel Component for Foodtruck Management
 const AdminPanel = () => {
@@ -1327,6 +1327,10 @@ const AdminPanel = () => {
                               <button onClick={() => handlePrint()} className="flex items-center gap-3 px-8 py-5 bg-[#007BFF] text-white rounded-[2rem] font-black uppercase text-[10px] shadow-lg hover:opacity-90 transition-all tracking-widest">
                                  <FileText size={20} />
                                  <span>IMPRIMIR</span>
+                              </button>
+                              <button onClick={() => openCashDrawer()} className="flex items-center gap-3 px-8 py-5 bg-slate-900 text-white rounded-[2rem] font-black uppercase text-[10px] shadow-lg hover:opacity-90 transition-all tracking-widest">
+                                 <ShoppingCart size={20} />
+                                 <span>ABRIR CAJÓN</span>
                               </button>
                               <button onClick={() => alert("Proximamente: Subir logo para tickets...")} className="flex items-center gap-3 px-8 py-5 bg-[#6C757D] text-white rounded-[2rem] font-black uppercase text-[10px] shadow-lg hover:opacity-90 transition-all tracking-widest">
                                  <Settings size={20} />

@@ -54,6 +54,23 @@ const connectQZ = async () => {
   }
 };
 
+/**
+ * Envía el comando ESC/POS para abrir el cajón de dinero
+ * Comando: ESC p m t1 t2
+ * Hex: 1B 70 00 19 FA
+ */
+export const openCashDrawer = async () => {
+  try {
+    await connectQZ();
+    const config = qz.configs.create('80mm Series Printer');
+    const commands = ['\x1B\x70\x00\x19\xFA']; // Comando para abrir cajón en Pin 2
+    await qz.print(config, commands);
+    console.log("QZ Tray: Comando de apertura de cajón enviado.");
+  } catch (err) {
+    console.error('QZ Tray Cash Drawer Error:', err);
+  }
+};
+
 export const printReceipt = async (contentId, copies = 1) => {
   if (isPrinting) return;
   isPrinting = true;
@@ -65,8 +82,8 @@ export const printReceipt = async (contentId, copies = 1) => {
     await connectQZ();
     const config = qz.configs.create('80mm Series Printer');
     
-    // Comandos iniciales: Inicializar + Modo Fuente + CENTRADO GLOBAL
-    const commands = ['\x1B@', '\x1B!\x08', '\x1B\x61\x01'];
+    // Comandos iniciales: Abrir Cajón + Inicializar + Modo Fuente + CENTRADO GLOBAL
+    const commands = ['\x1B\x70\x00\x19\xFA', '\x1B@', '\x1B!\x08', '\x1B\x61\x01'];
     
     const nodes = Array.from(el.children);
 
