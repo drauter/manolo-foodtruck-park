@@ -64,7 +64,7 @@ const OrderTracking = () => {
 
   if (loadingOrders) {
     return (
-      <div className="min-h-screen bg-white text-slate-900 flex flex-col items-center justify-center p-6 text-center">
+      <div className="min-h-screen bg-transparent text-slate-900 flex flex-col items-center justify-center p-6 text-center">
         <Loader2 className="w-12 h-12 text-emerald-600 animate-spin mb-4" />
         <h2 className="text-xl font-black uppercase italic tracking-tighter">Cargando tu pedido...</h2>
       </div>
@@ -89,7 +89,7 @@ const OrderTracking = () => {
 
   if (!displayOrder) {
      return (
-        <div className="min-h-screen bg-slate-950 text-white flex flex-col items-center justify-center p-6 text-center">
+        <div className="min-h-screen bg-transparent text-slate-900 flex flex-col items-center justify-center p-6 text-center">
            <Loader2 className="w-12 h-12 text-emerald-500 animate-spin mb-4" />
            <p>Buscando orden...</p>
         </div>
@@ -139,7 +139,7 @@ const OrderTracking = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white text-slate-900 font-sans p-6 overflow-x-hidden selection:bg-emerald-500/30">
+    <div className="min-h-screen bg-transparent text-slate-900 font-sans p-6 overflow-x-hidden selection:bg-emerald-500/30">
       <div className="fixed inset-0 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-emerald-500/5 via-transparent to-transparent opacity-50 pointer-events-none" />
       
       <header className="max-w-md mx-auto flex items-center justify-between mb-10 relative z-10">

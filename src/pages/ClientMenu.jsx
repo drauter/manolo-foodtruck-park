@@ -95,7 +95,7 @@ const ClientMenu = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white text-slate-900 pb-24 font-sans selection:bg-emerald-500/30">
+    <div className="min-h-screen bg-transparent text-slate-900 pb-24 font-sans selection:bg-emerald-500/30">
       
       <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-xl border-b border-slate-100 p-6 shadow-sm">
         <div className="max-w-7xl mx-auto flex flex-col lg:flex-row justify-between items-center gap-6">

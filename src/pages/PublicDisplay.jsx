@@ -122,7 +122,7 @@ const PublicDisplay = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-white text-slate-900 font-sans overflow-hidden flex flex-col p-2 sm:p-4 lg:p-6 gap-3 sm:gap-4">
+    <div className="min-h-screen bg-transparent text-slate-900 font-sans overflow-hidden flex flex-col p-2 sm:p-4 lg:p-6 gap-3 sm:gap-4">
       {/* Dynamic Header */}
       <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-4 border-b border-slate-100 gap-4">
         <div className="flex items-center gap-6">

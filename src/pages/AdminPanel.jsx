@@ -447,7 +447,7 @@ const AdminPanel = () => {
    }
 
    return (
-      <div className="min-h-screen bg-white flex flex-col lg:flex-row font-sans overflow-x-hidden no-print">
+      <div className="min-h-screen bg-transparent flex flex-col lg:flex-row font-sans overflow-x-hidden no-print">
          {/* Sidebar - Desktop */}
          <aside className="hidden lg:flex w-72 bg-white text-slate-900 p-6 flex-col gap-8 sticky top-0 h-screen overflow-y-auto z-50 border-r border-slate-100 shadow-sm">
             <div className="flex flex-col items-center gap-4">
@@ -493,7 +493,7 @@ const AdminPanel = () => {
             </div>
          </div>
 
-         <main className="flex-grow p-4 sm:p-8 overflow-y-auto bg-white">
+         <main className="flex-grow p-4 sm:p-8 overflow-y-auto bg-transparent">
             <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-10">
                <div>
                   <h1 className="text-3xl sm:text-4xl font-black tracking-tighter capitalize leading-none">{menuItems.find(m => m.id === activeTab)?.label}</h1>
