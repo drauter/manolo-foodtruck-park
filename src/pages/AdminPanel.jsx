@@ -1736,7 +1736,7 @@ const AdminPanel = () => {
                            </div>
                            <div className="space-y-2">
                               <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Costo Unitario</label>
-                              <input type="number" required placeholder="Costo" value={isEditingProduct ? editingProduct.cost : newProduct.cost} onChange={e => isEditingProduct ? setEditingProduct({ ...editingProduct, cost: e.target.value }) : setNewProduct({ ...newProduct, cost: e.target.value })} className="w-full bg-slate-50 p-5 rounded-2xl font-black font-mono opacity-60 border border-slate-100" />
+                              <input type="number" placeholder="Costo" value={isEditingProduct ? editingProduct.cost : newProduct.cost} onChange={e => isEditingProduct ? setEditingProduct({ ...editingProduct, cost: e.target.value }) : setNewProduct({ ...newProduct, cost: e.target.value })} className="w-full bg-slate-50 p-5 rounded-2xl font-black font-mono opacity-60 border border-slate-100" />
                            </div>
                         </div>
 
