@@ -133,7 +133,7 @@ const ClientMenu = () => {
               <button
                 key={cat}
                 onClick={() => setActiveCategory(cat)}
-                className={`px-8 py-3 rounded-full font-black uppercase text-[8px] tracking-[0.2em] transition-all border-2 ${activeCategory === cat ? 'bg-white text-slate-950 border-white shadow-xl' : 'bg-slate-900/50 text-slate-500 border-white/5 hover:border-white/20'}`}
+                className={`px-8 py-3 rounded-full font-black uppercase text-[8px] tracking-[0.2em] transition-all border-2 ${activeCategory === cat ? 'bg-white text-slate-950 border-white shadow-xl' : 'bg-slate-100 text-slate-600 border-slate-200 hover:bg-slate-200 hover:text-slate-900'}`}
               >
                 {cat}
               </button>
