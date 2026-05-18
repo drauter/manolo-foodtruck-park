@@ -114,7 +114,7 @@ const AdminPanel = () => {
 
    const [newProduct, setNewProduct] = useState({
       name: '', description: '', price: '', cost: '', stock: '', category: 'Burgers',
-      station: 'COMIDA RAPIDA', image_url: 'https://images.unsplash.com/photo-1550547660-d9450f859349?q=80&w=300'
+      station: 'COMIDA RAPIDA', image_url: ''
    });
 
    const handleImageUpload = async (e) => {
@@ -236,7 +236,7 @@ const AdminPanel = () => {
       setEditingProduct(null);
       setNewProduct({
          name: '', description: '', price: '', cost: '', stock: '', category: 'Burgers',
-         station: 'COMIDA RAPIDA', image_url: '/burger.png'
+         station: 'COMIDA RAPIDA', image_url: ''
       });
    };
 
@@ -1785,8 +1785,10 @@ const AdminPanel = () => {
                               <div className="w-20 h-20 rounded-2xl overflow-hidden border-2 border-slate-100 bg-slate-50 flex items-center justify-center relative">
                                  {isUploading ? (
                                     <div className="absolute inset-0 bg-white/80 flex items-center justify-center"><div className="w-6 h-6 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin" /></div>
-                                 ) : (
+                                 ) : (isEditingProduct ? editingProduct?.image_url : newProduct.image_url) ? (
                                     <img src={isEditingProduct ? editingProduct?.image_url : newProduct.image_url} className="w-full h-full object-cover" />
+                                 ) : (
+                                    <span className="text-slate-300 opacity-50"><Plus size={24} /></span>
                                  )}
                               </div>
                               <label className="flex-grow bg-slate-100 p-5 rounded-2xl border-2 border-dashed border-slate-200 cursor-pointer hover:bg-slate-200 transition-all flex items-center justify-center gap-2 group">
