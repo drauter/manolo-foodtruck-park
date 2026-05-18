@@ -1755,9 +1755,10 @@ const AdminPanel = () => {
                                  <option value="">Sin Categoría</option>
                                  {(isEditingProduct ? editingProduct.station : newProduct.station) === 'BAR' ? (
                                    <>
-                                     <option value="Bebidas">Bebidas</option>
+                                     <option value="Licores">Licores</option>
+                                     <option value="Ponches">Ponches</option>
+                                     <option value="Vinos">Vinos</option>
                                      <option value="Jugos">Jugos</option>
-                                     <option value="Botellas">Botellas</option>
                                    </>
                                  ) : (
                                    <>

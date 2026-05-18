@@ -129,7 +129,7 @@ const ClientMenu = () => {
         {/* Sub-Tabs for BAR */}
         {activeStation === 'BAR' && (
           <div className="max-w-5xl mx-auto mt-8 flex gap-3 overflow-x-auto pb-2 scrollbar-hide px-6">
-            {['Todos', 'Bebidas', 'Jugos', 'Botellas'].map(cat => (
+            {['Todos', 'Licores', 'Ponches', 'Vinos', 'Jugos'].map(cat => (
               <button
                 key={cat}
                 onClick={() => setActiveCategory(cat)}
