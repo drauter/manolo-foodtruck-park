@@ -5,12 +5,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { STATIONS, getStationDisplay } from '../utils/constants';
 
-const ProductItem = ({ product, addToCart }) => {
+const ProductItem = ({ product, addToCart, onZoom }) => {
   const [qty, setQty] = useState(1);
 
   return (
     <div className="bg-slate-200 rounded-[2.5rem] overflow-hidden border border-slate-300 flex shadow-sm hover:border-emerald-500 transition-all group p-4 gap-6">
-      <div className="w-24 h-24 flex-shrink-0 bg-slate-800 rounded-3xl overflow-hidden relative">
+      <div className="w-24 h-24 flex-shrink-0 bg-slate-800 rounded-3xl overflow-hidden relative cursor-pointer" onClick={(e) => { e.stopPropagation(); if(onZoom) onZoom(product.image_url); }}>
         <img src={product.image_url} alt={product.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
       </div>
       <div className="flex-grow flex flex-col justify-between py-1">
@@ -20,7 +20,7 @@ const ProductItem = ({ product, addToCart }) => {
         </div>
         
         <div className="flex justify-between items-center mt-2">
-          <span className="text-2xl font-black text-slate-900 font-mono tracking-tighter decoration-emerald-500 underline decoration-2">${product.price * qty}</span>
+          <span className="text-2xl font-black text-slate-900 font-mono tracking-tighter decoration-emerald-500 underline decoration-2">${Number(product.price * qty).toFixed(2)}</span>
           
           <div className="flex items-center gap-2 bg-white p-1 rounded-2xl border border-slate-200">
             <div className="flex items-center gap-3 px-2">
@@ -173,7 +173,7 @@ const ClientMenu = () => {
                       return true;
                     })
                     .map(product => (
-                      <ProductItem key={product.id} product={product} addToCart={addToCart} />
+                      <ProductItem key={product.id} product={product} addToCart={addToCart} onZoom={setZoomedImage} />
                     ))}
                 </div>
               </section>
@@ -213,7 +213,7 @@ const ClientMenu = () => {
                     <h4 className="text-sm font-black italic mt-0.5">{cart.length} ítems</h4>
                  </div>
               </div>
-              <div className="text-2xl font-black font-mono tracking-tighter italic shadow-sm">$ {total}</div>
+              <div className="text-2xl font-black font-mono tracking-tighter italic shadow-sm">${Number(total).toFixed(2)}</div>
            </button>
         </motion.div>
       )}
@@ -229,7 +229,7 @@ const ClientMenu = () => {
                     <h4 className="text-lg font-black italic tracking-tighter mt-1">{cart.length} Productos</h4>
                  </div>
               </div>
-              <div className="text-3xl font-black font-mono tracking-tighter italic transition-all">$ {total}</div>
+              <div className="text-3xl font-black font-mono tracking-tighter italic transition-all">${Number(total).toFixed(2)}</div>
            </button>
         </motion.div>
       )}
@@ -252,7 +252,7 @@ const ClientMenu = () => {
                             <h4 className="font-black text-xl italic uppercase tracking-tighter group-hover:text-emerald-600 transition-colors text-slate-900">{item.name}</h4>
                             <div className="flex justify-between items-end mt-4">
                                <div className="px-3 py-1 bg-slate-100 border border-slate-200 rounded-xl font-mono text-emerald-600 text-xs">Cant: {item.quantity}</div>
-                               <span className="text-2xl font-black text-slate-900 font-mono tracking-tighter">${item.price * item.quantity}</span>
+                               <span className="text-2xl font-black text-slate-900 font-mono tracking-tighter">${Number(item.price * item.quantity).toFixed(2)}</span>
                             </div>
                          </div>
                          <button onClick={() => removeFromCart(item.id)} className="p-3 text-slate-800 hover:text-red-500 transition-colors"><Trash2 size={24} /></button>
@@ -276,7 +276,7 @@ const ClientMenu = () => {
                        </div>
                     </div>
                     <div className="flex justify-between items-center pt-4">
-                       <span className="text-4xl font-black font-mono tracking-tighter text-slate-900">${total}</span>n>
+                       <span className="text-4xl font-black font-mono tracking-tighter text-slate-900">${Number(total).toFixed(2)}</span>
                        <motion.button 
                          whileHover={{ scale: 1.02 }}
                          whileTap={{ scale: 0.98 }}
@@ -336,7 +336,26 @@ const ClientMenu = () => {
       <div className="fixed bottom-6 left-0 right-0 text-center pointer-events-none opacity-20 hidden md:block">
          <div className="text-[8px] text-slate-400 font-black uppercase tracking-[0.8em]">Foodtruck Menu v5.0.0</div>
       </div>
+    
+      <AnimatePresence>
+        {zoomedImage && (
+          <div className="fixed inset-0 z-[999] flex items-center justify-center p-4 sm:p-8">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setZoomedImage(null)} className="absolute inset-0 bg-slate-950/90 backdrop-blur-md cursor-zoom-out" />
+            <motion.img 
+              initial={{ scale: 0.9, opacity: 0 }} 
+              animate={{ scale: 1, opacity: 1 }} 
+              exit={{ scale: 0.9, opacity: 0 }} 
+              src={zoomedImage} 
+              className="max-w-full max-h-full rounded-[3rem] shadow-2xl relative z-10 object-contain" 
+            />
+            <button onClick={() => setZoomedImage(null)} className="absolute top-8 right-8 z-20 p-4 bg-white/10 hover:bg-white/20 text-white rounded-full backdrop-blur-md transition-all">
+               <X size={24} />
+            </button>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
+
   );
 };
 

@@ -270,7 +270,7 @@ const OrderTracking = () => {
                               <span className="text-slate-400 font-mono italic">x{item.quantity}</span>
                               <span className="truncate">{item.products?.name || item.product?.name || 'Producto'}</span>
                           </div>
-                          <span className="font-mono text-slate-950">${item.price_at_time * item.quantity}</span>
+                          <span className="font-mono text-slate-950">${Number(item.price_at_time * item.quantity).toFixed(2)}</span>
                       </div>
                     ))}
                 </div>

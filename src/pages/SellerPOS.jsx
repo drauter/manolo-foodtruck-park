@@ -11,12 +11,12 @@ import Receipt from '../components/Receipt';
 import { printReceipt } from '../utils/printUtils';
 import { Plus, Minus } from 'lucide-react';
 
-const ProductItem = ({ product, addToCart }) => {
+const ProductItem = ({ product, addToCart, onZoom }) => {
   const [qty, setQty] = useState(1);
 
   return (
     <div className="bg-slate-200 rounded-[2.5rem] overflow-hidden border border-slate-300 flex shadow-lg hover:border-emerald-500 transition-all group p-4 gap-6">
-      <div className="w-24 h-24 flex-shrink-0 bg-slate-800 rounded-3xl overflow-hidden relative">
+      <div className="w-24 h-24 flex-shrink-0 bg-slate-800 rounded-3xl overflow-hidden relative cursor-pointer" onClick={(e) => { e.stopPropagation(); if(onZoom) onZoom(product.image_url); }}>
         <img src={product.image_url} alt={product.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
       </div>
       <div className="flex-grow flex flex-col justify-between py-1">
@@ -26,7 +26,7 @@ const ProductItem = ({ product, addToCart }) => {
         </div>
         
         <div className="flex justify-between items-center mt-2">
-          <span className="text-2xl font-black text-slate-900 font-mono tracking-tighter decoration-emerald-500 underline decoration-2">${product.price * qty}</span>
+          <span className="text-2xl font-black text-slate-900 font-mono tracking-tighter decoration-emerald-500 underline decoration-2">${Number(product.price * qty).toFixed(2)}</span>
           
           <div className="flex items-center gap-2 bg-white p-1 rounded-2xl border border-slate-100 shadow-sm">
             <div className="flex items-center gap-3 px-2">
@@ -59,6 +59,7 @@ const SellerPOS = ({ isEmbedded = false, embeddedStation = null }) => {
   const [activeTab, setActiveTab] = useState('ventas'); // 'ventas', 'cobros', 'despacho', 'historial'
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('Todos');
+  const [zoomedImage, setZoomedImage] = useState(null);
   
   const normalize = (s) => s ? s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().replace(/-/g, " ") : "";
   const isCaja = normalize(currentUser?.station) === 'CAJA';
@@ -256,7 +257,7 @@ const SellerPOS = ({ isEmbedded = false, embeddedStation = null }) => {
   const handleWhatsAppShare = (order) => {
     if (!order) return;
     const itemsText = (order.items || []).map(i => `${i.quantity} x ${i.products?.name || i.product?.name || 'Producto'}`).join('\n');
-    const text = `🍕 *MANOLO FOOD AND DRINKS TRUCK PARK* 🍕\n---------------------------\n*Ticket:* #${order.ticket_number}\n*Cliente:* ${order.customer_name?.toUpperCase()}\n---------------------------\n${itemsText}\n---------------------------\n*TOTAL: RD$ ${order.total_price}.00*\n\n¡Gracias por preferirnos!`;
+    const text = `🍕 *MANOLO FOOD AND DRINKS TRUCK PARK* 🍕\n---------------------------\n*Ticket:* #${order.ticket_number}\n*Cliente:* ${order.customer_name?.toUpperCase()}\n---------------------------\n${itemsText}\n---------------------------\n*TOTAL: RD$ ${Number(order.total_price).toFixed(2)}.00*\n\n¡Gracias por preferirnos!`;
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
   };
 
@@ -331,12 +332,12 @@ const SellerPOS = ({ isEmbedded = false, embeddedStation = null }) => {
                          <div className="absolute top-4 right-4 bg-slate-900 text-white w-10 h-10 rounded-full flex items-center justify-center scale-0 group-hover:scale-100 transition-transform shadow-lg z-10">
                             <Plus size={20} />
                          </div>
-                         <div className="w-full aspect-square bg-slate-50 rounded-[2rem] overflow-hidden mb-6 relative">
+                         <div className="w-full aspect-square bg-slate-50 rounded-[2rem] overflow-hidden mb-6 relative cursor-pointer" onClick={(e) => { e.stopPropagation(); setZoomedImage(product.image_url); }}>
                             <img src={product.image_url} alt={product.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
                          </div>
                          <h3 className="font-black text-xs uppercase italic tracking-tighter text-slate-400 mb-1">{product.station}</h3>
                          <h4 className="font-black text-lg uppercase tracking-tight text-slate-900 mb-3">{product.name}</h4>
-                         <div className="mt-auto px-6 py-2 bg-slate-50 rounded-2xl group-hover:bg-emerald-600 group-hover:text-white transition-all font-black font-mono text-xl">${product.price}</div>
+                         <div className="mt-auto px-6 py-2 bg-slate-50 rounded-2xl group-hover:bg-emerald-600 group-hover:text-white transition-all font-black font-mono text-xl">${Number(product.price).toFixed(2)}</div>
                       </div>
                     ))}
                  </div>
@@ -615,7 +616,7 @@ const SellerPOS = ({ isEmbedded = false, embeddedStation = null }) => {
            <button onClick={() => setIsCartOpen(true)} className="flex-grow flex items-center justify-center gap-3 bg-slate-900 text-white py-4 rounded-2xl font-black uppercase text-[10px] tracking-widest shadow-xl">
               <ShoppingCart size={18} />
               Ver Carrito ({cart.length})
-              <span className="ml-2 px-2 py-0.5 bg-emerald-500 rounded-full text-[8px]">${total}</span>
+              <span className="ml-2 px-2 py-0.5 bg-emerald-500 rounded-full text-[8px]">${Number(total).toFixed(2)}</span>
            </button>
         </div>
 
@@ -631,9 +632,9 @@ const SellerPOS = ({ isEmbedded = false, embeddedStation = null }) => {
                   <div className="flex justify-between items-start mb-3">
                      <div className="flex-grow">
                         <h4 className="font-black text-sm uppercase italic tracking-tight text-slate-900 leading-none">{item.name}</h4>
-                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-1.5">${item.price} c/u</p>
+                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-1.5">${Number(item.price).toFixed(2)} c/u</p>
                      </div>
-                     <div className="font-black font-mono text-lg text-slate-900">${item.price * item.quantity}</div>
+                     <div className="font-black font-mono text-lg text-slate-900">${Number(item.price * item.quantity).toFixed(2)}</div>
                   </div>
                   <div className="flex items-center justify-between">
                      <div className="flex items-center gap-4 bg-slate-50 p-2 rounded-xl border border-slate-100">
@@ -653,11 +654,11 @@ const SellerPOS = ({ isEmbedded = false, embeddedStation = null }) => {
            <div className="space-y-4">
               <div className="flex justify-between items-center text-slate-400 text-[10px] font-black uppercase tracking-widest">
                  <span>Subtotal</span>
-                 <span className="font-mono text-xs">${total}</span>
+                 <span className="font-mono text-xs">${Number(total).toFixed(2)}</span>
               </div>
               <div className="flex justify-between items-center text-slate-900">
                  <span className="text-sm font-black uppercase italic tracking-widest">Total a Pagar</span>
-                 <span className="text-4xl font-black font-mono tracking-tighter decoration-emerald-500 underline decoration-4">${total}</span>
+                 <span className="text-4xl font-black font-mono tracking-tighter decoration-emerald-500 underline decoration-4">${Number(total).toFixed(2)}</span>
               </div>
            </div>
 
@@ -725,7 +726,7 @@ const SellerPOS = ({ isEmbedded = false, embeddedStation = null }) => {
                            <h4 className="font-black text-xl italic uppercase tracking-tighter text-white">{item.name}</h4>
                            <div className="flex justify-between items-end mt-4">
                               <div className="px-3 py-1 bg-slate-900 border border-white/5 rounded-xl font-mono text-emerald-500 text-xs">Cant: {item.quantity}</div>
-                              <span className="text-2xl font-black text-white font-mono tracking-tighter">${item.price * item.quantity}</span>
+                              <span className="text-2xl font-black text-white font-mono tracking-tighter">${Number(item.price * item.quantity).toFixed(2)}</span>
                            </div>
                         </div>
                         <button onClick={() => removeFromCart(item.id)} className="p-3 text-slate-800 hover:text-red-500 transition-colors"><Trash2 size={24} /></button>
@@ -738,7 +739,7 @@ const SellerPOS = ({ isEmbedded = false, embeddedStation = null }) => {
                       <label className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-600 ml-4">Cliente</label>
                       <input type="text" value={customerName} onChange={e => setCustomerName(e.target.value)} placeholder="..." className="w-full bg-slate-900 p-4 rounded-3xl font-black text-xl sm:text-4xl italic text-center text-white border border-white/5 outline-none focus:ring-4 focus:ring-emerald-500/20" />
                       <div className="flex flex-col sm:flex-row justify-between items-center gap-6 sm:gap-4 pt-4">
-                         <span className="text-4xl font-black font-mono tracking-tighter text-white">${total}</span>
+                         <span className="text-4xl font-black font-mono tracking-tighter text-white">${Number(total).toFixed(2)}</span>
                          <div className={`flex ${isCaja ? 'gap-3 sm:gap-4' : ''} w-full sm:w-auto`}>
                             <button onClick={() => handlePlaceOrder(false)} className={`flex-1 px-8 py-5 bg-slate-900 text-slate-400 font-black rounded-3xl uppercase tracking-widest text-[10px] border border-white/5 h-[60px] flex items-center justify-center ${!isCaja ? 'w-full' : ''}`}>Registrar</button>
                             {isCaja && (
@@ -1024,7 +1025,26 @@ const SellerPOS = ({ isEmbedded = false, embeddedStation = null }) => {
           40%, 60% { transform: translate3d(4px, 0, 0); }
         }
       `}} />
+    
+      <AnimatePresence>
+        {zoomedImage && (
+          <div className="fixed inset-0 z-[999] flex items-center justify-center p-4 sm:p-8">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setZoomedImage(null)} className="absolute inset-0 bg-slate-950/90 backdrop-blur-md cursor-zoom-out" />
+            <motion.img 
+              initial={{ scale: 0.9, opacity: 0 }} 
+              animate={{ scale: 1, opacity: 1 }} 
+              exit={{ scale: 0.9, opacity: 0 }} 
+              src={zoomedImage} 
+              className="max-w-full max-h-full rounded-[3rem] shadow-2xl relative z-10 object-contain" 
+            />
+            <button onClick={() => setZoomedImage(null)} className="absolute top-8 right-8 z-20 p-4 bg-white/10 hover:bg-white/20 text-white rounded-full backdrop-blur-md transition-all">
+               <X size={24} />
+            </button>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
+
   );
 };
 

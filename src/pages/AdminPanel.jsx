@@ -414,7 +414,7 @@ const AdminPanel = () => {
    const handleWhatsAppShare = (order) => {
       if (!order) return;
       const itemsText = (order.items || []).map(i => `${i.quantity} x ${i.products?.name || i.product?.name || 'Producto'}`).join('\n');
-      const text = `🍔 *MANOLO FOOD AND DRINKS TRUCK PARK* 🍔\n---------------------------\n*Ticket:* #${order.ticket_number}\n*Cliente:* ${order.customer_name?.toUpperCase()}\n---------------------------\n${itemsText}\n---------------------------\n*TOTAL: RD$ ${order.total_price}.00*\n\n¡Gracias por preferirnos!`;
+      const text = `🍔 *MANOLO FOOD AND DRINKS TRUCK PARK* 🍔\n---------------------------\n*Ticket:* #${order.ticket_number}\n*Cliente:* ${order.customer_name?.toUpperCase()}\n---------------------------\n${itemsText}\n---------------------------\n*TOTAL: RD$ ${Number(order.total_price).toFixed(2)}.00*\n\n¡Gracias por preferirnos!`;
       window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
    };
 
@@ -525,7 +525,7 @@ const AdminPanel = () => {
                                  <div className="flex-grow min-w-0">
                                     <h4 className="font-black text-slate-900 uppercase truncate text-sm">{product.name}</h4>
                                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest italic">{product.station}</p>
-                                    <div className="mt-2 text-xl font-black text-emerald-600 font-mono italic">${product.price}</div>
+                                    <div className="mt-2 text-xl font-black text-emerald-600 font-mono italic">${Number(product.price).toFixed(2)}</div>
                                  </div>
                               </div>
                               <div className="grid grid-cols-2 gap-2 mt-2">
@@ -550,9 +550,9 @@ const AdminPanel = () => {
                   <motion.div key="dashboard" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-8">
                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
                         {[
-                           { label: 'Ventas Totales', value: `$${totalSales}`, icon: DollarSign, color: 'text-emerald-500' },
-                           { label: 'Costo Insumos', value: `$${totalCost}`, icon: Package, color: 'text-slate-400' },
-                           { label: 'Ganancia Neta', value: `$${totalProfit}`, icon: TrendingUp, color: 'text-blue-500' },
+                           { label: 'Ventas Totales', value: `$${Number(totalSales).toFixed(2)}`, icon: DollarSign, color: 'text-emerald-500' },
+                           { label: 'Costo Insumos', value: `$${Number(totalCost).toFixed(2)}`, icon: Package, color: 'text-slate-400' },
+                           { label: 'Ganancia Neta', value: `$${Number(totalProfit).toFixed(2)}`, icon: TrendingUp, color: 'text-blue-500' },
                            { label: 'Stock Bajo', value: lowStockProducts.length, icon: AlertCircle, color: 'text-amber-500' },
                         ].map((stat, i) => (
                            <div key={i} className="bg-white p-4 sm:p-5 rounded-3xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
@@ -661,7 +661,7 @@ const AdminPanel = () => {
                               <div key={item.id} className="flex items-center gap-4 p-4 bg-slate-800/50 rounded-2xl border border-white/5 group">
                                  <div className="w-10 h-10 bg-white text-slate-900 rounded-xl flex items-center justify-center font-black">{item.quantity}</div>
                                  <div className="flex-grow truncate font-bold text-sm">{item.name}</div>
-                                 <div className="font-black text-emerald-400">$ {item.price * item.quantity}</div>
+                                 <div className="font-black text-emerald-400">${Number(item.price * item.quantity).toFixed(2)}</div>
                                  <button onClick={() => removeFromCart(item.id)} className="text-white/20 hover:text-red-500 transition-colors"><X size={16} /></button>
                               </div>
                            ))}
@@ -679,7 +679,7 @@ const AdminPanel = () => {
                         <div className="space-y-4 pt-6 border-t border-white/10">
                            <div className="flex justify-between items-end">
                               <span className="text-[10px] uppercase font-black opacity-40">Total Venta</span>
-                              <div className="text-5xl font-black font-mono tracking-tighter decoration-emerald-500 underline decoration-4">$ {cart.reduce((a, b) => a + (b.price * b.quantity), 0)}</div>
+                              <div className="text-5xl font-black font-mono tracking-tighter decoration-emerald-500 underline decoration-4">${Number(cart.reduce((a, b) => a + (b.price * b.quantity), 0)).toFixed(2)}</div>
                            </div>
                            <div className="grid grid-cols-2 gap-3">
                               <button onClick={() => handleAdminPlaceOrder(false)} className="bg-slate-800 p-5 rounded-3xl font-black uppercase text-[10px] hover:bg-slate-700 transition-all border border-white/5">Registrar</button>
@@ -1227,7 +1227,7 @@ const AdminPanel = () => {
                                          </div>
                                       </td>
                                       <td className="px-6 py-5 text-right rounded-r-3xl">
-                                         <div className="text-lg font-black font-mono text-white tracking-tighter">$ {p.potentialProfit.toLocaleString()}</div>
+                                         <div className="text-lg font-black font-mono text-white tracking-tighter">${Number(p.potentialProfit).toFixed(2)}</div>
                                       </td>
                                    </tr>
                                 ))}
@@ -1282,7 +1282,7 @@ const AdminPanel = () => {
                                  <div className="grid grid-cols-2 gap-4 mb-6">
                                     <div className="bg-white/50 p-4 rounded-2xl">
                                        <label className="text-[8px] font-black text-slate-400 uppercase block mb-1">Precio Venta</label>
-                                       <span className="text-lg font-black font-mono">${product.price}</span>
+                                       <span className="text-lg font-black font-mono">${Number(product.price).toFixed(2)}</span>
                                     </div>
                                     <div className="bg-white/50 p-4 rounded-2xl">
                                        <label className="text-[8px] font-black text-slate-400 uppercase block mb-1">Costo Unit.</label>
