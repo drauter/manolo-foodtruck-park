@@ -320,7 +320,11 @@ export const OrderProvider = ({ children }) => {
         await supabase.from('orders').delete().eq('id', createdOrderId);
       }
 
-      alert("ERROR DE INTEGRIDAD: El pedido no se pudo completar. " + err.message);
+      if (err.message === 'Failed to fetch' || err.message.includes('Failed to fetch')) {
+        alert("Error de conexión: Verifica tu conexión a internet e intenta enviar el pedido de nuevo.");
+      } else {
+        alert("ERROR DE INTEGRIDAD: El pedido no se pudo completar. " + err.message);
+      }
       return null;
     }
   };
