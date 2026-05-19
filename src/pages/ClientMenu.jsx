@@ -60,6 +60,7 @@ const ClientMenu = () => {
   const menuStations = [STATIONS.COMIDA_RAPIDA, STATIONS.BAR, STATIONS.POSTRES];
   const [activeStation, setActiveStation] = useState(STATIONS.COMIDA_RAPIDA);
   const [activeCategory, setActiveCategory] = useState('Todos');
+  const [zoomedImage, setZoomedImage] = useState(null);
 
   const handlePlaceOrder = async () => {
     if (!customerName.trim()) {
