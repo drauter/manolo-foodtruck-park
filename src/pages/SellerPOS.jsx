@@ -16,8 +16,8 @@ const ProductItem = ({ product, addToCart, onZoom }) => {
 
   return (
     <div className="bg-slate-200 rounded-[2.5rem] overflow-hidden border border-slate-300 flex shadow-lg hover:border-emerald-500 transition-all group p-4 gap-6">
-      <div className="w-24 h-24 flex-shrink-0 bg-slate-800 rounded-3xl overflow-hidden relative cursor-pointer" onClick={(e) => { e.stopPropagation(); if(onZoom) onZoom(product.image_url); }}>
-        <img src={product.image_url} alt={product.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+      <div className="w-24 h-24 flex-shrink-0 bg-transparent rounded-3xl overflow-hidden relative cursor-pointer" onClick={(e) => { e.stopPropagation(); if(onZoom) onZoom(product.image_url); }}>
+        <img src={product.image_url} alt={product.name} className="w-full h-full object-contain object-center group-hover:scale-110 transition-transform duration-500" />
       </div>
       <div className="flex-grow flex flex-col justify-between py-1">
         <div>
@@ -332,8 +332,8 @@ const SellerPOS = ({ isEmbedded = false, embeddedStation = null }) => {
                          <div className="absolute top-4 right-4 bg-slate-900 text-white w-10 h-10 rounded-full flex items-center justify-center scale-0 group-hover:scale-100 transition-transform shadow-lg z-10">
                             <Plus size={20} />
                          </div>
-                         <div className="w-full aspect-square bg-slate-50 rounded-[2rem] overflow-hidden mb-6 relative cursor-pointer" onClick={(e) => { e.stopPropagation(); setZoomedImage(product.image_url); }}>
-                            <img src={product.image_url} alt={product.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                         <div className="w-full aspect-square bg-transparent rounded-[2rem] overflow-hidden mb-6 relative cursor-pointer" onClick={(e) => { e.stopPropagation(); setZoomedImage(product.image_url); }}>
+                            <img src={product.image_url} alt={product.name} className="w-full h-full object-contain object-center group-hover:scale-110 transition-transform duration-500" />
                          </div>
                          <h3 className="font-black text-xs uppercase italic tracking-tighter text-slate-400 mb-1">{product.station}</h3>
                          <h4 className="font-black text-lg uppercase tracking-tight text-slate-900 mb-3">{product.name}</h4>
@@ -721,7 +721,7 @@ const SellerPOS = ({ isEmbedded = false, embeddedStation = null }) => {
                 <div className="flex-grow overflow-y-auto space-y-4 pr-2 pb-8">
                    {cart.map(item => (
                      <div key={item.id} className="bg-slate-950/50 p-6 rounded-[2.5rem] border border-white/5 flex gap-6 items-center">
-                        <img src={item.image} className="w-20 h-20 rounded-3xl object-cover shadow-xl" />
+                        <img src={item.image} className="w-20 h-20 rounded-3xl object-contain object-center drop-shadow-xl" />
                         <div className="flex-grow">
                            <h4 className="font-black text-xl italic uppercase tracking-tighter text-white">{item.name}</h4>
                            <div className="flex justify-between items-end mt-4">
