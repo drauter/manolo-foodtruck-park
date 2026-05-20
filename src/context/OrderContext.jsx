@@ -132,12 +132,25 @@ export const OrderProvider = ({ children }) => {
           
           if (isDisplay) {
             console.log('%c 📥 SUPABASE EVENT:', 'background: #2563eb; color: white; padding: 2px 5px; border-radius: 3px;', payload.eventType, payload.new?.id);
-            Object.entries(newStatuses).forEach(([st, status]) => {
-              if (status === 'ready' && oldStatuses[st] !== 'ready') {
-                announceOrder(payload.new, st, false);
+            const calcStatus = (statusesObj) => {
+               if (!statusesObj) return 'received';
+               const vals = Object.entries(statusesObj)
+                 .filter(([k, s]) => !k.startsWith('_') && s !== 'cancelled')
+                 .map(([k, s]) => s);
+               if (vals.length === 0) return 'received';
+               if (vals.every(s => s === 'delivered')) return 'delivered';
+               if (vals.every(s => s === 'ready' || s === 'delivered')) return 'ready';
+               if (vals.some(s => s === 'preparing' || s === 'ready' || s === 'delivered')) return 'preparing';
+               return 'received';
+            };
+            
+            const oldOverallStatus = payload.old?.status || calcStatus(oldStatuses);
+            const newOverallStatus = payload.new?.status || calcStatus(newStatuses);
+
+            if (newOverallStatus === 'ready' && oldOverallStatus !== 'ready') {
+                announceOrder(payload.new, 'ALL', false);
                 if (window.showVoiceNotification) window.showVoiceNotification(payload.new.ticket_number);
-              }
-            });
+            }
 
             // Remote Manual Voice Trigger
             const newTrigger = newStatuses._voice_trigger;
