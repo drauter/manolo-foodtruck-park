@@ -136,7 +136,7 @@ const SellerPOS = ({ isEmbedded = false, embeddedStation = null }) => {
     if (order) {
       if (directPayment) {
         setPaymentOrderId(order.id);
-        setPaymentStation(currentUser.station || Object.keys(order.station_statuses || {})[0]);
+        setPaymentStation(isCaja ? 'CAJA' : (currentUser.station || Object.keys(order.station_statuses || {})[0]));
         setPaymentSuccess(false);
       } else {
         setSelectedInvoiceId(order.id);
@@ -484,7 +484,7 @@ const SellerPOS = ({ isEmbedded = false, embeddedStation = null }) => {
                               <button 
                                  onClick={() => { 
                                     setPaymentOrderId(order.id); 
-                                    const initialStation = currentUser.station || Object.keys(order.station_statuses || {})[0] || 'CAJA';
+                                    const initialStation = isCaja ? 'CAJA' : (currentUser.station || Object.keys(order.station_statuses || {})[0] || 'CAJA');
                                     setPaymentStation(initialStation.toUpperCase()); 
                                     setPaymentSuccess(false);
                                  }}
