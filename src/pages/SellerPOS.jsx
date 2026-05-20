@@ -793,7 +793,7 @@ const SellerPOS = ({ isEmbedded = false, embeddedStation = null }) => {
                  </div>
                    <div className="flex-grow overflow-y-auto w-full flex justify-center pb-20 custom-scrollbar">
                    <div ref={printRef} className="origin-top transition-transform duration-500">
-                      <Receipt order={selectedInvoice} station={currentUser.station || 'CAJA'} isForPrint={true} printId="printable-receipt-preview" />
+                      <Receipt order={selectedInvoice} station={isCaja ? 'CAJA' : (currentUser.station || 'CAJA')} isForPrint={true} printId="printable-receipt-preview" />
                    </div>
                 </div>
              </motion.div>
